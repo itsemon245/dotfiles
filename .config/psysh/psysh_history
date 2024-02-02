@@ -1,0 +1,14 @@
+env('DB_PASSWORD')
+env('DB_PASSWORD')
+env('DB_HOST')
+exit
+DB::table('users')->get()
+Artisan::call('migrate:fresh')
+Artisan::call('db:seed')
+DB::raw('select * from users')
+DB::raw('select * from users')->get
+DB::raw('select * from users')->get()
+DB::table("*")->get()
+exit
+exit
+exit

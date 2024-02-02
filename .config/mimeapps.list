@@ -1,0 +1,16 @@
+[Added Associations]
+image/png=feh.desktop;org.inkscape.Inkscape.desktop;gimp.desktop;viewnior.desktop;
+image/jpeg=viewnior.desktop;
+image/gif=viewnior.desktop;
+image/svg+xml=viewnior.desktop;
+text/x-csrc=geany.desktop;
+text/plain=nvim.desktop;vim.desktop;geany.desktop;
+application/x-shellscript=geany.desktop;
+application/x-theme=geany.desktop;
+application/json=geany.desktop;
+application/x-php=nvim.desktop;
+
+[Default Applications]
+image/gif=viewnior.desktop
+image/svg+xml=viewnior.desktop
+application/x-php=nvim.desktop
