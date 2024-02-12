@@ -12,3 +12,10 @@ DB::table("*")->get()
 exit
 exit
 exit
+Mail::to('bdemon245@gmail.com')->send(new SubscriptionReceiptMail);
+Mail::to('bdemon245@gmail.com')->send(new \App\Mail\SubscriptionReceiptMail);
+exit
+Mail::to('bdemon245@gmail.com')->send(new \App\Mail\SubscriptionReceiptMail);
+exit
+Mail::to('bdemon245@gmail.com')->send(new \App\Mail\SubscriptionReceiptMail);
+exit
