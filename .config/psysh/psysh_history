@@ -19,3 +19,8 @@ Mail::to('bdemon245@gmail.com')->send(new \App\Mail\SubscriptionReceiptMail);
 exit
 Mail::to('bdemon245@gmail.com')->send(new \App\Mail\SubscriptionReceiptMail);
 exit
+env('APP_NAME")
+env('APP_NAME')
+env('DB_NAME')
+env('DB_DATABASE')
+exit

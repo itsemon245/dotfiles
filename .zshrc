@@ -145,3 +145,4 @@ eval "$(ssh-agent -s)" >> /dev/null
 ssh-add ~/.ssh/id_ed25519_github >> /dev/null
 
 eval $(thefuck --alias)
+source $HOME/starship-source.sh
