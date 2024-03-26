@@ -24,3 +24,5 @@ env('APP_NAME')
 env('DB_NAME')
 env('DB_DATABASE')
 exit
+config('paytabs.profile_id')
+exit
