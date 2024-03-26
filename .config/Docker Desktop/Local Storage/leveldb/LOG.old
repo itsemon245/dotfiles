@@ -1,5 +1,0 @@
-2024/01/14-09:57:23.233 1e1d4 Reusing MANIFEST /home/emon/.config/Docker Desktop/Local Storage/leveldb/MANIFEST-000001
-2024/01/14-09:57:23.240 1e1d4 Recovering log #4
-2024/01/14-09:57:23.249 1e1d4 Level-0 table #7: started
-2024/01/14-09:57:23.253 1e1d4 Level-0 table #7: 11477 bytes OK
-2024/01/14-09:57:23.257 1e1d4 Delete type=0 #4
