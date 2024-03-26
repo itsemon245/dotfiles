@@ -1,6 +1,6 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-
+ export PATH=$HOME/bin:/usr/local/bin:$HOME/.config/composer/vendor/bin:$PATH
+# 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
@@ -70,7 +70,7 @@ zstyle ':omz:update' mode disabled  # disable automatic updates
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git laravel)
+plugins=(git laravel wp-cli)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -145,4 +145,7 @@ eval "$(ssh-agent -s)" >> /dev/null
 ssh-add ~/.ssh/id_ed25519_github >> /dev/null
 
 eval $(thefuck --alias)
-source $HOME/starship-source.sh
+#source $HOME/starship-source.sh
+export GTK_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+export QT_IM_MODULE=ibus
