@@ -1,0 +1,6 @@
+{
+    "require": {
+        "wp-cli/wp-cli": "^2.10",
+        "laravel/pint": "^1.15"
+    }
+}
