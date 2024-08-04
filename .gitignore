@@ -1,2 +1,5 @@
 tmux/.config/tmux/plugins/*
 !tmux/.config/tmux/plugins/tpm
+composer/.config/composer/vendor
+others/.local/share/nvim
+others/.local/state/nvim
