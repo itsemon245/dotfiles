@@ -28,3 +28,18 @@ exit
 chsh -s /bin/zsh
 logout
 exit
+./setup
+clear
+sudo apt install php-intl
+./setup
+clear
+zsh
+clear
+go -v
+clear
+exit
+clear
+exit
+zsh
+clear
+exit

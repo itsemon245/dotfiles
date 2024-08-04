@@ -16,6 +16,7 @@ return {
 		"neovim/nvim-lspconfig",
 		dependencies = {
 			'WhoIsSethDaniel/mason-tool-installer.nvim',
+			"ms-jpq/coq_nvim",
 			{ 'j-hui/fidget.nvim', opts = {} },
 			{ 'folke/neodev.nvim', opts = {} },
 		},
@@ -24,11 +25,29 @@ return {
 		config = function()
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 			local lsp = require("lspconfig")
+			local util = require("lspconfig/util")
+			local coq = require("coq")
 			lsp.lua_ls.setup({
 				capabilities = capabilities,
 			})
+			-- lsp.phpactor.setup(coq.lsp_ensure_capabilities())
 			lsp.phpactor.setup({
 				capabilities = capabilities,
+			})
+			lsp.gopls.setup({
+				capabilities = capabilities,
+				cmd = {"gopls"},
+				filetype = {"go", "gomod", "gowork", "gotmpl" },
+				root_dir = util.root_pattern("go.work", "go.mod", ".git"),
+				settings = {
+					gopls = {
+						completeUnimported = true,
+						usePlaceholders = true,
+						analyses = {
+							unusedparams = true
+						}
+					}
+				}
 			})
 			--  This function gets run when an LSP attaches to a particular buffer.
 			--    That is to say, every time a new file is opened that is associated with

@@ -115,3 +115,4 @@ fi
 #Source aliases
 #source "./aliases/init.sh"
 #source "./aliases/git.sh"
+. "$HOME/.cargo/env"

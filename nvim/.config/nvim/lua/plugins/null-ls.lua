@@ -16,7 +16,6 @@ return {
 		})
 
 		-- Set Keymap for formatting
-		vim.keymap.set("n", "<leader>fc", vim.lsp.buf.format, { desc = "[Format] [C]urrent File" })
-		vim.keymap.set("n", "<leader>fc", vim.lsp.buf.format, { desc = "[Format] [C]urrent File" })
+		vim.keymap.set("n", "<leader>fc", vim.lsp.buf.format, { desc = "[Format] [C]urrent File", })
 	end,
 }
