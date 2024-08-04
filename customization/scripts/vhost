@@ -7,13 +7,13 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # Common user and group names
-WEB_USER="http"
-WEB_GROUP="emon"
+WEB_GROUP="www-data"
+WEB_USER="emon"
 # Function to create a virtual host
 create_virtual_host() {
     read -p "Enter the domain name (e.g., example.com): " domain
     # Provide a default value for the document root
-    default_doc_root="/srv/http/$domain/"
+    default_doc_root="/var/www/$domain/"
     read -p "Enter the document root (default: $default_doc_root): " user_doc_root
 
     # Use the default value if the user input is empty

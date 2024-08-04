@@ -84,14 +84,14 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+#Source helpers from utils
+source ~/zsh_utils/helpers.sh
 #Give permission to Scripts
-chmod -R +x ~/aliases/init.sh
-chmod -R +x ~/aliases/git.sh
+chmod -R +x ~/aliases
 chmod -R +x ~/exports.sh
 chmod -R +x ~/ssh-agent.sh
 #Source Scripts
-source ~/aliases/init.sh
-source ~/aliases/git.sh
+source_files_in ~/aliases/
 source ~/exports.sh
 source ~/ssh-agent.sh
 
