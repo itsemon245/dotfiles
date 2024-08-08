@@ -19,5 +19,3 @@ export NVM_DIR="$HOME/.nvm"
 export PATH="$PATH:$HOME/.nvm/versions/node/v20.11.1/bin"
 export QT_IM_MODULE=ibus
 export NIX_REMOTE=daemon
-source $HOME/.cargo/env
-
