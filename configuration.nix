@@ -82,7 +82,7 @@
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.emon = {
-    shell = "zsh";
+    shell = pkgs.zsh;
     isNormalUser = true;
     description = "Mojahidul Islam";
     extraGroups = [ "networkmanager" "wheel" ];
@@ -93,6 +93,7 @@
 
   # Install firefox.
   programs.firefox.enable = true;
+  programs.zsh.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -104,6 +105,8 @@
   neovim
   zsh
   git
+  gcc
+  ripgrep
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -132,5 +135,7 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.05"; # Did you read the comment?
+
+  
 
 }
