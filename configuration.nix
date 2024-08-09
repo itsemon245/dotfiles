@@ -107,7 +107,24 @@
   git
   gcc
   ripgrep
+  vscode
+  tmux
+  kitty
   ];
+
+  # Fonts 
+  fonts = {
+  enableDefaultPackages = true;
+  packages = with pkgs; [
+    (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "CascadiaCode" ]; })
+  ];
+  fontconfig = {
+    defaultFonts = {
+      monospace = [ "CascadiaCode" ];
+    };
+  };
+};
+
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -120,7 +137,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -135,7 +152,4 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.05"; # Did you read the comment?
-
-  
-
 }
