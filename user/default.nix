@@ -1,9 +1,9 @@
-{ config, pkgs, ... }:
+{ config, pkgs, user, ... }:
 
 {
 
-  home.username = "emon";
-  home.homeDirectory = "/home/emon";
+  home.username = user.name;
+  home.homeDirectory = "/home/"+user.name;
   home.stateVersion = "24.05"; # Please read the comment before changing.
 
   # Let Home Manager install and manage itself.
@@ -34,7 +34,7 @@
     # '';
   };
   home.sessionVariables = {
-    EDITOR = "vim";
+    EDITOR = user.editor;
   };
 
   #ZSH Setup
