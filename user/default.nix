@@ -47,8 +47,8 @@
 
     shellAliases = {
       ll = "ls -l";
-      update = "sudo nixos-rebuild switch --flake ~/dotfiles";
-      "update-home" = "home-manager switch --flake ~/dotfiles";
+      update = "sudo nixos-rebuild switch --option eval-cache false --flake ~/dotfiles";
+      "update-home" = "home-manager switch --option eval-cache false --flake ~/dotfiles";
     };
     history = {
       size = 10000;
