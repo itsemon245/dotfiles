@@ -37,6 +37,7 @@
         specialArgs = {
           inherit system;
           inherit user;
+          inherit inputs;
         };
       };
     };
