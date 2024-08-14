@@ -32,24 +32,23 @@
     #App Launcher
     rofi-wayland
 
+    #Login Manager
+    greetd.regreet
+
   ];
 
   xdg.portal.enable = true;
 
   #Login Screen
-  programs.regreet.enable = true;
+  programs.regreet = {
+    enable = true;
+  };
 
   #Adjust dm and de and login
   services.xserver = {
     displayManager = {
       #Disable GDM
       gdm.enable = lib.mkForce false;
-
-      #Enable Regreet
-      regreet = {
-        enable = true;
-        wayland = true;
-      };
     };
 
     #Disable Gnome
