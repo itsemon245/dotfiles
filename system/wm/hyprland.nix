@@ -1,4 +1,4 @@
-{inputs, pkgs, ...}: {
+{inputs, pkgs,lib, ...}: {
   programs.hyprland = {
     enable = true;
     package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
@@ -34,8 +34,27 @@
 
   ];
 
-  #XDG PORTALS
   xdg.portal.enable = true;
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
 
+  #Login Screen
+  programs.regreet.enable = true;
+
+  #Adjust dm and de and login
+  services.xserver = {
+    displayManager = {
+      #Disable GDM
+      gdm.enable = lib.mkForce false;
+
+      #Enable Regreet
+      regreet = {
+        enable = true;
+        wayland = true;
+      };
+    };
+
+    #Disable Gnome
+    desktopManager.gnome = {
+      enable = lib.mkForce false;
+    };
+  };
 }
