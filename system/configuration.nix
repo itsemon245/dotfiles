@@ -7,7 +7,8 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware
-      ./servers/nginx/default.nix
+      ./nginx/default.nix
+      ./wm/hyprland.nix
     ];
 
   # Bootloader.
@@ -71,7 +72,7 @@
     alsa.support32Bit = true;
     pulse.enable = true;
     # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
+    jack.enable = true;
 
     # use the example session manager (no others are packaged yet so this is enabled by default,
     # no need to redefine it in your config for now)
@@ -88,7 +89,7 @@
     description = "Mojahidul Islam";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-    #  thunderbird
+      #  thunderbird
     ];
   };
 
@@ -102,29 +103,29 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  vim
-  neovim
-  zsh
-  git
-  gcc
-  ripgrep
-  vscode
-  tmux
-  kitty
+    vim
+    neovim
+    zsh
+    git
+    gcc
+    ripgrep
+    vscode
+    tmux
+    kitty
   ];
 
   # Fonts 
   fonts = {
-  enableDefaultPackages = true;
-  packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "CascadiaCode" ]; })
-  ];
-  fontconfig = {
-    defaultFonts = {
-      monospace = [ "CascadiaCode" ];
+    enableDefaultPackages = true;
+    packages = with pkgs; [
+      (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "CascadiaCode" ]; })
+    ];
+    fontconfig = {
+      defaultFonts = {
+        monospace = [ "CascadiaCode" ];
+      };
     };
   };
-};
 
 
   # Some programs need SUID wrappers, can be configured further or are
