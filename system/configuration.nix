@@ -57,7 +57,7 @@
       enable = true;
       wayland = true;
     };
-    desktopManager.xfce = {
+    desktopManager.gnome = {
       enable = true;
     };
   };
