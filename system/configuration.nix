@@ -1,12 +1,13 @@
 # Edit this configuration file to define what should be installed on your system.  Help is available in the configuration.nix(5) man page and in the NixOS manual (accessible by 
 # running ‘nixos-help’).
 
-{ config, pkgs, system, user, ... }:
+{ config,lib, pkgs, system, user, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware
+      ./dev
       ./nginx/default.nix
       ./wm/hyprland.nix
     ];
@@ -18,9 +19,28 @@
   networking.hostName = system.hostname; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
+  #ENABLE BLUEMAN
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  services.blueman.enable = true;
+
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+
+  #Enable numlock on boot
+  systemd.services.numLockOnTty = {
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      # /run/current-system/sw/bin/setleds -D +num < "$tty";
+      ExecStart = lib.mkForce (pkgs.writeShellScript "numLockOnTty" ''
+      for tty in /dev/tty{1..6}; do
+        ${pkgs.kbd}/bin/setleds -D +num < "$tty";
+      done
+      '');
+    };
+  };
+
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -106,6 +126,7 @@
   environment.systemPackages = with pkgs; [
     vim
     neovim
+    lua
     zsh
     git
     gcc
@@ -113,6 +134,8 @@
     vscode
     tmux
     kitty
+    pavucontrol
+    pulseaudio
   ];
 
   # Fonts 
@@ -120,6 +143,7 @@
     enableDefaultPackages = true;
     packages = with pkgs; [
       (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "CascadiaCode" ]; })
+      font-awesome
     ];
     fontconfig = {
       defaultFonts = {
