@@ -24,6 +24,7 @@
 
     #Notification Daemon
     mako
+    dunst
     libnotify
 
     #wallpaper daemons
@@ -34,6 +35,16 @@
 
     #Login Manager
     greetd.regreet
+    wlogout
+
+    #Compositor
+    wlroots
+    hyprland
+
+    #Clipboard
+    cliphist
+    wl-clipboard
+
 
   ];
 

@@ -16,3 +16,4 @@ set t_ZH=^[[3m
 set t_ZR=^[[23m
 filetype indent plugin on
 autocmd BufRead,BufNewFile *.blade.php set filetype=blade
+set clipboard+=unnamedplus
