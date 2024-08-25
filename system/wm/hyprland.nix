@@ -4,6 +4,10 @@
     package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
     xwayland.enable = true;
   };
+   services.logind.extraConfig = ''
+    # don’t shutdown when power button is short-pressed
+    HandlePowerKey=ignore
+  '';
   environment.sessionVariables = {
     # If your cursor becomes invisible
     WLR_NO_HARDWARE_CURSORS = "1";
@@ -29,6 +33,7 @@
 
     #wallpaper daemons
     swww
+    hyprpaper
 
     #App Launcher
     rofi-wayland
@@ -36,6 +41,7 @@
     #Login Manager
     greetd.regreet
     wlogout
+    swaylock
 
     #Compositor
     wlroots
@@ -44,6 +50,9 @@
     #Clipboard
     cliphist
     wl-clipboard
+
+    #Music
+    playerctl
 
 
   ];
