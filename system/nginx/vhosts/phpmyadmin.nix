@@ -3,17 +3,16 @@ let
   app = "phpmyadmin";
   domain = "${app}.local";
   dataDir = "/var/www/${app}";
-in
-{
+in{
   services.nginx.virtualHosts = {
-      ${domain} = {
-        root = "${dataDir}";
-        extraConfig = ''
+    ${domain} = {
+      root = "${dataDir}";
+      extraConfig = ''
             index index.php;
-        '';
+      '';
 
-        locations."~ ^(.+\\.php)(.*)$"  = {
-          extraConfig = ''
+      locations."~ ^(.+\\.php)(.*)$"  = {
+        extraConfig = ''
             # Check that the PHP script exists before passing it
             try_files $fastcgi_script_name =404;
             include ${config.services.nginx.package}/conf/fastcgi_params;
@@ -23,8 +22,7 @@ in
             fastcgi_param  PATH_INFO        $fastcgi_path_info;
 
             include ${pkgs.nginx}/conf/fastcgi.conf;            
-          '';
-        };
+        '';
       };
     };
   };
