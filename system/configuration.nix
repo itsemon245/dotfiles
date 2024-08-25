@@ -136,13 +136,19 @@
     kitty
     pavucontrol
     pulseaudio
+    gnome.nautilus
+    cinnamon.nemo-with-extensions
+    rhythmbox
+    vlc
+
   ];
 
   # Fonts 
   fonts = {
     enableDefaultPackages = true;
     packages = with pkgs; [
-      (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "CascadiaCode" ]; })
+      nerdfonts
+      # (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "CascadiaCode"]; })
       font-awesome
     ];
     fontconfig = {

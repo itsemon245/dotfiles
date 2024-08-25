@@ -14,6 +14,8 @@ return {
 		"hrsh7th/nvim-cmp",
 		dependencies = {
 			"hrsh7th/cmp-path",
+			'brenoprata10/nvim-highlight-colors',
+			'onsails/lspkind.nvim'
 		},
 		config = function()
 			-- Set up nvim-cmp.
@@ -49,8 +51,8 @@ return {
 					-- { name = 'ultisnips' }, -- For ultisnips users.
 					-- { name = 'snippy' }, -- For snippy users.
 				}, {
-					{ name = "buffer" },
-				}),
+						{ name = "buffer" },
+					}),
 			})
 		end,
 	},
