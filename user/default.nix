@@ -80,13 +80,17 @@
           #Set 24-bit colors for tmux sessions
           set -g default-terminal "tmux-256color"
           set -ag terminal-overrides ",xterm-256color:RGB"
-          set -g default-terminal "tmux"
+          set -g default-terminal "${TERM}"
           set-option -sa terminal-overrides ",xterm*:Tc"
+          set -s escape-time 0
 
-          #---Bindings----#
+          #----Bindings----#
           #Open panes in current working directory
           bind '-' split-window -v -c "#{pane_current_path}"
           bind '\' split-window -h -c "#{pane_current_path}"
+
+          #Switch between last window by holding ctrl and pressing space twice
+          bind Space last-window
 
           #Start windows and panes at 1, not 0
           set-window-option -g pane-base-index 1

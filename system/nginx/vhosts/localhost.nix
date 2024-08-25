@@ -1,15 +1,15 @@
 { config,pkgs, lib, ...}: 
 let
-  app = "phpmyadmin";
-  domain = "${app}.local";
-  dataDir = "/var/www/${app}";
+  app = "localhost";
+  domain = "localhost";
+  dataDir = "/var/www/";
 in{
   services.nginx.virtualHosts = {
     ${domain} = {
       root = "${dataDir}";
       listen = [
         {
-          port = 82;
+          port = 80;
           addr = "0.0.0.0";
           ssl = false;
 
