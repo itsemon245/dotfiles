@@ -7,6 +7,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware
+      ./scripts/default.nix
       ./dev
       ./nginx/default.nix
       ./wm/hyprland.nix
