@@ -1,4 +1,4 @@
-{config, pkgs }:
+{config, pkgs, ... }:
 {
   programs.tmux = {
     enable = true;
@@ -8,7 +8,7 @@
     shortcut = "space";
     baseIndex = 1;
     clock24 = false;
-    shell = "$SHELL";
+    shell = "/run/current-system/sw/bin/zsh";
     plugins = with pkgs; [
       {
         plugin = tmuxPlugins.sensible;
@@ -17,7 +17,7 @@
           #Set 24-bit colors for tmux sessions
           set -g default-terminal "tmux-256color"
           set -ag terminal-overrides ",xterm-256color:RGB"
-          set -g default-terminal "${TERM}"
+          set -g default-terminal "xterm-kitty"
           set-option -sa terminal-overrides ",xterm*:Tc"
           set -s escape-time 0
           # Increase scrollback buffer size
@@ -91,6 +91,5 @@
         '';
       }
     ];
-   
   };
 }
