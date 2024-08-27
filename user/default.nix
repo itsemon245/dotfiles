@@ -1,6 +1,9 @@
 { config, pkgs, user, ... }:
 
 {
+  imports = [
+    ./tmux.nix
+  ];
 
   home.username = user.name;
   home.homeDirectory = "/home/"+user.name;
@@ -14,9 +17,6 @@
   home.packages = with pkgs; [
     thefuck
     fzf
-  ];
-  imports = [
-    ./tmux.nix
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -62,6 +62,5 @@
       plugins = [ "git" "thefuck" ];
       theme = "robbyrussell";
     };
-
   };
 }
