@@ -1,9 +1,5 @@
 { pkgs }:
 
-pkgs.writeShellApplication {
-  name = "netspeed";
-  runtimeInputs = [ pkgs.go ];
-  text = ''
-    go build -o $out/netspeed ${./go/netspeed.go}
-  '';
-}
+pkgs.writeShellScriptBin "netspeed" ''
+    ${pkgs.go}/bin/go run ${./go/netspeed.go}
+''

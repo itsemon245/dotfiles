@@ -44,7 +44,6 @@
     homeConfigurations = {
       emon = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
-
         modules = [ ./user ];
         extraSpecialArgs = {
           inherit user;
