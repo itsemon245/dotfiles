@@ -51,6 +51,14 @@
     cliphist
     wl-clipboard
 
+    #Screenshot
+    maim
+    xorg.xrandr
+    wlr-randr
+    xclip
+    wl-clipboard-x11
+    hyprshot
+
     #Music
     playerctl
 

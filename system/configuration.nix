@@ -66,6 +66,10 @@
     LC_TIME = "bn_BD";
   };
 
+  services.incron = {
+    enable = true;
+  };
+
 
   # Configure keymap in X11
   services.xserver = {
@@ -141,7 +145,10 @@
     cinnamon.nemo-with-extensions
     rhythmbox
     vlc
-
+    zoom-us
+    incron
+    distrobox
+    podman
   ];
 
   # Fonts 
