@@ -149,6 +149,7 @@
     incron
     distrobox
     podman
+    protonvpn-gui
   ];
 
   # Fonts 
