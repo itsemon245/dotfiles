@@ -70,6 +70,12 @@
   #Login Screen
   programs.regreet = {
     enable = true;
+    # settings = /home/emon/.config/regreet/config.toml;
+    settings = {
+      appearance = {
+        greeting_msg = "Welcome back! MF";
+      };
+    };
   };
 
   #Adjust dm and de and login
