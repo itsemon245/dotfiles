@@ -10,6 +10,7 @@
       ./scripts/default.nix
       ./dev
       ./nginx/default.nix
+      ./gaming/default.nix
       ./wm/hyprland.nix
     ];
 
@@ -143,21 +144,19 @@
     pulseaudio
     gnome.nautilus
     cinnamon.nemo-with-extensions
-    rhythmbox
+    gparted
     vlc
     zoom-us
     incron
     distrobox
     podman
-    protonvpn-gui
   ];
 
   # Fonts 
   fonts = {
     enableDefaultPackages = true;
     packages = with pkgs; [
-      nerdfonts
-      # (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "CascadiaCode"]; })
+      (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "CascadiaCode"]; })
       font-awesome
     ];
     fontconfig = {
