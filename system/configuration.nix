@@ -26,6 +26,9 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;
+  services.devmon.enable = true;
+  services.gvfs.enable = true;
+  services.udisks2.enable = true;
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -151,6 +154,7 @@
     incron
     distrobox
     podman
+    postman
   ];
 
   # Fonts 
@@ -159,6 +163,9 @@
     packages = with pkgs; [
       (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "CascadiaCode"]; })
       font-awesome
+      noto-fonts
+      noto-fonts-color-emoji
+      lohit-fonts.bengali
     ];
     fontconfig = {
       defaultFonts = {
