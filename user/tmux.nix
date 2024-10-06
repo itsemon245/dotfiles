@@ -43,8 +43,10 @@
           set-option -g status-left " #{session_name}  "
           set-option -g status-right "#{pane_title} "
           set-option -g status-style "fg=#7C7D83 bg=#242631"
-          set-option -g window-status-format " #{window_index}:#{pane_current_command}#{window_flags} "
-          set-option -g window-status-current-format " #{window_index}:#{pane_current_command}#{window_flags} "
+          # Center the status bar
+          set -g status-justify centre
+          set-option -g window-status-format " #{window_index}:#{window_name}#{window_flags} "
+          set-option -g window-status-current-format " #{window_index}:#{window_name}#{window_flags} "
           set-option -g window-status-current-style "fg=#CA9EE6"
           set-option -g window-status-activity-style none
 

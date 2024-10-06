@@ -25,6 +25,10 @@
     (pkgs.waybar.overrideAttrs (oldAttrs: {
       mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];
     }))
+    # Cava For Music
+    cava
+    iniparser
+    fftw
 
     #Notification Daemon
     mako

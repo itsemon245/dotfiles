@@ -2,7 +2,8 @@
 {
 
   environment.systemPackages = let
-    php = pkgs.php81.buildEnv { 
+    version = "82";
+    php = pkgs."php${version}".buildEnv { 
       extensions = ({enabled, all}: enabled ++ (with all; [
         bcmath
         gd
@@ -24,11 +25,11 @@
     };
   in [
     php
-    pkgs.php81Packages.composer
-    pkgs.php81Extensions.redis
+    pkgs."php${version}Packages".composer
+    pkgs."php${version}Extensions".redis
     pkgs.curl
     pkgs.redis
-    pkgs.php81Extensions.curl
+    pkgs."php${version}Extensions".curl
     pkgs.ffmpeg_7
     pkgs.nodejs_22
     pkgs.python3
