@@ -60,13 +60,21 @@
 #pulseaudio,
 #custom-lock,
 #custom-power,
-#custom-netspeed{
+#custom-netspeed,
+#custom-memory{
   background-color: @surface0;
   padding: 0.5rem 1rem;
   margin: 5px 0;
 }
 #custom-netspeed{
   color: @green;
+  border-radius: 1rem;
+  margin-right: 1rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+#custom-memory{
+  color: @red;
   border-radius: 1rem;
   margin-right: 1rem;
   font-size: 0.8rem;
