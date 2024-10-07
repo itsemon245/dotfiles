@@ -65,8 +65,6 @@
 
     #Music
     playerctl
-
-
   ];
 
   xdg.portal.enable = true;

@@ -41,7 +41,7 @@
           set-option -g status-left-length 100
           set-option -g status-right-length 100
           set-option -g status-left " #{session_name}  "
-          set-option -g status-right "#{pane_title} "
+          set-option -g status-right "#{username}@#{host}"
           set-option -g status-style "fg=#7C7D83 bg=#242631"
           # Center the status bar
           set -g status-justify centre

@@ -78,8 +78,15 @@
     "group/stats": {
       "orientation": "horizontal",
       "modules": [
+        "custom/memory",
         "custom/netspeed"
       ]
+    },
+    "custom/memory":{
+      "format": "  {}",
+      "exec": "mem",
+      "interval": 1,
+      "tooltip-format": "Available Memory"
     },
     "custom/netspeed":{
      "format": "   {}",
