@@ -23,6 +23,7 @@
       user = {
         name = "emon";
         editor = "nvim";
+        browser = "firefox";
       };
 
       lib = nixpkgs.lib;
