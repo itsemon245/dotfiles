@@ -7,6 +7,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware
+      ./packages.nix
       ./scripts/default.nix
       ./dev
       ./nginx/default.nix
@@ -130,38 +131,6 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    vim
-    neovim
-    lua
-    zsh
-    git
-    gcc
-    ripgrep
-    vscode
-    tmux
-    kitty
-    pavucontrol
-    pulseaudio
-    gnome.nautilus
-    cinnamon.nemo-with-extensions
-    gparted
-    vlc
-    zoom-us
-    incron
-    distrobox
-    podman
-    postman
-
-    # Download Managers
-    varia
-    motrix
-    (callPackage ./packages/xdm.nix {}) 
-  ];
-
   # Fonts 
   fonts = {
     enableDefaultPackages = true;

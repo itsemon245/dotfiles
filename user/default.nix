@@ -17,6 +17,7 @@
   home.packages = with pkgs; [
     thefuck
     fzf
+    zoxide
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -38,6 +39,7 @@
   };
   home.sessionVariables = {
     EDITOR = user.editor;
+    BROWSER = user.browser;
   };
 
   #ZSH Setup
@@ -59,7 +61,7 @@
     };
     oh-my-zsh = {
       enable = true;
-      plugins = [ "git" "thefuck" ];
+      plugins = [ "git" "laravel" "common-aliases" "copyfile" "cp"];
       theme = "robbyrussell";
     };
   };

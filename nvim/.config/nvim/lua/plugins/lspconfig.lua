@@ -8,7 +8,7 @@ return {
 		"williamboman/mason-lspconfig.nvim",
 		lazy = false,
 		opts = {
-			ensure_installed = { "lua_ls", "html", "phpactor", "tsserver", "volar", "eslint"},
+			ensure_installed = { "lua_ls", "html", "intelephense", "tsserver", "volar", "eslint"},
 			auto_install = true,
 		},
 	},
@@ -31,7 +31,10 @@ return {
 				capabilities = capabilities,
 			})
 			-- lsp.phpactor.setup(coq.lsp_ensure_capabilities())
-			lsp.phpactor.setup({
+			-- lsp.phpactor.setup({
+			-- 	capabilities = capabilities,
+			-- })
+			lsp.intelephense.setup({
 				capabilities = capabilities,
 			})
 			lsp.gopls.setup({
