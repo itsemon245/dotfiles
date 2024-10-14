@@ -1,4 +1,4 @@
-{config, lib, pkgs, user, system}:
+{config, lib, pkgs, user, system, ...}:
 {
   environment.systemPackages = with pkgs; [
     vim

@@ -27,8 +27,8 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;
-  services.devmon.enable = true;
-  services.gvfs.enable = true;
+
+  #Daemons to detect portable devices
   services.udisks2.enable = true;
 
   # Configure network proxy if necessary
