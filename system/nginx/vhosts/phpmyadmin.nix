@@ -3,6 +3,7 @@ let
   app = "phpmyadmin";
   domain = "${app}.local";
   dataDir = "/var/www/${app}";
+  memoryLimit = "200M";
 in{
   services.nginx.virtualHosts = {
     ${domain} = {
@@ -16,7 +17,8 @@ in{
         }
       ];
       extraConfig = ''
-            index index.php;
+        index index.php;
+        client_max_body_size ${memoryLimit};
       '';
 
       locations."~ ^(.+\\.php)(.*)$"  = {
@@ -28,7 +30,6 @@ in{
             fastcgi_pass unix:${config.services.phpfpm.pools.${app}.socket};
             fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
             fastcgi_param  PATH_INFO        $fastcgi_path_info;
-
             include ${pkgs.nginx}/conf/fastcgi.conf;            
         '';
       };
@@ -49,6 +50,9 @@ in{
       "php_admin_value[error_log]" = "stderr";
       "php_admin_flag[log_errors]" = true;
       "catch_workers_output" = true;
+      "php_value[upload_max_filesize]" = "${memoryLimit}";
+      "php_value[post_max_size]" = "${memoryLimit}";
+      "php_value[memory_limit]" = "${memoryLimit}";
     };
     phpEnv."PATH" = lib.makeBinPath [ pkgs.php81 ];
   };
