@@ -53,6 +53,7 @@ in{
       "php_value[upload_max_filesize]" = "${memoryLimit}";
       "php_value[post_max_size]" = "${memoryLimit}";
       "php_value[memory_limit]" = "${memoryLimit}";
+      "php_value[max_execution_time]" = 240;
     };
     phpEnv."PATH" = lib.makeBinPath [ pkgs.php81 ];
   };
