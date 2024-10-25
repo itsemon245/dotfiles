@@ -8,19 +8,19 @@ return {
     "3rd/image.nvim",            -- Optional image support in preview window: See `# Preview Mode` for more information
   },
   keys = {
-    { "<C-b>", "<cmd>Neotree toggle<cr>", desc = "Toggle NeoTree" },
-    { "<C-n>", "<cmd>Neotree focus<cr>",  desc = "Focus Neotree" },
+    { "<C-n>", "<cmd>Neotree toggle position=right<cr>",  desc = "Focus Neotree" },
   },
   opts = {
     window = {
       width = 30,
     },
     filesystem = {
+      follow_current_file = {
+        enabled = true,
+          leave_dirs_open = false,
+        },
       filtered_items = {
         hide_dotfiles = false,
-        alaways_show = {
-          ".env",
-        }
       }
     },
   },

@@ -75,10 +75,11 @@ priority = 1000,
 },
 -- One Dark Pro Color Scheme
 {
-  "joshdick/onedark.vim",
+  "jessarcher/onedark.nvim",
   priority = 1000, -- Ensure it loads first
 config = function()
     vim.cmd.colorscheme("onedark")
+    vim.cmd.highlight("SpellBad gui=undercurl")
 
     vim.api.nvim_set_hl(0, 'NvimTreeIndentMarker', { fg = '#30323E' })
     vim.api.nvim_set_hl(0, 'StatusLineNonText', {
