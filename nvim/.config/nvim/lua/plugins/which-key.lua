@@ -1,12 +1,15 @@
 -- Useful plugin to show you pending keybinds.
-return { 
+return {
   'folke/which-key.nvim',
   dependencies = {
     "echasnovski/mini.icons"
   },
   event = 'VimEnter',
   config = function()
-    require('which-key').setup()
+    require('which-key').setup({
+        preset = 'classic',
+        notify = false,
+    })
 
     -- Document existing key chains
     require('which-key').register {

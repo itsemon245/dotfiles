@@ -4,6 +4,8 @@
     vim
     neovim
     lua
+    stylua
+    unzip
     zsh
     git
     gcc

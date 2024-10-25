@@ -27,12 +27,12 @@ local actions = require('telescope.actions')
 
 -- Changing Highlights groups for telescope
 vim.cmd([[
-	highlight link TelescopePromptTitle PMenuSel
-	highlight link TelescopePreviewTitle PMenuSel
-	highlight link TelescopePromptNormal NormalFloat
-	highlight link TelescopePromptBorder FloatBorder
-	highlight link TelescopeNormal CursorLine
-	highlight link TelescopeBorder CursorLineBg
+  highlight link TelescopePromptTitle PMenuSel
+  highlight link TelescopePreviewTitle PMenuSel
+  highlight link TelescopePromptNormal NormalFloat
+  highlight link TelescopePromptBorder FloatBorder
+  highlight link TelescopeNormal CursorLine
+  highlight link TelescopeBorder CursorLineBg
 ]])
 require("telescope").setup({
 defaults = {
@@ -51,7 +51,6 @@ i = {
 },
 },
 file_ignore_patterns = {
-".git",
 "vendor",
 "node_modules",
 "build",
@@ -92,13 +91,11 @@ vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" 
 vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "[S]earch [K]eymaps" })
 vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
 vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-vim.keymap.set("n", "<C-p>", "<leader>sf", { remap = true })
-vim.keymap.set("n", "<leader>P", "<leader>s.", { remap = true })
-vim.keymap.set('n', '<leader>F', [[<cmd>lua require('telescope.builtin').find_files({ no_ignore = true, prompt_title = 'All Files' })<CR>]])
+vim.keymap.set("n", "<C-p>", "<leader>s.", { remap = true })
+vim.keymap.set('n', '<C-f>', [[<cmd>lua require('telescope.builtin').find_files({ no_ignore = true, prompt_title = 'All Files' })<CR>]])
 vim.keymap.set("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
 vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
 vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
-vim.keymap.set("n", "<C-M-f>", "<leader>sg", { remap = true })
 vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
 vim.keymap.set("n", "<leader>sr", builtin.registers, { desc = "[S]earch [R]egister" })
 vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
@@ -112,7 +109,6 @@ previewer = false,
 }))
 end, { desc = "[F]uzzily search in current buffer" })
 
-vim.keymap.set("n", "<C-f>", "<leader>f", { remap = true })
 -- It's also possible to pass additional configuration options.
 --  See `:help telescope.builtin.live_grep()` for information about particular keys
 vim.keymap.set("n", "<leader>s/", function()
