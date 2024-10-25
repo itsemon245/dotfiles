@@ -8,7 +8,7 @@ return {
 		"williamboman/mason-lspconfig.nvim",
 		lazy = false,
 		opts = {
-			ensure_installed = { "lua_ls", "html", "intelephense", "tsserver", "volar", "eslint"},
+			ensure_installed = { "lua_ls", "html", "intelephense",  "volar", "eslint"},
 			auto_install = true,
 		},
 	},

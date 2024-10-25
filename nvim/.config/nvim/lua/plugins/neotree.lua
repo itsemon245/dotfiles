@@ -22,9 +22,6 @@ return {
           ".env",
         }
       }
-    }
+    },
   },
-  --  config = function()
-  --  vim.keymap.set('n', '<C-n>', ":Neotree reveal<cr>", {})
-  --end
 }
