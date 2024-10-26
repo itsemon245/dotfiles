@@ -8,7 +8,7 @@ return {
     "williamboman/mason-lspconfig.nvim",
     lazy = false,
     opts = {
-      ensure_installed = { "lua_ls", "html", "intelephense", "volar", "eslint", "tailwindcss" },
+      ensure_installed = { "nil_ls", "html", "intelephense", "volar", "eslint", "tailwindcss" },
       auto_install = true,
     },
   },
@@ -27,6 +27,7 @@ return {
       local lsp = require("lspconfig")
       local util = require("lspconfig/util")
       local coq = require("coq")
+      -- Lua
       lsp.lua_ls.setup({
         capabilities = capabilities,
       })
@@ -43,6 +44,10 @@ return {
       lsp.tailwindcss.setup({
         capabilities = capabilities,
       })
+      lsp.nil_ls.setup({
+        capabilities = capabilities,
+      })
+
       lsp.gopls.setup({
         capabilities = capabilities,
         cmd = { "gopls" },
@@ -87,7 +92,7 @@ return {
       map("]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", "Next Diagnostics")
       -- Fuzzy find all the symbols in your current document.
       --  Symbols are things like variables, functions, types, etc.
-      map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
+      -- map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
       --  Similar to document symbols, except searches over your entire project.
       map("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
       map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame Variable")
