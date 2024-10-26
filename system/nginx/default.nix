@@ -1,4 +1,4 @@
-{ config,pkgs, lib, ...}: 
+{ config,pkgs, lib, ...}:
 {
   imports = [
     ./vhosts/phpmyadmin.nix
@@ -7,7 +7,7 @@
 
   services.mysql = {
     enable = true;
-    package = pkgs.mariadb;
+    package = pkgs.mysql;
   };
 
   networking.extraHosts =

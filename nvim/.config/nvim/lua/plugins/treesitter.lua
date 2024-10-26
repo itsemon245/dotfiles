@@ -11,6 +11,11 @@ return {
     require("nvim-treesitter.configs").setup({
       ensure_installed = {
         "php",
+        "vim",
+        "regex",
+        "bash",
+        "markdown",
+        "markdown_inline",
         "phpdoc",
         "lua",
         "css",
