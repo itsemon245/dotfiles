@@ -4,6 +4,20 @@ local event = {
   "BufNewFile"
 }
 return {
+  -- Mason for packages
+  {
+    "williamboman/mason.nvim",
+    lazy = false,
+    opts = {},
+  },
+  {
+    "williamboman/mason-lspconfig.nvim",
+    lazy = false,
+    opts = {
+      ensure_installed = { "nil_ls", "html", "intelephense", "volar", "eslint", "tailwindcss" },
+      auto_install = true,
+    },
+  },
   -- Linter
   {
     'mfussenegger/nvim-lint',
