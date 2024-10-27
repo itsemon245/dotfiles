@@ -3,7 +3,7 @@
 
   environment.systemPackages = let
     version = "82";
-    php = pkgs."php${version}".buildEnv { 
+    php = pkgs."php${version}".buildEnv {
       extensions = ({enabled, all}: enabled ++ (with all; [
         bcmath
         gd
@@ -21,7 +21,7 @@
         upload_max_filesize = 200M
         memory_limit = 200M
 
-      ''; 
+      '';
     };
   in [
     php
