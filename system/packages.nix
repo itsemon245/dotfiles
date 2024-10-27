@@ -1,10 +1,20 @@
-{config, lib, pkgs, user, system, ...}:
+{pkgs, ...}:
+let
+  unstable = import
+    (builtins.fetchTarball {
+      url = "https://github.com/nixos/nixpkgs/tarball/41dea55321e5a999b17033296ac05fe8a8b5a257";
+      sha256 = "sha256:0wd5h8na7dlqdyvcvqlkgw84sj956yiq39jkljm0z7v7sg6dgwjs";
+    }) { inherit (pkgs) system;};
+in
 {
   environment.systemPackages = with pkgs; [
     vim
-    neovim
+    unstable.neovim
     lua
+    luajitPackages.luarocks
+    lua-language-server
     stylua
+    cargo
     unzip
     zsh
     git
