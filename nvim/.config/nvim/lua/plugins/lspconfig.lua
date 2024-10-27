@@ -26,7 +26,6 @@ return {
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
       local lsp = require("lspconfig")
       local util = require("lspconfig/util")
-      local coq = require("coq")
       -- Lua
       lsp.lua_ls.setup({
         capabilities = capabilities,
