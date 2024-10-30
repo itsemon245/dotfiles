@@ -1,8 +1,8 @@
 { config,pkgs, lib,server, ...}:
 let
-  app = "phpmyadmin";
-  domain = "${app}.local";
-  dataDir = "/var/www/${app}";
+  app = "maildoll";
+  domain = "${app}.test";
+  dataDir = "/home/emon/git/office/${app}";
   memoryLimit = server.memoryLimit;
   executionTime = server.executionTime;
 in{
@@ -11,7 +11,7 @@ in{
       root = "${dataDir}";
       listen = [
         {
-          port = 82;
+          port = 83;
           addr = "0.0.0.0";
           ssl = false;
 

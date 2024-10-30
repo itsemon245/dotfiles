@@ -31,7 +31,7 @@ return {
         capabilities = capabilities,
       })
       --PHP
-      lsp.intelephense.setup({
+      lsp.phpactor.setup({
         capabilities = capabilities,
       })
       -- JS
@@ -43,10 +43,15 @@ return {
       lsp.tailwindcss.setup({
         capabilities = capabilities,
       })
+      -- SQL
+      lsp.sqls.setup({
+        capabilities = capabilities,
+      })
+      -- Nix
       lsp.nil_ls.setup({
         capabilities = capabilities,
       })
-
+      -- Go
       lsp.gopls.setup({
         capabilities = capabilities,
         cmd = { "gopls" },

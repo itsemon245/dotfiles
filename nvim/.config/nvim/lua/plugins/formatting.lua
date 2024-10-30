@@ -11,7 +11,7 @@ return {
     opts = {
       linters_by_ft = {
         lua = { 'luacheck' },
-        php = { 'phpcs' },
+        php = { 'pint' },
       }
     },
     config = function()
@@ -35,6 +35,7 @@ return {
       formatters_by_ft = {
         lua = { 'stylua' },
         blade = { 'blade-formatter' },
+        sql = { 'sql-formatter' },
         nix = { 'nixpkgs-fmt' },
         php = { 'pint' }
       }
