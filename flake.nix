@@ -18,6 +18,10 @@
         hostname = "nixos";
         timezone = "Asia/Dhaka";
       };
+      server = {
+        memoryLimit = "200M";
+        executionTime = "600"; #in seconds
+      };
 
       #--- User Settings ---#
       user = {
@@ -38,6 +42,7 @@
         specialArgs = {
           inherit system;
           inherit user;
+          inherit server;
           inherit inputs;
         };
       };
