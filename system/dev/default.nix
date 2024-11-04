@@ -13,7 +13,7 @@ let
       url = "https://github.com/NixOS/nixpkgs/archive/73bc3300ad02be21998a7c0e987592ca66df73f3.tar.gz";
       sha256 = "sha256:0wd5h8na7dlqdyvcvqlkgw84sj956yiq39jkljm0z7v7sg6dgwjs";
     }){inherit (pkgs) system;};
-  version = "82";
+  version = "81";
   currentPhp = pkgs."php${version}";
 in {
   environment.systemPackages = let

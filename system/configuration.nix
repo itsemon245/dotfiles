@@ -1,4 +1,4 @@
-# Edit this configuration file to define what should be installed on your system.  Help is available in the configuration.nix(5) man page and in the NixOS manual (accessible by 
+# Edit this configuration file to define what should be installed on your system.  Help is available in the configuration.nix(5) man page and in the NixOS manual (accessible by
 # running ‘nixos-help’).
 
 { config,lib, pkgs, system, user, ... }:
@@ -131,7 +131,7 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-  # Fonts 
+  # Fonts
   fonts = {
     enableDefaultPackages = true;
     packages = with pkgs; [
@@ -161,6 +161,13 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
+  #Enables cron jobs
+  services.cron = {
+    enable = true;
+    systemCronJobs = [
+    ];
+  };
 
   # Open ports in the firewall.
   networking.firewall.allowedUDPPorts = [{ from = 4000; to = 4007; } { from = 8000; to = 8010; }];
