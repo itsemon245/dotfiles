@@ -1,4 +1,9 @@
 return {
+  -- COC
+  -- {
+  --   "neoclide/coc.nvim",
+  --   branch = "release",
+  -- },
   {
     "williamboman/mason.nvim",
     lazy = false,
@@ -8,7 +13,7 @@ return {
     "williamboman/mason-lspconfig.nvim",
     lazy = false,
     opts = {
-      ensure_installed = { "nil_ls", "html", "intelephense", "volar", "eslint", "tailwindcss" },
+      ensure_installed = { "nil_ls", "html", "intelephense", "ts_ls", "eslint", "tailwindcss" },
       auto_install = true,
     },
   },
@@ -20,53 +25,79 @@ return {
       { "j-hui/fidget.nvim", opts = {} },
       { "folke/neodev.nvim", opts = {} },
     },
-    lazy = false,
+    lazy = "VeryLazy",
     opts = {},
     config = function()
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
       local lsp = require("lspconfig")
       local util = require("lspconfig/util")
+      -- LSP configuration
+      -- Helper function to check for a specific file/folder in project root
+      local function root_has_file(file)
+        return util.root_pattern(file)(vim.fn.getcwd()) ~= nil
+      end
+
       -- Lua
-      lsp.lua_ls.setup({
-        capabilities = capabilities,
-      })
-      --PHP
-      lsp.phpactor.setup({
-        capabilities = capabilities,
-      })
-      -- JS
-      lsp.volar.setup({
-        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
-        capabilities = capabilities,
-      })
-      -- Tailwind
-      lsp.tailwindcss.setup({
-        capabilities = capabilities,
-      })
+      if root_has_file(".luarc.json") or root_has_file(".lua") or root_has_file("init.lua") or root_has_file(".nix") then
+        lsp.lua_ls.setup({
+          capabilities = capabilities,
+        })
+      end
+
+      -- PHP
+      if root_has_file("composer.json") then
+        lsp.phpactor.setup({
+          capabilities = capabilities,
+        })
+      end
+
+      -- JavaScript/TypeScript
+      if root_has_file("package.json") then
+        lsp.ts_ls.setup({
+          filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+          capabilities = capabilities,
+        })
+      end
+
+      -- Tailwind CSS
+      if root_has_file("tailwind.config.js") or root_has_file("tailwind.config.cjs") then
+        lsp.tailwindcss.setup({
+          capabilities = capabilities,
+        })
+      end
+
       -- SQL
-      lsp.sqls.setup({
-        capabilities = capabilities,
-      })
+      if root_has_file(".sql") then
+        lsp.sqls.setup({
+          capabilities = capabilities,
+        })
+      end
+
       -- Nix
-      lsp.nil_ls.setup({
-        capabilities = capabilities,
-      })
+      if root_has_file(".nix") then
+        lsp.nil_ls.setup({
+          capabilities = capabilities,
+        })
+      end
+
       -- Go
-      lsp.gopls.setup({
-        capabilities = capabilities,
-        cmd = { "gopls" },
-        filetype = { "go", "gomod", "gowork", "gotmpl" },
-        root_dir = util.root_pattern("go.work", "go.mod", ".git"),
-        settings = {
-          gopls = {
-            completeUnimported = true,
-            usePlaceholders = true,
-            analyses = {
-              unusedparams = true,
+      if root_has_file("go.mod") then
+        lsp.gopls.setup({
+          capabilities = capabilities,
+          cmd = { "gopls" },
+          filetype = { "go", "gomod", "gowork", "gotmpl" },
+          root_dir = util.root_pattern("go.work", "go.mod", ".git"),
+          settings = {
+            gopls = {
+              completeUnimported = true,
+              usePlaceholders = true,
+              analyses = {
+                unusedparams = true,
+              },
             },
           },
-        },
-      })
+        })
+      end
       -- Diagnostic configuration
       vim.diagnostic.config({
         virtual_text = false,

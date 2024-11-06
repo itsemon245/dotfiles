@@ -24,8 +24,12 @@
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   #ENABLE BLUEMAN
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
+  # Make all bluetooth options in single object
+  hardware.bluetooth = {
+    enable = true;
+    # Enables Bluetooth on startup
+    powerOnBoot = true;
+  };
   services.blueman.enable = true;
 
   #Daemons to detect portable devices
@@ -38,17 +42,12 @@
   #Enable numlock on boot
   systemd.services.numLockOnTty = {
     wantedBy = [ "multi-user.target" ];
+    after = [ "getty.target" ];
+    path = [ pkgs.kbd ];  # Ensure `setleds` is available in the PATH
     serviceConfig = {
-      # /run/current-system/sw/bin/setleds -D +num < "$tty";
-      ExecStart = lib.mkForce (pkgs.writeShellScript "numLockOnTty" ''
-      for tty in /dev/tty{1..6}; do
-        ${pkgs.kbd}/bin/setleds -D +num < "$tty";
-      done
-      '');
+      ExecStart = lib.mkForce "${pkgs.runtimeShell}/bin/sh -c '' for tty in /dev/tty{1..6}; do ${pkgs.kbd}/bin/setleds -D +num < \"$tty\"; done ''";
     };
   };
-
-
   # Enable networking
   networking.networkmanager.enable = true;
 
@@ -120,9 +119,6 @@
     isNormalUser = true;
     description = "Mojahidul Islam";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      #  thunderbird
-    ];
   };
 
   # Install firefox.
@@ -166,6 +162,8 @@
   services.cron = {
     enable = true;
     systemCronJobs = [
+      # Run nixos-garbage-collect every every 3days
+      "*/3 * * * * root nix-collect-garbage --delete-older-than 3d"
     ];
   };
 

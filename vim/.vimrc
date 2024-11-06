@@ -18,3 +18,24 @@ filetype indent plugin on
 autocmd BufRead,BufNewFile *.blade.php set filetype=blade
 imap <C-Return> <CR><CR><C-o>k<S-s>
 set clipboard+=unnamedplus
+" Move lines up and down using Alt+j and Alt+k
+nnoremap <A-j> :m .+1<CR>==
+nnoremap <A-k> :m .-2<CR>==
+inoremap <A-j> <Esc>:m .+1<CR>==gi
+inoremap <A-k> <Esc>:m .-2<CR>==gi
+vnoremap <A-j> :m '>+1<CR>gv=gv
+vnoremap <A-k> :m '<-2<CR>gv=gv
+
+
+" Use <c-space> to trigger completion
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+
+" COC nvim configuration
+
+" Use <c-space> to trigger completion
+if has('nvim')
+  inoremap <silent><expr> <M-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif

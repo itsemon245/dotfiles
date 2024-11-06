@@ -12,6 +12,8 @@ return {
       linters_by_ft = {
         lua = { 'luacheck' },
         php = { 'pint' },
+        javascript = { 'eslint_d' },
+        typescript = { 'eslint_d' },
       }
     },
     config = function()
@@ -37,7 +39,9 @@ return {
         blade = { 'blade-formatter' },
         sql = { 'sql-formatter' },
         nix = { 'nixpkgs-fmt' },
-        php = { 'pint' }
+        php = { 'pint' },
+        javascript = { 'prettier' },
+        typescript = { 'prettier' },
       }
     },
     config = function()

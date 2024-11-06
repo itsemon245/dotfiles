@@ -33,7 +33,7 @@ return {
       auto_install = true,
       highlight = {
         enable = true,
-        additional_vim_regex_highlighting = true, --FIX: Turn this off if nvim becomes slower
+        -- additional_vim_regex_highlighting = true, --FIX: Turn this off if nvim becomes slower
       },
       indent = {
         enable = true,
@@ -41,7 +41,7 @@ return {
       textobjects = {
         select = {
           enable = true,
-          lookahead = true,
+          -- lookahead = true,
           keymaps = {
             ["if"] = "@function.inner",
             ["af"] = "@function.outer",

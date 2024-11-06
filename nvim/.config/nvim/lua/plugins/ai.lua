@@ -1,4 +1,8 @@
 return {
-  'Exafunction/codeium.vim',
-  event = 'VeryLazy'
+  {
+    "supermaven-inc/supermaven-nvim",
+    config = function()
+      require("supermaven-nvim").setup({})
+    end,
+  },
 }
