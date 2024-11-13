@@ -13,7 +13,7 @@ let
       url = "https://github.com/NixOS/nixpkgs/archive/73bc3300ad02be21998a7c0e987592ca66df73f3.tar.gz";
       sha256 = "sha256:0wd5h8na7dlqdyvcvqlkgw84sj956yiq39jkljm0z7v7sg6dgwjs";
     }){inherit (pkgs) system;};
-  version = "81";
+  version = "82";
   currentPhp = pkgs."php${version}";
 in {
   environment.systemPackages = let
@@ -39,13 +39,14 @@ in {
     };
   in [
     php
-    pkgs.phpactor
+    pkgs."php${version}Packages".psalm
     pkgs."php${version}Packages".composer
     pkgs.curl
     pkgs.redis
     pkgs.ffmpeg_7
     pkgs.nodejs_22
     pkgs.python3
+    pkgs.go
   ];
     services.redis.servers."default".enable=true;
   services.redis.servers."default".port=6379;

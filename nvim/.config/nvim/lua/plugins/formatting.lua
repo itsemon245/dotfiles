@@ -11,7 +11,7 @@ return {
     opts = {
       linters_by_ft = {
         lua = { 'luacheck' },
-        php = { 'pint' },
+        php = { 'psalm' },
         javascript = { 'eslint_d' },
         typescript = { 'eslint_d' },
       }
