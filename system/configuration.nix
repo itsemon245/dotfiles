@@ -8,6 +8,7 @@
     [ # Include the results of the hardware scan.
       ./hardware
       ./packages.nix
+      ./lsp/servers.nix
       ./scripts/default.nix
       ./dev
       ./nginx/default.nix
@@ -40,14 +41,14 @@
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   #Enable numlock on boot
-  systemd.services.numLockOnTty = {
-    wantedBy = [ "multi-user.target" ];
-    after = [ "getty.target" ];
-    path = [ pkgs.kbd ];  # Ensure `setleds` is available in the PATH
-    serviceConfig = {
-      ExecStart = lib.mkForce "${pkgs.runtimeShell}/bin/sh -c '' for tty in /dev/tty{1..6}; do ${pkgs.kbd}/bin/setleds -D +num < \"$tty\"; done ''";
-    };
-  };
+  # systemd.services.numLockOnTty = {
+  #   wantedBy = [ "multi-user.target" ];
+  #   after = [ "getty.target" ];
+  #   path = [ pkgs.kbd ];  # Ensure `setleds` is available in the PATH
+  #   serviceConfig = {
+  #     ExecStart = lib.mkForce "${pkgs.runtimeShell}/bin/sh -c '' for tty in /dev/tty{1..6}; do ${pkgs.kbd}/bin/setleds -D +num < \"$tty\"; done ''";
+  #   };
+  # };
   # Enable networking
   networking.networkmanager.enable = true;
 

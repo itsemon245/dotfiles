@@ -1,12 +1,15 @@
 { pkgs, ... }:
 {
   environment.systemPackages = with pkgs; [
+    lua52Packages.lua-lsp
+    gopls
+    phpactor
+    nil
     nodePackages.typescript-language-server
     tailwindcss-language-server
-    nil
-    gopls
-    lua54Packages.lua-lsp
-    psalm
+    nodePackages.volar
+    php83Packages.psalm
+    nodePackages.intelephense
     #new-server-here
   ];
 }

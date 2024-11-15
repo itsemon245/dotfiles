@@ -44,6 +44,7 @@
 
   home.sessionPath = [
     "$HOME/.local/share/nvim/mason/bin"
+    "$HOME/dotfiles/composer/.config/composer/vendor/bin"
   ];
   #ZSH Setup
 
