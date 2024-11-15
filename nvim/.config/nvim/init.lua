@@ -2,6 +2,10 @@ require("vim.options")
 require("vim.keymaps")
 require("vim.autocmds")
 
+-- Turn off Neovim deprecation warnings
+vim.deprecate = function() end
+
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   vim.fn.system({
@@ -18,4 +22,3 @@ vim.opt.rtp:prepend(lazypath)
 local opts = {}
 require("lazy").setup("plugins", opts)
 require("user.commands")
-

@@ -12,6 +12,20 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- vim.api.nvim_create_autocmd("InsertCharPre", {
+--   pattern = "*.snippets",
+--   callback = function()
+--     vim.keymap.set("i", "<CR>", function()
+--       local line = vim.api.nvim_get_current_line()
+--
+--       -- Check if the current line starts with "snippet"
+--       if line:match("^snippet") then
+--         return vim.api.nvim_replace_termcodes("<CR><Tab>", true, false, true)
+--       end
+--     end, { buffer = true, expr = true })
+--   end,
+-- })
+
 -- local current_file = ""
 -- vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
 --   pattern = { "*.blade.php" },

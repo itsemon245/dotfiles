@@ -16,6 +16,15 @@ function H.is_nixos()
   return false
 end
 
+function H.create_symlink(target, link_name)
+  local command = string.format("ln -s %s %s", target, link_name)
+  local success, exit_type, code = os.execute(command)
+
+  if not success then
+    print("Failed to create symlink. Exit type: " .. exit_type .. ", Code: " .. tostring(code))
+  end
+end
+
 -- Modifies content of a file with search and replace
 function H.modify_file_content(file_path, search_pattern, replacement)
   -- Step 1: Read the file contents
@@ -52,19 +61,19 @@ function H.modify_file_content(file_path, search_pattern, replacement)
   file:close()
 end
 
--- Check if a server is installed using nix package manager
+-- Check if a server is installed by looking for it in the systemPackages list
 function H.is_server_installed(server, file_path)
-  -- Execute `nix-env -q` to check if the package is installed
   local file = io.open(file_path, "r")
   if not file then
     print("Error: Could not open file " .. file_path)
-
-    return
+    return false
   end
   local content = file:read("*all")
   file:close()
-  -- If result contains the server name, it means it's installed
-  return content:find(server) ~= nil
+
+  -- Use an exact match for the server line to avoid duplicates
+  local pattern = server
+  return content:find(pattern, 1, true) ~= nil
 end
 
 function H.install_server(server, file_path)
@@ -75,28 +84,43 @@ end
 
 function H.install_servers(file_path)
   local servers = require("user.lsp.servers")
+  local new_server_count = 0
   for i, server in pairs(servers) do
+    if server.nix_ignore then
+      print("[Ignoring]: " .. i .. "(" .. server_name .. ")")
+      goto continue
+    end
     -- Get the server name from server.nixpkg_name or key from servers table
     local server_name = server.nixpkg_name or i
+    local server_binary_name = server.binary or server_name
+    local server_binary = "/run/current-system/sw/bin/" .. server_binary_name
+    local mason_bin_path = os.getenv("HOME") .. "/.local/share/nvim/mason/bin/" .. server_binary_name
     if not H.is_server_installed(server_name, file_path) then
       H.install_server(server_name, file_path)
-      print("LSP Server " .. server_name .. " is added to your configuration.")
+      print("[Added]: " .. i .. "(" .. server_name .. ")")
+      new_server_count = new_server_count + 1
     else
-      print("LSP Server " .. server_name .. " already exists in your configuration.")
+      print("[Already Exists]: " .. i .. "(" .. server_name .. ")" .. " skipping ...")
     end
+    os.execute("rm -rf " .. mason_bin_path)
+    H.create_symlink(server_binary, mason_bin_path)
+    ::continue::
   end
-  print("All LSP Servers are installed. Rebuild your system using nixos-rebuild switch to install the servers.")
+  if new_server_count > 0 then
+    print("New LSPs are added to config.\n\nRebuild your system using nixos-rebuild switch to install the servers.")
+  end
 end
 
 -- Create a new nvim command
 function H.create_command(cmd)
   vim.api.nvim_create_user_command(
-  cmd.name,
-  cmd.callback,
-  {
-    nargs = '*',    -- Allow zero or more arguments
-    desc = cmd.desc or cmd.name .. " Command",    -- Description of the command
-  }
-)
+    cmd.name,
+    cmd.callback,
+    {
+      nargs = '*',                               -- Allow zero or more arguments
+      desc = cmd.desc or cmd.name .. " Command", -- Description of the command
+    }
+  )
 end
+
 return H

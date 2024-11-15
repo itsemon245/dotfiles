@@ -7,7 +7,7 @@ return {
       'hrsh7th/cmp-nvim-lsp',
       "ms-jpq/coq_nvim",
       { 'williamboman/mason.nvim', config = true },
-      { "j-hui/fidget.nvim", opts = {} },
+      { "j-hui/fidget.nvim",       opts = {} },
       {
         "williamboman/mason-lspconfig.nvim",
         lazy = false,
@@ -28,9 +28,9 @@ return {
       },
 
       -- Coq for completion menu
-      { "ms-jpq/coq_nvim", branch = "coq" },
+      { "ms-jpq/coq_nvim",       branch = "coq" },
       -- 9000+ Snippets
-      { "ms-jpq/coq.artifacts", branch = "artifacts" },
+      { "ms-jpq/coq.artifacts",  branch = "artifacts" },
       -- lua & third party sources -- See https://github.com/ms-jpq/coq.thirdparty
       -- Need to **configure separately**
       { 'ms-jpq/coq.thirdparty', branch = "3p" }
@@ -83,10 +83,9 @@ return {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          client.server_capabilities.hoverProvider = true
-          -- Enable completion triggered by <c-x><c-o>
-          vim.api.nvim_buf_set_option(event.buf, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-
+          if client then
+            client.server_capabilities.hoverProvider = true
+          end
           -- Diagnostic configuration
           vim.diagnostic.config({
             virtual_text = false,
@@ -126,7 +125,6 @@ return {
           --    See `:help CursorHold` for information about when this is executed
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
-          local client = vim.lsp.get_client_by_id(event.data.client_id)
           if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -160,8 +158,10 @@ return {
           end
         end,
       })
+      -- Enable this if you are not using nixos otherwise it will be installed using nixos
+      local ensure_installed = vim.tbl_keys(require('user.lsp.servers') or {})
+      require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
-      -- Setup LSP from user/lsp/servers.lua
       require('mason').setup()
       require('mason-lspconfig').setup {
         handlers = {
@@ -173,6 +173,7 @@ return {
               local is_nixos = require("user.helpers").is_nixos
               if not is_nixos then
                 server.nixpkg_name = nil
+                server.binary = nil
               end
               server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
               require('lspconfig')[server_name].setup(server)

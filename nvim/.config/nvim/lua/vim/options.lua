@@ -8,6 +8,7 @@ vim.cmd("set shiftwidth=2")
 vim.cmd("set autoindent")
 vim.cmd("set cindent")
 
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -16,10 +17,10 @@ g.maplocalleader = " "
 
 -- .blade.php file type to blade
 vim.api.nvim_exec(
-	[[
+  [[
   au BufNewFile,BufRead *.blade.php setfiletype blade
 ]],
-	false
+  false
 )
 
 g.have_nerd_font = true
@@ -28,7 +29,8 @@ opt.termguicolors = true
 opt.smartindent = true
 opt.spell = true
 
-opt.wildmode = 'longest:full,full' -- complete the longest common match, and allow tabbing the results to fully complete them
+opt.wildmode =
+'longest:full,full'                 -- complete the longest common match, and allow tabbing the results to fully complete them
 opt.fillchars:append({ eob = ' ' }) -- remove the ~ from end of buffer
 
 -- Lock the cursor to at least above 8 lines from bottom/up while scrolling
