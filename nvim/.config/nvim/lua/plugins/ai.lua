@@ -11,8 +11,7 @@ return {
         ignore_filetypes = {
         },
         color = {
-
-          -- suggestion_color = "#88A0A8",
+          suggestion_color = "#88A0A8",
           cterm = 244,
         },
         log_level = "info",                -- set to "off" to disable logging completely

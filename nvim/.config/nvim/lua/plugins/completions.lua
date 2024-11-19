@@ -29,7 +29,6 @@ return {
     config = function()
       -- Override the cord icons
       local lspkind = require("lspkind")
-      -- local codicons = lspkind.presets.codicons
       local symbol_map = {
         Text = " ",
         Snippet = " ",
@@ -41,9 +40,6 @@ return {
         Keyword = " ",
         Supermaven = " "
       }
-      -- for k, v in pairs(icons_to_override) do codicons[k] = v end
-      -- lspkind.presets.codicons = codicons
-
       local cmp = require("cmp")
       cmp.setup({
         completion = {

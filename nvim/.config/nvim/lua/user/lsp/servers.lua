@@ -37,12 +37,14 @@ return {
     },
   },
   -- LSPs for PHP
-  -- psalm = {
-  --   nixpkg_name = "php83Packages.psalm",
-  -- },
-  intelephense = {
-    nixpkg_name = "nodePackages.intelephense",
+  psalm = {
+    nixpkg_name = "php83Packages.psalm",
+    cmd = { "psalm.phar", "--language-server" },
+    filetypes = { "php" },
   },
+  -- intelephense = {
+  --   nixpkg_name = "nodePackages.intelephense",
+  -- },
   phpactor = { nixpkg_name = "phpactor", filetypes = { "php", "blade" } },
   -- LSPs for Lua
   lua_ls = {
