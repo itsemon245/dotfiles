@@ -26,7 +26,7 @@ return {
     filetypes = { "vue" },
   },
   ts_ls = {
-    nixpkg_name = "nodePackages.typescript-language-server",
+    nixpkg_name = "typescript-language-server",
     binary = "typescript-language-server",
     filetypes = {
       "typescript",
@@ -37,9 +37,9 @@ return {
     },
   },
   -- LSPs for PHP
-  psalm = {
-    nixpkg_name = "php83Packages.psalm",
-  },
+  -- psalm = {
+  --   nixpkg_name = "php83Packages.psalm",
+  -- },
   intelephense = {
     nixpkg_name = "nodePackages.intelephense",
   },

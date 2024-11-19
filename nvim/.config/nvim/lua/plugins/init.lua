@@ -51,7 +51,7 @@ return {
     end,
   },
 
-  -- Can split and join arrays and methods into new lines or single line. TODO: it's asking for github username and password
+  -- Can split & join arrays and methods into new lines or single line. TODO: it's asking for github username and password
   -- {
   -- "AndrewRadev/splitjoin.nvim",
   -- config = function()

@@ -20,27 +20,31 @@ return {
       'hrsh7th/cmp-cmdline',
       'hrsh7th/cmp-nvim-lsp-signature-help',
       'hrsh7th/cmp-nvim-lsp-document-symbol',
+      'chrisgrieser/cmp-nerdfont',
+      -- Source for Luasnip choice nodes
+      'L3MON4D3/cmp-luasnip-choice',
       'brenoprata10/nvim-highlight-colors',
       'onsails/lspkind.nvim'
     },
     config = function()
-      -- Set up nvim-cmp.
-      local luasnip = require("luasnip")
+      -- Override the cord icons
       local lspkind = require("lspkind")
+      -- local codicons = lspkind.presets.codicons
+      local symbol_map = {
+        Text = " ",
+        Snippet = " ",
+        Function = " ",
+        Constructor = " ",
+        Enum = " ",
+        Interface = " ",
+        File = " ",
+        Keyword = " ",
+        Supermaven = " "
+      }
+      -- for k, v in pairs(icons_to_override) do codicons[k] = v end
+      -- lspkind.presets.codicons = codicons
+
       local cmp = require("cmp")
-
-      luasnip.filetype_extend("html", { "javascript" })
-      luasnip.filetype_extend("php", { "html" })
-      luasnip.filetype_extend("php", { "phpdoc" })
-      luasnip.filetype_extend("php", { "blade" })
-      luasnip.filetype_extend('javascriptreact', { 'javascript' })
-      luasnip.filetype_extend('typescriptreact', { 'typescript' })
-      luasnip.filetype_extend("vue", { "html" })
-
-      -- load vscode style snippets -- Uses the friendly-snippets repo
-      require("luasnip.loaders.from_vscode").lazy_load()
-      -- load snipmate style snippets -- Uses the snippets folder for custom snippets
-      require("luasnip.loaders.from_snipmate").lazy_load({ paths = "~/.config/nvim/snippets" })
       cmp.setup({
         completion = {
           completeopt = "menu,menuone,preview,noselect",
@@ -58,36 +62,56 @@ return {
         mapping = cmp.mapping.preset.insert({
           ["<C-d>"] = cmp.mapping.scroll_docs(4),
           ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-          -- <C-space is used by tmux so I should use <C-p>
-          ["<C-p"] = cmp.mapping.complete(),
+          -- <C-space is used by tmux so I should use <C-n>
+          ["<C-n"] = cmp.mapping.complete(),
           ["<C-e>"] = cmp.mapping.abort(),
-          ["<CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+          ["<C-y>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+          ["<CR>"] = cmp.mapping.confirm({ select = true }),  -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
         }),
+        experimental = {
+          native_menu = false,
+          ghost_text = false,
+        },
         sources = cmp.config.sources({
+          -- Order matters here
           { name = 'nvim_lsp' },
-          { name = "path" },
-          { name = "buffer" },
-          { name = "luasnip" }, -- snippets
-          { name = "emoji" },
           { name = "nvim_lsp_signature_help" },
+          { name = 'luasnip_choice' },
+          {
+            name = "luasnip",
+            max_item_count = 6,
+          },
+          {
+            name = "path",
+            max_item_count = 6,
+          },
+          {
+            name = "nerdfont",
+            max_item_count = 6,
+          },
+          {
+            name = "emoji",
+            max_item_count = 6,
+          },
+          {
+            name = "buffer",
+            keyword_length = 4
+          },
         }),
         -- Configure lspkind for vscode like pictograms in completion menu
         formatting = {
+          fields = { "abbr", "kind", "menu" },
+          expandable_indicator = true,
           format = lspkind.cmp_format({
             preset = "codicons", --vscode like icons
             -- mode = 'symbol', -- show only symbol annotations
             maxwidth = {
-              -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
-              -- can also be a function to dynamically calculate max width such as
-              -- menu = function() return math.floor(0.45 * vim.o.columns) end,
-              menu = 50,              -- leading text (labelDetails)
-              abbr = 50,              -- actual suggestion item
+              menu = 50,
+              abbr = 50,
             },
-            ellipsis_char = '...',    -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
-            show_labelDetails = true, -- show labelDetails in menu. Disabled by default
-
-            -- The function below will be called before any actual modifications from lspkind
-            -- so that you can provide more controls on popup customization. (See [#30](https://github.com/onsails/lspkind-nvim/pull/30))
+            symbol_map = symbol_map,
+            ellipsis_char = '...',
+            show_labelDetails = true,
             before = function(entry, vim_item)
               return vim_item
             end

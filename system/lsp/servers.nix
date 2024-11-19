@@ -5,11 +5,11 @@
     gopls
     phpactor
     nil
-    nodePackages.typescript-language-server
     tailwindcss-language-server
     nodePackages.volar
     php83Packages.psalm
     nodePackages.intelephense
+    nodePackages.typescript-language-server
     #new-server-here
   ];
 }
