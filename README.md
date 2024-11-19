@@ -5,5 +5,5 @@
 
 ### One Liner installation
 ```sh
-sh https://itsemon245.github.io/dotfiles/install.sh
+sh <(curl -sL https://itsemon245.github.io/dotfiles/install.sh)
 ```
