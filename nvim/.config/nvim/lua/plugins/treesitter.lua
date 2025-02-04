@@ -29,7 +29,7 @@ return {
           "html",
           "markdown",
           "javascript",
-          "typescript",
+          -- "typescript",
           "json",
           "yaml",
           "vue",

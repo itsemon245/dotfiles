@@ -4,7 +4,6 @@
 git clone https://github.com/itsemon245/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 echo -e "Installing dotfiles ...\n"
-nix-shell -p stow coreutils gawk --pure --run 'sh <<EOF
 # Function to list directory names, excluding those in .stow-local-ignore
 list_dir() {
     find . -maxdepth 1 -mindepth 1 -type d | sed "s|^\./||" | sort -h | grep -v -x -f ./.installignore

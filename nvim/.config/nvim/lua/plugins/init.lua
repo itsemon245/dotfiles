@@ -22,6 +22,19 @@ return {
     'whatyouhide/vim-textobj-xmlattr',
     dependencies = { 'kana/vim-textobj-user' }
   },
+  -- Notifier from snacks.nvim
+  {
+    "folke/snacks.nvim",
+    ---@type snacks.Config
+    opts = {
+      notifier = {
+        -- your notifier configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+      }
+    }
+  },
+
   -- Adds closing brackets, quotes etc.
   {
     "windwp/nvim-autopairs",

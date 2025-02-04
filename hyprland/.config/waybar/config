@@ -15,7 +15,7 @@
       "clock",
       "custom/power"
     ],
-      
+
     "hyprland/workspaces": {
          //"disable-scroll": true,
          //"sort-by-name": true,
@@ -84,13 +84,13 @@
     },
     "custom/memory":{
       "format": "  {}",
-      "exec": "mem",
+      "exec": "free --giga -h | grep 'Mem:' | awk '{print $NF}'",
       "interval": 1,
       "tooltip-format": "Available Memory"
     },
     "custom/netspeed":{
      "format": "   {}",
-     "exec": "netspeed",
+     "exec": "go run ~/scripts/netspeed.go",
      "interval": 1
     },
     "network": {

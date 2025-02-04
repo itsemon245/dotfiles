@@ -40,8 +40,15 @@ return {
         sql = { 'sql-formatter' },
         nix = { 'nixpkgs-fmt' },
         php = { 'pint' },
-        javascript = { 'prettier' },
-        typescript = { 'prettier' },
+        javascript = { 'prettier', 'prettierd' },
+        typescript = { 'prettier', 'prettierd' },
+        yaml = { 'yamlfmt', 'prettier', 'prettierd' },
+        yml = { 'yamlfmt', 'prettier', 'prettierd' },
+        json = { 'prettier', 'prettierd' },
+        markdown = { 'prettier', 'prettierd' },
+        html = { 'prettier', 'prettierd' },
+        css = { 'prettier', 'prettierd' },
+        scss = { 'prettier', 'prettierd' },
       }
     },
     config = function()

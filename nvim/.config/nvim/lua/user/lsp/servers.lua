@@ -1,33 +1,44 @@
--- [IMPORTANT FOR NIXOS]
--- If using the lsp name does not match with nixpkg name then use nixpkg_name e.g: `nixpkg_name = "lua54Packages.lua-lsp"`,
--- after adding a new server run :NLSPInstall
--- Then update your system using nixos
-
 return {
-  gopls = {
-    nixpkg_name = "gopls",
-    settings = {
-      gopls = {
-        completeUnimported = true,
-        usePlaceholders = true,
-        analyses = {
-          unusedparams = true,
-        },
-      },
-    },
+  -- gopls = {
+  --   settings = {
+  --     gopls = {
+  --       completeUnimported = true,
+  --       usePlaceholders = true,
+  --       analyses = {
+  --         unusedparams = true,
+  --       },
+  --     },
+  --   },
+  -- },
+  emmet_ls = {
+    filetypes = { "html", "css", "javascript", "typescript", "javascriptreact", "typescriptreact", "vue", "svelte", "blade" },
   },
-  nil_ls = { nixpkg_name = "nil" }, -- LSP for Nix
   tailwindcss = {
-    nixpkg_name = "tailwindcss-language-server",
     filetypes = { "html", "css", "javascript", "typescript", "blade", "typescriptreact", "javascriptreact", "vue", "svelte" }
   },
+  yamlls = {
+    filetypes = { "yaml" },
+    settings = {
+      yaml = {
+        schemas = {
+          ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*.yml",
+          ["https://json.schemastore.org/github-action.json"] = "/.github/action.yml",
+          ["https://json.schemastore.org/ansible-stable-2.9"] = "/*.yml",
+          ["https://raw.githubusercontent.com/composer/xdebug-handler/2/res/schema.json"] = "/composer.json",
+        },
+      },
+    }
+  },
   volar = {
-    nixpkg_name = "nodePackages.volar",
-    filetypes = { "vue" },
+    filetypes = {
+      -- "typescript",
+      -- "javascript",
+      -- "javascriptreact",
+      -- "typescriptreact",
+      "vue"
+    },
   },
   ts_ls = {
-    nixpkg_name = "typescript-language-server",
-    binary = "typescript-language-server",
     filetypes = {
       "typescript",
       "javascript",
@@ -37,19 +48,15 @@ return {
     },
   },
   -- LSPs for PHP
-  psalm = {
-    nixpkg_name = "php83Packages.psalm",
-    cmd = { "psalm.phar", "--language-server" },
-    filetypes = { "php" },
-  },
-  -- intelephense = {
-  --   nixpkg_name = "nodePackages.intelephense",
+  -- psalm = {
+  --   nixpkg_name = "php83Packages.psalm",
+  --   cmd = { "psalm.phar", "--language-server" },
+  --   filetypes = { "php" },
   -- },
-  phpactor = { nixpkg_name = "phpactor", filetypes = { "php", "blade" } },
+  intelephense = { filetypes = { "php", "blade" } },
+  -- phpactor = { filetypes = { "php", "blade" } },
   -- LSPs for Lua
   lua_ls = {
-    nixpkg_name = "lua52Packages.lua-lsp",
-    binary = "lua-language-server",
     settings = {
       Lua = {
         completion = {

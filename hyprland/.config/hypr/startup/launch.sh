@@ -2,7 +2,7 @@
 
 #Start wallpaper daemon
 swww-daemon &
-swww img ~/Wallpapers/forest-mountain.png &
+swww img ~/Wallpapers/default.jpg &
 
 #Network Manager Applet
 nm-applet --indicator &
