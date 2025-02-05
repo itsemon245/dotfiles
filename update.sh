@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Installs dotfiles
-
-git clone https://github.com/itsemon245/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 echo -e "Installing dotfiles ...\n"
 # Function to list directory names, excluding those in .stow-local-ignore
@@ -18,4 +15,3 @@ echo "$directories" | while read -r dir; do
     echo "Stowing $dir ..."
     stow "$dir"
 done
-echo "Done!"

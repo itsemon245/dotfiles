@@ -9,6 +9,6 @@ nm-applet --indicator &
 
 
 #Notification daemon
-mako
+dunst &
 
 #./waybar.sh

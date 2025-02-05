@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis_service
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_service
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: global_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mysql:
+    image: 'mariadb'
+    container_name: mysql_service
+    restart: always
+    ports:
+        - '${FORWARD_DB_PORT:-3306}:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: 'global_db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+        - 'mysql_data:/var/lib/mysql'
+    networks:
+        - system
+    healthcheck:
+        test:
+            - CMD
+            - mysqladmin
+            - ping
+            - '-p password'
+        retries: 3
+        timeout: 5s
+
+  phpmyadmin:
+    image: 'phpmyadmin/phpmyadmin:latest'
+    container_name: phpmyadmin_service
+    restart: always
+    ports:
+        - '${PHPMYADMIN_PORT:-8080}:80'
+    environment:
+        PMA_HOST: mysql
+        PMA_PORT: 3306
+        MYSQL_ROOT_PASSWORD: 'password'
+    depends_on:
+        - mysql
+    networks:
+        - system
+  mailpit:
+    image: 'axllent/mailpit:latest'
+    container_name: mailpit_service
+    restart: always
+    ports:
+        - '${FORWARD_MAILPIT_PORT:-1025}:1025'
+        - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
+    networks:
+        - system
+networks:
+  system:
+    driver: bridge
+
+volumes:
+  redis_data:
+  postgres_data:
+  mysql_data:
