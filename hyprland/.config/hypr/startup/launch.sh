@@ -11,4 +11,6 @@ nm-applet --indicator &
 #Notification daemon
 dunst &
 
-#./waybar.sh
+#Launch waybar
+waybar &
+

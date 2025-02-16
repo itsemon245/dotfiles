@@ -1,0 +1,22 @@
+{
+    "layer": "top", // Waybar at top layer
+    "position": "top", // Waybar position (top|bottom|left|right)
+    // "width": 1280, // Waybar width
+    // Choose the order of the modules
+    "modules-left": ["hyprland/workspaces", "cava"],
+    "modules-center": ["custom/music"],
+    "modules-right": [
+      "group/stats",
+      "group/connections",
+      "pulseaudio",
+      "backlight",
+      "battery",
+      "tray",
+      "clock",
+      "custom/power"
+    ],
+
+    // modules
+    "include": "~/.config/waybar/modules.jsonc"
+
+}
