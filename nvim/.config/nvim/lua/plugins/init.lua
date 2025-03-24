@@ -96,27 +96,6 @@ return {
       close_tag_on_complete = false, -- default: true
     }
   },
-  {
-    "catppuccin/nvim",
-    name = "catppuccin",
-    priority = 1000,
-  },
-  -- One Dark Pro Color Scheme
-  {
-    "jessarcher/onedark.nvim",
-    priority = 5000, -- Ensure it loads first
-    config = function()
-      vim.cmd.colorscheme("onedark")
-      vim.cmd.highlight("SpellBad gui=undercurl")
-
-      vim.api.nvim_set_hl(0, 'NvimTreeIndentMarker', { fg = '#30323E' })
-      vim.api.nvim_set_hl(0, 'StatusLineNonText', {
-        fg = vim.api.nvim_get_hl_by_name('NonText', true).foreground,
-        bg = vim.api.nvim_get_hl_by_name('StatusLine', true).background,
-      })
-      vim.api.nvim_set_hl(0, 'IndentBlanklineChar', { fg = '#2F313C' })
-    end,
-  },
   -- Displays indent line
   {
     'lukas-reineke/indent-blankline.nvim',

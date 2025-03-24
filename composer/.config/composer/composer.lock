@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fbada1030c9ff08f03d78bbb85ad73fd",
+    "content-hash": "8157199ff74ae81ce0ce59888b829af1",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -506,28 +506,29 @@
         },
         {
             "name": "laravel/installer",
-            "version": "v5.9.2",
+            "version": "v5.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/installer.git",
-                "reference": "bf47af965a6e33ddf18b818a393d775580aa1d49"
+                "reference": "f9c90f0f5f8f99a820226ffa6fb0cb50b14cf611"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/installer/zipball/bf47af965a6e33ddf18b818a393d775580aa1d49",
-                "reference": "bf47af965a6e33ddf18b818a393d775580aa1d49",
+                "url": "https://api.github.com/repos/laravel/installer/zipball/f9c90f0f5f8f99a820226ffa6fb0cb50b14cf611",
+                "reference": "f9c90f0f5f8f99a820226ffa6fb0cb50b14cf611",
                 "shasum": ""
             },
             "require": {
-                "illuminate/filesystem": "^10.20|^11.0",
-                "illuminate/support": "^10.20|^11.0",
+                "illuminate/filesystem": "^10.20|^11.0|^12.0",
+                "illuminate/support": "^10.20|^11.0|^12.0",
                 "laravel/prompts": "^0.1.18|^0.2.0|^0.3.0",
                 "php": "^8.2",
                 "symfony/console": "^6.2|^7.0",
+                "symfony/polyfill-mbstring": "^1.31",
                 "symfony/process": "^6.2|^7.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.10",
+                "phpstan/phpstan": "^1.10|^2.1",
                 "phpunit/phpunit": "^10.4"
             },
             "bin": [
@@ -555,9 +556,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/installer/issues",
-                "source": "https://github.com/laravel/installer/tree/v5.9.2"
+                "source": "https://github.com/laravel/installer/tree/v5.12.1"
             },
-            "time": "2024-10-22T14:19:55+00:00"
+            "time": "2025-02-24T15:13:09+00:00"
         },
         {
             "name": "laravel/pint",
@@ -2385,10 +2386,10 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
-    "platform-dev": [],
+    "platform": {},
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

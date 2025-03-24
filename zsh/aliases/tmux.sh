@@ -20,7 +20,7 @@ function mux {
     tmux send-keys -t temp_restore_session C-r
 
     # Wait a moment to allow the restore process to complete
-    sleep 2
+    sleep 31
 
     # Check if the requested session is now available
     if tmux has-session -t "$session_name" 2>/dev/null; then
