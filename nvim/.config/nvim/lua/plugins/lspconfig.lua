@@ -54,11 +54,21 @@ return {
     config = function()
       -- LSP Logics
       local lspOnAttach = require("user.lsp.on_attach")
-      -- Lsp configuration starts
-      local default_capabilities = require('cmp_nvim_lsp').default_capabilities() --from nvim cpm
-      -- local default_capabilities = require("coq").lsp_ensure_capabilities() --from coq
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend('force', capabilities, default_capabilities)
+      
+      -- Get capabilities from blink.cmp if available, otherwise use cmp_nvim_lsp
+      local capabilities
+      local ok, blink_cmp = pcall(require, "blink.cmp")
+      if ok and blink_cmp.capabilities then
+        capabilities = blink_cmp.capabilities()
+      else
+        -- Fallback to standard cmp_nvim_lsp capabilities
+        local default_capabilities = require('cmp_nvim_lsp').default_capabilities()
+        capabilities = vim.lsp.protocol.make_client_capabilities()
+        capabilities = vim.tbl_deep_extend('force', capabilities, default_capabilities)
+      end
+      
+      -- Make capabilities available globally
+      vim.g.lsp_capabilities = capabilities
 
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
