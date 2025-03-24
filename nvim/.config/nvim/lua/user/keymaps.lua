@@ -1,4 +1,5 @@
-local map = require('user.utils').map
+local utils = require("user.utils")
+local map = utils.map
 -- Gitsigns keymaps
 map('n', ']h', ':Gitsigns next_hunk<CR>', { noremap = true, desc = 'Next [H]unk' })
 map('n', '[h', ':Gitsigns prev_hunk<CR>', { noremap = true, desc = 'Prev [H]unk' })
@@ -10,3 +11,9 @@ map('n', '<leader>hb', ':Gitsigns blame_line<CR>', { noremap = true, desc = 'Bla
 map('n', '<leader>hr', ':Gitsigns reset_hunk<CR>', { noremap = true, desc = 'Reset hunk' })
 map('n', '<leader>hR', ':Gitsigns reset_buffer<CR>', { noremap = true, desc = 'Reset buffer' })
 map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { noremap = true, desc = 'Select hunk' }) --text object
+
+
+-- Override zg to add word to both Neovim and VSCode
+map("n", "zg", function()
+  utils.add_word_to_spell_and_vscode()
+end, { desc = "Add word to Neovim spell file and VSCode" })

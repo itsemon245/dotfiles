@@ -7,6 +7,7 @@ vim.cmd("set softtabstop=2")
 vim.cmd("set shiftwidth=2")
 vim.cmd("set autoindent")
 vim.cmd("set cindent")
+vim.cmd("set spellfile=~/.config/nvim/spell/en.utf-8.add")
 
 
 -- Set <space> as the leader key

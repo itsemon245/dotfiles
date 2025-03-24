@@ -42,6 +42,7 @@ return {
         php = { 'pint' },
         javascript = { 'prettier', 'prettierd' },
         typescript = { 'prettier', 'prettierd' },
+        typescriptreact = { 'prettier', 'prettierd' },
         yaml = { 'yamlfmt', 'prettier', 'prettierd' },
         yml = { 'yamlfmt', 'prettier', 'prettierd' },
         json = { 'prettier', 'prettierd' },

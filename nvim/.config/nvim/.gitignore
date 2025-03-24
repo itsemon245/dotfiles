@@ -1,0 +1,3 @@
+# Neovim spell files
+spell/*.add
+spell/*.add.spl

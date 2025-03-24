@@ -29,7 +29,8 @@ return {
           "html",
           "markdown",
           "javascript",
-          -- "typescript",
+          "typescript",
+          "tsx",
           "json",
           "yaml",
           "vue",
@@ -40,7 +41,8 @@ return {
         auto_install = true,
         highlight = {
           enable = true,
-          -- additional_vim_regex_highlighting = true, --FIX: Turn this off if nvim becomes slower
+          -- Don't disable tsx highlighting
+          additional_vim_regex_highlighting = false,
         },
         indent = {
           enable = true,
