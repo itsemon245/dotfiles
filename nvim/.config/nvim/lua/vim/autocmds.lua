@@ -51,42 +51,6 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
   end
 })
 
--- Fix for TreeSitter TSX query error
-vim.api.nvim_create_autocmd({"VimEnter"}, {
-  callback = function()
-    -- Create directory if it doesn't exist
-    local query_dir = vim.fn.stdpath("config") .. "/after/queries/tsx"
-    vim.fn.mkdir(query_dir, "p")
-    
-    -- Create a fixed highlights.scm file
-    local highlights_file = query_dir .. "/highlights.scm"
-    if not vim.loop.fs_stat(highlights_file) then
-      local file = io.open(highlights_file, "w")
-      if file then
-        -- This is a corrected version that fixes the problematic pattern
-        file:write([[
-;; extends
-(jsx_element
-  open_tag: (jsx_opening_element) @tag)
-
-(jsx_element
-  close_tag: (jsx_closing_element) @tag)
-
-(jsx_self_closing_element) @tag
-
-(jsx_attribute
-  (property_identifier) @tag.attribute)
-
-(jsx_text) @none
-
-(jsx_expression) @expression
-]])
-        file:close()
-        print("Created fixed TSX query file for proper highlighting")
-      end
-    end
-  end
-})
 
 local utils = require("user.utils")
 

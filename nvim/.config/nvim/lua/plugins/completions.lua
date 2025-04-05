@@ -60,6 +60,12 @@ return {
       -- (Default) Only show the documentation popup when manually triggered
       completion = { 
         documentation = { auto_show = true },
+        list = {
+          selection = {
+            preselect = false,
+            auto_insert = true,
+          }
+        },
         menu = { 
           auto_show = true,
           draw = {
