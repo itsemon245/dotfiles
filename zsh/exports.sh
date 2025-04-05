@@ -19,3 +19,11 @@ export NVM_DIR="$HOME/.nvm"
 export PATH="$PATH:$HOME/.nvm/versions/node/v20.11.1/bin"
 export QT_IM_MODULE=ibus
 export NIX_REMOTE=daemon
+
+# Android SDK
+export ANDROID_HOME=/opt/android-sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+
