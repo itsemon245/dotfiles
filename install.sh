@@ -59,7 +59,7 @@ yay -S --noconfirm paru
 
 # Install AUR packages
 paru -S --noconfirm \
-google-chrome hypridle hyprlock hyprpaper noisetorch paru-bin spotify \
-swaylock-effects tela-icon-theme-git visual-studio-code-bin wob
+google-chrome hypridle hyprlock wlogout hyprpaper \
+swaylock-effects tela-icon-theme-git visual-studio-code-bin
 
 echo "All packages installed successfully!"
