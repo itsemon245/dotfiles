@@ -10,7 +10,6 @@
 [user]
   email = itsemon245@gmail.com
   name = Mojahidul Islam
-  signingkey = E2FCC51472FC7A3100378FD2CF44187A6C3E3D87
 
 [branch]
   sort = -committerdate
@@ -25,9 +24,6 @@
   remote = green
   upstream = magenta
   plain = blue
-
-[commit]
-  gpgsign = true
 
 [diff]
   context = 3
