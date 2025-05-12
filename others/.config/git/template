@@ -1,0 +1,21 @@
+# Uncomment  any of the following line to use your own commit message template
+#
+# feat: ✨
+# fix: 🩹
+# docs: 📚
+# refactor: 🔨🔧
+# chore: 🧹
+# test: ✅
+# style: 🎨
+# perf: ⚡
+# build: 🛠️
+# ci: 🛠️
+# revert: 🔄
+# BREAKING CHANGE: 🚨
+
+# Body (optional):
+# - Explain the why and what behind the change. Wrap lines at 72 characters.
+
+# Footer (optional):
+# - If referencing issues or pull requests: Closes #123
+# - Co-authors: Co-authored-by: Jane Doe <jane@example.com>

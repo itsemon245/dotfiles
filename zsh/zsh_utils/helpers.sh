@@ -1,4 +1,10 @@
 #!/bin/bash
+ # Colors
+  local BOLD="\033[1m"
+  local GREEN="\033[1;32m"
+  local RED="\033[1;31m"
+  local CYAN="\033[1;36m"
+  local RESET="\033[0m"
 
 # Function to source every file in a directory
 # Usage: source_files_in directory_path
@@ -34,7 +40,7 @@ setenv() {
     local key=$(echo "$1" | awk -F= '{print toupper($1)}')
     local value=$(echo "$1" | cut -d= -f2-)
     local env_file=".env"
-    
+
     if [ ! -z "$2" ]; then
         env_file="$2"
     fi
@@ -45,4 +51,56 @@ setenv() {
 mkcd(){
   mkdir -p "$1"
   cd "$1"
+}
+
+ask() {
+  local prompt="$1"
+  local __resultvar="$2"
+  local default="$3"
+  local input
+
+  # Colors
+  local BOLD="\033[1m"
+  local GREEN="\033[1;32m"
+  local YELLOW="\033[1;33m"
+  local RESET="\033[0m"
+
+  # Prompt with color and default
+  if [ -n "$default" ]; then
+    printf "${BOLD}${GREEN}%s ${YELLOW}[%s]${RESET}: " "$prompt" "$default"
+  else
+    printf "${BOLD}${GREEN}%s${RESET}: " "$prompt"
+  fi
+
+  read input
+  input="${input:-$default}"
+
+  # Store result in provided variable
+  if [ -n "$__resultvar" ]; then
+    eval $__resultvar="'$input'"
+  else
+    echo "$input"
+  fi
+}
+
+#Switch php version by changing the symlink
+switchphp() {
+  local DEFAULT_VERSION="81"
+  local VERSION
+
+  if [ -z "$1" ]; then
+    ask "PHP version to switch to" VERSION "$DEFAULT_VERSION"
+  else
+    VERSION="$1"
+  fi
+
+  if [ ! -f "/usr/bin/php$VERSION" ]; then
+    echo -e "${BOLD}${RED}❌ PHP version php$VERSION not found in /usr/bin/${RESET}"
+    return 1
+  fi
+
+  echo -e "${BOLD}${CYAN}🔁 Switching to PHP $VERSION...${RESET}"
+  sudo ln -sf "/usr/bin/php$VERSION" /usr/bin/php
+
+  echo -e "${BOLD}${GREEN}✅ Now using:$RESET $(php -v | head -n1)"
 }

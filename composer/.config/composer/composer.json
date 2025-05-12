@@ -2,7 +2,8 @@
     "require": {
         "wp-cli/wp-cli": "^2.10",
         "laravel/pint": "^1.15",
-        "laravel/installer": "^5.14"
+        "laravel/installer": "^5.14",
+        "exposedev/expose": "^3.0"
     },
     "require-dev": {
         "psalm/phar": "^5.26"

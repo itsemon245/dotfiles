@@ -1,0 +1,69 @@
+# ~/.config/git/config
+
+[core]
+  editor = nvim
+  pager = less
+  compression = 9
+  whitespace = error
+  preloadindex = true
+
+[user]
+  email = itsemon245@gmail.com
+  name = Mojahidul Islam
+
+[branch]
+  sort = -committerdate
+
+[color]
+  ui = auto
+  diff = auto
+
+[color "branch"]
+  current = yellow
+  local = default
+  remote = green
+  upstream = magenta
+  plain = blue
+
+[diff]
+  context = 3
+  interHunkContext = 10
+  renames = copies
+
+[init]
+  defaultBranch = main
+
+[log]
+  graphColors = blue,yellow,cyan,green,magenta,red
+
+[pager]
+  branch = false
+  tags = false
+
+[pull]
+  default = current
+  rebase = true
+
+[push]
+  default = current
+  autoSetupRemote = true
+
+[rerere]
+  enabled = true
+
+[status]
+  branch = true
+  showStash = true
+
+[tags]
+  sort = -creatordate
+
+[url "git@github.com:"]
+  insteadOf = "gh:"
+
+[url "git@github.com:itsemon245/"]
+  insteadOf = "me:"
+
+[url "git@github.com:mtmsujan/"]
+  insteadOf = "sujan:"
+

@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 export PATH="$PATH:$HOME/bin:/usr/local/bin"
 export PATH="$PATH:$HOME/.config/composer/vendor/bin"
 export GTK_IM_MODULE=ibus
@@ -27,3 +28,6 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
 
+# PHP ENV
+export PATH="$HOME/.phpenv/bin:$PATH"
+eval "$(phpenv init -)"
