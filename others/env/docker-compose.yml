@@ -1,83 +1,66 @@
-version: '3.8'
-
 services:
   redis:
-    image: redis:latest
-    container_name: redis_service
+    image: redis:8.0.2-alpine
+    container_name: redis
     restart: always
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
+    env_file:
+      - .env
+    networks:
+      - system
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2h          # every 2 hours
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   postgres:
-    image: postgres:latest
-    container_name: postgres_service
+    image: postgres:17-alpine
+    container_name: postgres
     restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: global_db
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d
+    env_file:
+      - .env
+    networks:
+      - system
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 2h          # every 2 hours
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   mysql:
-    image: 'mariadb'
-    container_name: mysql_service
+    image: mariadb:11.8
+    container_name: mysql
     restart: always
     ports:
-        - '${FORWARD_DB_PORT:-3306}:3306'
-    environment:
-      MYSQL_ROOT_PASSWORD: 'password'
-      MYSQL_ROOT_HOST: '%'
-      MYSQL_DATABASE: 'global_db'
-      MYSQL_USER: 'user'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      - "${MYSQL_PORT:-3306}:3306"
     volumes:
-        - 'mysql_data:/var/lib/mysql'
+      - mysql_data:/var/lib/mysql
+    env_file:
+      - .env
     networks:
-        - system
+      - system
     healthcheck:
-        test:
-            - CMD
-            - mysqladmin
-            - ping
-            - '-p password'
-        retries: 3
-        timeout: 5s
-
-  phpmyadmin:
-    image: 'phpmyadmin/phpmyadmin:latest'
-    container_name: phpmyadmin_service
-    restart: always
-    ports:
-        - '${PHPMYADMIN_PORT:-8080}:80'
-    environment:
-        PMA_HOST: mysql
-        PMA_PORT: 3306
-        MYSQL_ROOT_PASSWORD: 'password'
-    depends_on:
-        - mysql
-    networks:
-        - system
-  mailpit:
-    image: 'axllent/mailpit:latest'
-    container_name: mailpit_service
-    restart: always
-    ports:
-        - '${FORWARD_MAILPIT_PORT:-1025}:1025'
-        - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
-    networks:
-        - system
-networks:
-  system:
-    driver: bridge
-
+      test: ["CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 2h          # every 2 hours
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 volumes:
   redis_data:
   postgres_data:
   mysql_data:
+
+networks:
+  system:
+    driver: bridge
