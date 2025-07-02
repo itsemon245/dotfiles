@@ -1,3 +1,4 @@
+local schemastore = require('schemastore')
 return {
   -- gopls = {
   --   settings = {
@@ -20,12 +21,22 @@ return {
     filetypes = { "yaml" },
     settings = {
       yaml = {
-        schemas = {
-          ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*.yml",
-          ["https://json.schemastore.org/github-action.json"] = "/.github/action.yml",
-          ["https://json.schemastore.org/ansible-stable-2.9"] = "/*.yml",
-          ["https://raw.githubusercontent.com/composer/xdebug-handler/2/res/schema.json"] = "/composer.json",
+        schemaStore = {
+          -- You must disable built-in schemaStore support if you want to use
+          -- this plugin and its advanced options like `ignore`.
+          enable = false,
+          -- Avoid TypeError: Cannot read properties of undefined (reading 'length')
+          url = "",
         },
+        schemas = schemastore.yaml.schemas(),
+        -- schemas = {
+        --   ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*.yml",
+        --   ["https://json.schemastore.org/github-action.json"] = "/.github/action.yml",
+        --   ["https://www.schemastore.org/prometheus.json"] = "/prometheus.yml",
+        --   ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] =
+        --   "/docker-compose.yml",
+        --   ["https://raw.githubusercontent.com/composer/xdebug-handler/2/res/schema.json"] = "/composer.json",
+        -- },
       },
     }
   },
@@ -42,6 +53,14 @@ return {
       "typescriptreact",
       -- "vue"
     },
+  },
+  jsonls = {
+    settings = {
+      json = {
+        schemas = schemastore.json.schemas(),
+        validate = { enable = true },
+      },
+    }
   },
   -- LSPs for PHP
   -- psalm = {

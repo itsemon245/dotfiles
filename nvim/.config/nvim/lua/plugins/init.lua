@@ -17,6 +17,8 @@ return {
   { "nelstrom/vim-visual-star-search" },
   -- Creates parent directories for a file if not exists
   { "jessarcher/vim-heritage" },
+  -- Schemas for JSON, YAML etc.
+  { "b0o/schemastore.nvim", lazy = true },
   -- More text objects for HTML and XML attributes so we can do `vix` to select an html attribute same goes fo c,y & d
   {
     'whatyouhide/vim-textobj-xmlattr',
