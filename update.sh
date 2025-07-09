@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+source colors.sh
 cd ~/dotfiles
 echo -e "Installing dotfiles ...\n"
 # Function to list directory names, excluding those in .stow-local-ignore

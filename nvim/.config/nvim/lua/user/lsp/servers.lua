@@ -40,11 +40,11 @@ return {
       },
     }
   },
-  volar = {
-    filetypes = {
-      "vue"
-    },
-  },
+  -- volar = {
+  --   filetypes = {
+  --     "vue"
+  --   },
+  -- },
   ts_ls = {
     filetypes = {
       "typescript",
