@@ -35,10 +35,13 @@ declare -A package_map=(
     [php]="php|php|php"
     [composer]="composer|composer|composer"
     [golang]="golang|go|golang"
+    [stow]="stow|stow|stow"
+    [curl]="curl|curl|curl"
+    [wget]="wget|wget|wget"
 )
 
 # List of required packages
-packages=(kitty tmux zsh git php composer golang)
+packages=(kitty tmux zsh git php composer golang stow, curl, wget)
 
 function get_package_name() {
     local pkg=$1

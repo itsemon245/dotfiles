@@ -5,5 +5,8 @@ source colors.sh
 
 git clone https://github.com/itsemon245/dotfiles.git ~/dotfiles
 
-source update.sh
 source install_packages.sh
+rm -f ~/.zshrc
+source update.sh
+source nvm-setup.sh
+source zsh-setup.sh
