@@ -17,6 +17,16 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+  redisinsight:
+    image: redis/redisinsight:2.70
+    container_name: redisinsight
+    restart: always
+    ports:
+      - "${REDISINSIGHT_PORT:-5540}:5540"
+    env_file:
+      - .env
+    networks:
+      - system
 
   postgres:
     image: postgres:17-alpine
