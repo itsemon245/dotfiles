@@ -39,8 +39,9 @@ rm -f ~/.zshrc
 # Run the rest of the setup
 echo -e "${CYAN}Running dotfiles setup...${NC}"
 source update.sh
-source nvm-setup.sh
 source zsh-setup.sh
+source ~/.zshrc
+source nvm-setup.sh
 
 echo -e "${GREEN}macOS setup completed successfully!${NC}"
 echo -e "${YELLOW}Please restart your terminal or run 'source ~/.zshrc' to apply changes.${NC}"
