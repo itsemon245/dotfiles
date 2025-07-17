@@ -59,18 +59,12 @@ else
     echo -e "${GREEN}TPM already installed.${NC}"
 fi
 
-# Install Oh My Zsh if not present
-echo -e "${CYAN}Checking for Oh My Zsh...${NC}"
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    echo -e "${YELLOW}Oh My Zsh not found. Installing Oh My Zsh...${NC}"
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}Oh My Zsh installed successfully!${NC}"
-    else
-        echo -e "${RED}Failed to install Oh My Zsh!${NC}"
-    fi
-else
-    echo -e "${GREEN}Oh My Zsh already installed.${NC}"
-fi
+echo -e "${CYAN}Stowing...${NC}"
+source ./update.sh
+
+echo -e "${CYAN}Installing basic zsh plugins...${NC}"
+git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
+
 
 echo -e "${GREEN}All packages installed successfully!${NC}"
