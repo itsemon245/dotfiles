@@ -3,8 +3,6 @@ return {
   { "tpope/vim-sleuth" },
   -- Enables support to manipulate surrounding text objects like cs'" will make 'text' -> "text"
   { "tpope/vim-surround" },
-  -- Gives some UNIX commands as helper functions for vi, such as :Rename :SudoWrite :Chmod etc
-  { "tpope/vim-eunuch" },
   -- Enables the default last command with period behaviour for custom mappings
   { "tpope/vim-repeat" },
   -- Pairs of handy bracket mappings like [b or ]b
@@ -18,8 +16,8 @@ return {
   -- Creates parent directories for a file if not exists
   { "jessarcher/vim-heritage" },
   -- Schemas for JSON, YAML etc.
-  { "b0o/schemastore.nvim", lazy = true },
-  -- More text objects for HTML and XML attributes so we can do `vix` to select an html attribute same goes fo c,y & d
+  { "b0o/schemastore.nvim",           lazy = true },
+  -- More text objects for HTML and XML attributes so we can do `vix` to select an html attribute same goes for c,y & d operations
   {
     'whatyouhide/vim-textobj-xmlattr',
     dependencies = { 'kana/vim-textobj-user' }
@@ -35,6 +33,17 @@ return {
         -- refer to the configuration section below
       }
     }
+  },
+
+  -- For distraction free writing
+  { "folke/twilight.nvim", opts = {} },
+  {
+    "folke/zen-mode.nvim",
+    opts = {
+      window = {
+        width = 0.9,
+      }
+    },
   },
 
   -- Adds closing brackets, quotes etc.
@@ -66,19 +75,20 @@ return {
     end,
   },
 
-  -- Can split & join arrays and methods into new lines or single line. TODO: it's asking for github username and password
-  -- {
-  -- "AndrewRadev/splitjoin.nvim",
-  -- config = function()
-  -- vim.g.splitjoin_html_attributes_bracket_on_new_line = 1
-  -- vim.g.splitjoin_trailing_comma = 1
-  -- vim.g.splitjoin_php_method_chain = 1
-  -- end,
-  -- },
+  -- Can split & join arrays and methods into new lines or single line
+  {
+    "AndrewRadev/splitjoin.vim",
+    config = function()
+      vim.g.splitjoin_html_attributes_bracket_on_new_line = 1
+      vim.g.splitjoin_trailing_comma = 1
+      vim.g.splitjoin_php_method_chain = 1
+    end,
+  },
 
-  -- { "sheerun/vim-polyglot" }, --TODO: Needs Fixing
+  -- Syntax highlighting for many languages
+  { "sheerun/vim-polyglot" },
 
-  -- Catppuccin color scheme
+  -- Blade file highlighting
   {
     'jwalton512/vim-blade',
     opts = {},
