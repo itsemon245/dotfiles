@@ -15,6 +15,7 @@
   "filetype.nvim": { "branch": "main", "commit": "15891eb2b138d54b08aef793c43901910ec6879f" },
   "friendly-snippets": { "branch": "main", "commit": "572f5660cf05f8cd8834e096d7b4c921ba18e175" },
   "gitsigns.nvim": { "branch": "main", "commit": "119b3cb6f15e5df735cb5fbf6dfa4bd912d67c84" },
+  "hererocks": { "branch": "master", "commit": "f4cc0b16619b9d9d59c92636c5b5e7c06dc7c082" },
   "image.nvim": { "branch": "master", "commit": "4c51d6202628b3b51e368152c053c3fb5c5f76f2" },
   "indent-blankline.nvim": { "branch": "master", "commit": "005b56001b2cb30bfa61b7986bc50657816ba4ba" },
   "laravel-blade-snippets-vscode": { "branch": "master", "commit": "930fe27c045919769139a5ac93c06e103c9c5635" },

@@ -11,6 +11,7 @@ export PATH="$PATH:$HOME/.local/share/bin"
 export PATH="$PATH:$HOME/.local/share/nvim/mason/bin"
 export PATH="$PATH:$HOME/.local/share/nvim/lazy/none-ls.nvim/lua/null-ls/builtins/diagnostics"
 export PATH="$PATH:/opt/nvim-linux64/bin"
+export PATH="$PATH:$HOME/scripts"
 
 #Loads nvm
 export NVM_DIR="$HOME/.nvm"

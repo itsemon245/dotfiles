@@ -1,0 +1,21 @@
+#!/bin/bash
+
+INTERFACE="en0"  # Change to your active interface if needed
+
+# Get received bytes at t0
+RX1=$(netstat -ib | awk -v iface="$INTERFACE" '$1 == iface {print $7}' | head -n 1)
+sleep 1
+# Get received bytes at t1
+RX2=$(netstat -ib | awk -v iface="$INTERFACE" '$1 == iface {print $7}' | head -n 1)
+
+# Calculate bytes per second
+BYTES=$((RX2 - RX1))
+
+# Format output with appropriate unit
+if [ "$BYTES" -lt 1024 ]; then
+  echo "${BYTES} B/s"
+elif [ "$BYTES" -lt 1048576 ]; then
+  printf "%.0f KB/s\n" "$(echo "$BYTES / 1024" | bc -l)"
+else
+  printf "%.2f MB/s\n" "$(echo "$BYTES / 1048576" | bc -l)"
+fi
