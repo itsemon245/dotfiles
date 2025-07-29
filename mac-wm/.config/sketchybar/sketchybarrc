@@ -5,11 +5,18 @@ source "$HOME/.config/sketchybar/icons.sh" # Loads all defined icons
 
 ITEM_DIR="$HOME/.config/sketchybar/items" # Directory where the items are configured
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins" # Directory where all the plugin scripts are stored
+IMAGES_DIR="$HOME/.config/sketchybar/images" # Directory where the images are stored
 
 FONT="Liga SFMono Nerd Font" # Needs to have Regular, Bold, Semibold, Heavy and Black variants
 GAP=5 # Padding right for icons and left for labels or padding between items(icon.padding_right, label.padding_left) if both exists
 PADDINGS=10 # Padding for items(icon.padding_left, label.padding_right)
 MARGIN=5 # Margin between items
+RADIUS=8 # Corner radius for items
+
+# Usage examples:
+# background.image="$LEFT_ROUNDED"
+# background.image.drawing=on
+# background.color=0x00000000  # Make background transparent when using image
 
 # Setting up and starting the helper process
 HELPER=git.felix.helper
@@ -52,7 +59,7 @@ defaults=(
   #margin between items
   background.padding_left=$MARGIN
   background.padding_right=$MARGIN
-  
+
   label.font="$FONT:Semibold:13.0"
   label.color=$LABEL_COLOR
   background.height=30
