@@ -14,7 +14,7 @@ exec-on-workspace-change = ['/bin/bash', '-c',
 ]
 
 # Start AeroSpace at login
-start-at-login = false
+start-at-login = true
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -113,7 +113,13 @@ automatically-unhide-macos-hidden-apps = true
     alt-k = 'focus up'
     alt-l = 'focus right'
 
-    # See: https://nikitabobko.github.io/AeroSpace/commands#move
+    # move nodes
+    alt-ctrl-h = 'move left'
+    alt-ctrl-j = 'move down'
+    alt-ctrl-k = 'move up'
+    alt-ctrl-l = 'move right'
+
+    # move between workspaces
     alt-shift-h = 'workspace --wrap-around prev'
     alt-shift-l = 'workspace --wrap-around next'
 
@@ -143,6 +149,8 @@ automatically-unhide-macos-hidden-apps = true
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#mode
     alt-shift-semicolon = 'mode service'
+
+    alt-shift-r = ['reload-config', 'mode main']
 
 # 'service' binding mode declaration.
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
