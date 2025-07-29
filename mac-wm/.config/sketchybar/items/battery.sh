@@ -3,8 +3,8 @@
 battery=(
   script="$PLUGIN_DIR/battery.sh"
   icon.font="$FONT:Regular:19.0"
-  padding_right=5
-  padding_left=0
+  icon.padding_left=$PADDINGS
+  icon.padding_right=$PADDINGS
   label.drawing=off
   update_freq=120
   updates=on

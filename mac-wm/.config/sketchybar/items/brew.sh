@@ -5,8 +5,11 @@
 
 brew=(
   icon=􀐛
+  icon.padding_left=$PADDINGS
+  icon.padding_right=$GAP
   label=?
-  padding_right=10
+  label.padding_left=$GAP
+  label.padding_right=$PADDINGS
   script="$PLUGIN_DIR/brew.sh"
 )
 

@@ -7,8 +7,8 @@ ITEM_DIR="$HOME/.config/sketchybar/items" # Directory where the items are config
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins" # Directory where all the plugin scripts are stored
 
 FONT="Liga SFMono Nerd Font" # Needs to have Regular, Bold, Semibold, Heavy and Black variants
-GAP=5
-PADDINGS=5 # All paddings use this value (icon, label, background)
+GAP=5 # Padding right for icons and left for labels or padding between items(icon.padding_right, label.padding_left) if both exists
+PADDINGS=10 # Padding for items(icon.padding_left, label.padding_right)
 MARGIN=5 # Margin between items
 
 # Setting up and starting the helper process
@@ -43,14 +43,18 @@ defaults=(
   updates=when_shown
   icon.font="$FONT:Bold:14.0"
   icon.color=$ICON_COLOR
+  #gap between icon and label
+  icon.padding_right=$GAP
+  label.padding_left=$GAP
+  #padding for items
   icon.padding_left=$PADDINGS
-  icon.padding_right=$PADDINGS
+  label.padding_right=$PADDINGS
+  #margin between items
+  background.padding_left=$MARGIN
+  background.padding_right=$MARGIN
+  
   label.font="$FONT:Semibold:13.0"
   label.color=$LABEL_COLOR
-  label.padding_left=$PADDINGS
-  label.padding_right=$PADDINGS
-  padding_right=$PADDINGS
-  padding_left=$PADDINGS
   background.height=30
   background.corner_radius=9
   background.drawing=on
