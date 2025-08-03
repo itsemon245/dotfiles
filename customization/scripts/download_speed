@@ -1,17 +1,31 @@
 #!/bin/bash
 
-INTERFACE="en0"  # Change to your active interface if needed
+STATE_FILE="/tmp/net_bytes_last"
+INTERFACE=$(route get default 2>/dev/null | awk '/interface: / {print $2}')
 
-# Get received bytes at t0
-RX1=$(netstat -ib | awk -v iface="$INTERFACE" '$1 == iface {print $7}' | head -n 1)
-sleep 1
-# Get received bytes at t1
-RX2=$(netstat -ib | awk -v iface="$INTERFACE" '$1 == iface {print $7}' | head -n 1)
+# Get current byte count
+CURRENT=$(netstat -bI "$INTERFACE" 2>/dev/null | awk -v iface="$INTERFACE" '$1 == iface {print $7}' | head -n 1)
 
-# Calculate bytes per second
-BYTES=$((RX2 - RX1))
+# Exit if CURRENT is empty
+if ! [[ "$CURRENT" =~ ^[0-9]+$ ]]; then
+  echo "Unable to read byte count for interface: $INTERFACE"
+  exit 1
+fi
 
-# Format output with appropriate unit
+# Read previous count
+if [ -f "$STATE_FILE" ]; then
+  LAST=$(cat "$STATE_FILE")
+else
+  LAST=$CURRENT
+fi
+
+# Store current for next run
+echo "$CURRENT" > "$STATE_FILE"
+
+# Compute delta
+BYTES=$((CURRENT - LAST))
+
+# Output
 if [ "$BYTES" -lt 1024 ]; then
   echo "${BYTES} B/s"
 elif [ "$BYTES" -lt 1048576 ]; then

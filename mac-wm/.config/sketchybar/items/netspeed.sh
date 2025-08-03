@@ -8,11 +8,11 @@ netspeed=(
   icon.padding_right=$GAP
   label.color=$GREEN
   label.font="$FONT:Heavy:12"
-  label="DL"
+  label="N/A"
   label.align=left
   label.padding_left=$GAP
   label.padding_right=$PADDINGS
-  update_freq=1
+  update_freq=2
   script="$PLUGIN_DIR/netspeed.sh"
 )
 
