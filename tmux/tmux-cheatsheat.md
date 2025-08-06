@@ -3,32 +3,61 @@
 ## Table of Contents
 
 - [Prefix key](#prefix-key)  
-- [Session & Window Management](#session--window-management)  
+- [Handy tmux Commands](#handy-tmux-commands)  
+- [Window Management](#window-management)
+- [Session Management](#session-management)
 - [Pane Management](#pane-management)  
 - [Navigation & Modes](#navigation--modes)  
 - [Plugin Manager (TPM) Shortcuts](#plugin-manager-tpm-shortcuts)  
 - [Plugin-Specific Useful Shortcuts](#plugin-specific-useful-shortcuts)  
-- [Handy tmux Commands](#handy-tmux-commands)  
 
 ---
 
 ## Prefix key  
 `Ctrl + Space`
+- If the prefix has a `*` at the end it means you have to hold it down while pressing the other keys
+- If no `*` that means press prefix then release then press other keys
+  - `prefix` => press and release then press next keys
+  - `prefix*` => press and hold while pressing the next keys
 
 ---
 
-## Session & Window Management
 
-| Shortcut              | Action                                 |
-|----------------------|---------------------------------------|
-| `prefix + Space`      | Switch to last window                  |
-| `prefix + &`          | Kill the current window                |
-| `prefix + x`          | Kill the current pane                  |
-| `prefix + F`          | Create new window at current pane’s path |
-| `prefix + D`          | Run shell command: `t ~/dotfiles` (custom) |
-| `prefix + Ctrl+Space` | Switch to last window (same as prefix + Space) |
-| `Alt + H (M-H)`       | Previous window                       |
-| `Alt + L (M-L)`       | Next window                           |
+## Handy tmux Commands
+
+| Command                              | Description                         |
+|------------------------------------|-----------------------------------|
+| `tmux ls`                          | List all tmux sessions             |
+| `tmux attach` or `tmux a`          | Attach to last session              |
+| `tmux attach -t <session-name>`    | Attach to specific session          |
+| `tmux kill-server`                  | Kill all tmux sessions & server     |
+| `tmux kill-session -t <session-name>` | Kill a specific session            |
+| `tmux kill-window -t <window>`      | Kill a specific window              |
+| `tmux kill-pane -t <pane>`          | Kill a specific pane                |
+| `tmux new -s <name>`                | Create new session with name         |
+| `tmux source-file ~/.tmux.conf`     | Reload tmux config                  |
+
+---
+
+## Window Management
+| Shortcut              | Action                                              |
+|-----------------------|-----------------------------------------------------|
+| `prefix + c`          | Create a new window                                 |
+| `prefix + F`          | Create new window at current pane’s path            |
+| `prefix + Space`      | Switch to last window                               |
+| `prefix + Ctrl+Space` | Switch to last window (same as `prefix + Space`)    |
+| `prefix + &`          | Kill the current window                             |
+| `prefix + x`          | Kill the current pane                               |
+
+---
+
+## Session Management
+| Shortcut     | Action                                                                                                   |
+|--------------|----------------------------------------------------------------------------------------------------------|
+| `prefix + s` | Save the current sessions (*be careful as this will override your existing saves*) |
+| `prefix + r` | Restore previously saved sessions (*it is common to restore sessions if you can't find them*) |
+| `prefix + d` | Detach the session (will keep running in background)                                                     |
+| `prefix + s` | This lists all sessions where you can do the following:<br>- Navigate using arrow keys or `k`/`j`<br>- Press `Enter` or session number to enter the session<br>- Press `x` to delete selected session<br> - Press `Esc` to go back |
 
 ---
 
@@ -38,7 +67,7 @@
 |--------------------|---------------------------------------------|
 | `prefix + -`       | Split pane vertically (down)                 |
 | `prefix + \`       | Split pane horizontally (right)              |
-| `prefix + Ctrl+k`  | Clear the pane (runs `clear`)                 |
+| `prefix* + l`  | Clear the terminal (*\* hold prefix while pressing `l`*)                |
 | `Ctrl + h`         | If inside Vim: send Ctrl+h; else move to left pane |
 | `Ctrl + j`         | If inside Vim: send Ctrl+j; else move to pane below  |
 | `Ctrl + l`         | If inside Vim: send Ctrl+l; else move to right pane  |
@@ -78,20 +107,5 @@
 
 ---
 
-## Handy tmux Commands
-
-| Command                              | Description                         |
-|------------------------------------|-----------------------------------|
-| `tmux ls`                          | List all tmux sessions             |
-| `tmux attach` or `tmux a`          | Attach to last session              |
-| `tmux attach -t <session-name>`    | Attach to specific session          |
-| `tmux kill-server`                  | Kill all tmux sessions & server     |
-| `tmux kill-session -t <session-name>` | Kill a specific session            |
-| `tmux kill-window -t <window>`      | Kill a specific window              |
-| `tmux kill-pane -t <pane>`          | Kill a specific pane                |
-| `tmux new -s <name>`                | Create new session with name         |
-| `tmux source-file ~/.tmux.conf`     | Reload tmux config                  |
-
----
 
 *Prefix means your configured prefix key: Ctrl + Space.*
