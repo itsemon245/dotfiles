@@ -1,5 +1,17 @@
 # 📝 Tmux Cheatsheet (Prefix = Ctrl + Space)
 
+## Table of Contents
+
+- [Prefix key](#prefix-key)  
+- [Session & Window Management](#session--window-management)  
+- [Pane Management](#pane-management)  
+- [Navigation & Modes](#navigation--modes)  
+- [Plugin Manager (TPM) Shortcuts](#plugin-manager-tpm-shortcuts)  
+- [Plugin-Specific Useful Shortcuts](#plugin-specific-useful-shortcuts)  
+- [Handy tmux Commands](#handy-tmux-commands)  
+
+---
+
 ## Prefix key  
 `Ctrl + Space`
 
@@ -43,6 +55,29 @@
 
 ---
 
+## Plugin Manager (TPM) Shortcuts
+
+| Shortcut           | Action                         |
+|--------------------|-------------------------------|
+| `prefix + I`       | Install plugins                |
+| `prefix + U`       | Update plugins                 |
+| `prefix + Alt+u`   | Clean plugins (remove unused)  |
+
+---
+
+## Plugin-Specific Useful Shortcuts
+
+| Shortcut             | Action                                      |
+|----------------------|---------------------------------------------|
+| `prefix + t`         | Show time (usually from tmux-net-speed or custom binding) |
+| `prefix + Ctrl + s`  | Save tmux session (tmux-resurrect / continuum)       |
+| `prefix + Ctrl + r`  | Restore tmux session (tmux-resurrect / continuum)    |
+| `prefix + y`         | Copy to system clipboard (tmux-yank)                  |
+| `prefix + p`         | Search and paste from copycat history (tmux-copycat)  |
+| `prefix + Ctrl + p`  | Toggle prefix highlight (tmux-prefix-highlight)       |
+
+---
+
 ## Handy tmux Commands
 
 | Command                              | Description                         |
@@ -59,15 +94,4 @@
 
 ---
 
-## Plugin Manager (TPM) Shortcuts
-
-| Shortcut           | Action                    |
-|--------------------|--------------------------|
-| `prefix + I`       | Install plugins            |
-| `prefix + U`       | Update plugins             |
-| `prefix + Alt+u`   | Clean plugins (remove unused) |
-
----
-
 *Prefix means your configured prefix key: Ctrl + Space.*
-
