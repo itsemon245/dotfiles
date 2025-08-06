@@ -49,13 +49,13 @@ echo "Downloading .tmux.conf to $TMUX_CONF"
 $DOWNLOADER "$TMUX_CONF" "$TMUX_CONF_URL"
 
 # Create tmux-scripts directory
-TMUX_SCRIPTS_DIR="$HOME/dotfiles/tmux/tmux-scripts"
+TMUX_SCRIPTS_DIR="$HOME/.tmux-scripts"
 echo "Creating tmux-scripts directory at $TMUX_SCRIPTS_DIR"
 mkdir -p "$TMUX_SCRIPTS_DIR"
 
 # Download tmux scripts from array
 for script in "${TMUX_SCRIPTS[@]}"; do
-  script_url="$BASE_URL/tmux-scripts/$script"
+  script_url="$BASE_URL/.tmux-scripts/$script"
   script_file="$TMUX_SCRIPTS_DIR/$script"
   
   echo "Downloading $script to $script_file"
