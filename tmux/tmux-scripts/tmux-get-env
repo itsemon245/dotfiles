@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Colors for each environment
+C_PROD="#ea999c"
+C_STAGING="#e5c890"
+C_DEV="#81c8be"
+C_TEST="#a6d189"
+C_DEFAULT="#babbf1"
+
+# Get the session start directory (where tmux was started)
+# This ensures consistent environment detection regardless of current pane directory
+SESSION_START_DIR=$(tmux display-message -p '#{session_path}' 2>/dev/null)
+
+# If we can't get session path or not in tmux, fall back to provided argument or PWD
+if [ -z "$SESSION_START_DIR" ] || [ "$SESSION_START_DIR" = "" ]; then
+    SESSION_START_DIR="$1"
+    if [ -z "$SESSION_START_DIR" ]; then
+        SESSION_START_DIR="$PWD"
+    fi
+fi
+
+# Function to get APP_ENV value
+get_app_env() {
+    local dir="$1"
+    
+    # Try to read from .env file in current directory
+    if [ -f "$dir/.env" ]; then
+        local env_value=$(grep "^APP_ENV=" "$dir/.env" 2>/dev/null | cut -d'=' -f2 | tr -d '"' | tr -d "'" | head -1)
+        if [ ! -z "$env_value" ]; then
+            echo "$env_value"
+            return 0
+        fi
+    fi
+    
+    # Fallback to environment variable
+    if [ ! -z "$APP_ENV" ]; then
+        echo "$APP_ENV"
+        return 0
+    fi
+    
+    # Default fallback
+    echo "default"
+}
+
+# Get the environment and map to colors
+ENV=$(get_app_env "$SESSION_START_DIR")
+
+case "$ENV" in
+    production)
+        echo "$C_PROD"
+        ;;
+    staging)
+        echo "$C_STAGING"
+        ;;
+    development|local)
+        echo "$C_DEV"
+        ;;
+    testing)
+        echo "$C_TEST"
+        ;;
+    *)
+        echo "$C_DEFAULT"
+        ;;
+esac 

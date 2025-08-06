@@ -5,8 +5,20 @@ set -euo pipefail
 TMUX_CONF="$HOME/.tmux.conf"
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 
-# URL to your .tmux.conf raw file
-TMUX_CONF_URL="https://raw.githubusercontent.com/itsemon245/dotfiles/main/tmux/.tmux.conf"
+# Determine the script directory (where this install script is located)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TMUX_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Base URL for raw GitHub files
+BASE_URL="https://raw.githubusercontent.com/itsemon245/dotfiles/main/tmux"
+
+# Main config file
+TMUX_CONF_URL="$BASE_URL/.tmux.conf"
+
+# Array of script files in tmux-scripts directory
+TMUX_SCRIPTS=(
+    "tmux-get-env"
+)
 
 # Choose downloader: prefer curl, fallback to wget
 if command -v curl >/dev/null 2>&1; then
@@ -35,6 +47,24 @@ fi
 
 echo "Downloading .tmux.conf to $TMUX_CONF"
 $DOWNLOADER "$TMUX_CONF" "$TMUX_CONF_URL"
+
+# Create tmux-scripts directory
+TMUX_SCRIPTS_DIR="$HOME/dotfiles/tmux/tmux-scripts"
+echo "Creating tmux-scripts directory at $TMUX_SCRIPTS_DIR"
+mkdir -p "$TMUX_SCRIPTS_DIR"
+
+# Download tmux scripts from array
+for script in "${TMUX_SCRIPTS[@]}"; do
+  script_url="$BASE_URL/tmux-scripts/$script"
+  script_file="$TMUX_SCRIPTS_DIR/$script"
+  
+  echo "Downloading $script to $script_file"
+  $DOWNLOADER "$script_file" "$script_url"
+  
+  # Make script executable
+  echo "Making $script_file executable"
+  chmod +x "$script_file"
+done
 
 # TPM installation
 if [[ -d "$TPM_DIR" ]]; then
