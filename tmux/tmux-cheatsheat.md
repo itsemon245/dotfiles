@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-- [Prefix key](#prefix-key)  
+- [Keys](#keys)  
 - [Handy tmux Commands](#handy-tmux-commands)  
 - [Window Management](#window-management)
 - [Session Management](#session-management)
@@ -13,12 +13,21 @@
 
 ---
 
-## Prefix key  
+## Keys 
+### Prefix 
 `Ctrl + Space`
 - If the prefix has a `*` at the end it means you have to hold it down while pressing the other keys
 - If no `*` that means press prefix then release then press other keys
   - `prefix` => press and release then press next keys
   - `prefix*` => press and hold while pressing the next keys
+
+### Other modifier keys
+- `C-` means Control(in both mac and other os)
+- `Alt-` means Alt and (options in mac)
+
+### Differnce between cases
+- Capital letter(`A`, `B`, `C`) means you have to press shift with the letter
+- Small letter means just pressing the letter
 
 ---
 
@@ -54,8 +63,8 @@
 ## Session Management
 | Shortcut     | Action                                                                                                   |
 |--------------|----------------------------------------------------------------------------------------------------------|
-| `prefix + s` | Save the current sessions (*be careful as this will override your existing saves*) |
-| `prefix + r` | Restore previously saved sessions (*it is common to restore sessions if you can't find them*) |
+| `prefix + C-s` | Save the current sessions (*be careful as this will override your existing saves*) |
+| `prefix + C-r` | Restore previously saved sessions (*it is common to restore sessions if you can't find them*) |
 | `prefix + d` | Detach the session (will keep running in background)                                                     |
 | `prefix + s` | This lists all sessions where you can do the following:<br>- Navigate using arrow keys or `k`/`j`<br>- Press `Enter` or session number to enter the session<br>- Press `x` to delete selected session<br> - Press `Esc` to go back |
 
