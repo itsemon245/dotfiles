@@ -20,8 +20,21 @@
               "icon": "lucide-file",
               "title": "A package for true bi-directional connection between laravel and client"
             }
+          },
+          {
+            "id": "93379ef0dc6cec48",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/websocket scaling.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "websocket scaling"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -169,11 +182,16 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "e964d8cb54ac9f34",
+  "active": "93379ef0dc6cec48",
   "lastOpenFiles": [
+    "Excalidraw/websocket scaling.md",
+    "projects/office/diagrams/Websocket(Reverb) Scaling.md",
+    "Excalidraw",
+    "Untitled.md",
+    "projects/office/diagrams",
+    "ideas/A package for true bi-directional connection between laravel and client.md",
     "Publishly Extended Database Design.md",
     "Untitled.canvas",
-    "ideas/A package for true bi-directional connection between laravel and client.md",
     "projects/office/publishly/Publishly Extended Database Design.md",
     "projects/personal",
     "projects/office",
