@@ -47,6 +47,7 @@ return {
         yml = { 'yamlfmt', 'prettier', 'prettierd' },
         json = { 'prettier', 'prettierd' },
         markdown = { 'prettier', 'prettierd' },
+        md = { 'prettier', 'prettierd' },
         html = { 'prettier', 'prettierd' },
         css = { 'prettier', 'prettierd' },
         scss = { 'prettier', 'prettierd' },

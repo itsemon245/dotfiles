@@ -3,3 +3,4 @@ tmux/.config/tmux/plugins/*
 composer/.config/composer/vendor
 others/.local/share/nvim
 others/.local/state/nvim
+**/.DS_Store
