@@ -17,6 +17,8 @@ return {
   tailwindcss = {
     filetypes = { "html", "css", "javascript", "typescript", "blade", "typescriptreact", "javascriptreact", "vue", "svelte" }
   },
+  --python
+  pyright = {},
   yamlls = {
     filetypes = { "yaml" },
     settings = {

@@ -51,6 +51,7 @@ return {
         html = { 'prettier', 'prettierd' },
         css = { 'prettier', 'prettierd' },
         scss = { 'prettier', 'prettierd' },
+        python = { 'ruff format' },
       }
     },
     config = function()
