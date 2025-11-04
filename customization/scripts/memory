@@ -1,0 +1,271 @@
+#!/usr/bin/env bash
+
+script_name="$(basename "$0")"
+
+# Detect OS
+OS="$(uname -s)"
+
+# Default values
+show_free=false
+show_total=false
+show_used=false
+show_all=true
+output_json=false
+value_only=false
+unit="GB"
+unit_label="G"
+
+# Help function
+show_help() {
+    cat << EOF
+Usage: $script_name [OPTIONS]
+
+Options:
+  -f, --free          Show free/available memory
+  -t, --total         Show total memory
+  -u, --used          Show used memory
+  -a, --all           Show all memory info (default)
+  -j, --json          Output in JSON format
+  -p, --print         Output in plain text (default)
+  -v, --value-only    Output only the value(s) without labels
+  --unit UNIT         Unit for calculation (GB, MB) [default: GB]
+  --unit-label LABEL  Label to display (G, M, GiB, MiB) [default: G]
+  -h, --help          Show this help message
+
+Examples:
+  $script_name               # Show all memory info in GB
+  $script_name -f            # Show only free memory
+  $script_name -fpv          # Show free memory value only
+  $script_name -fj           # Show free memory in JSON
+  $script_name --unit MB --unit-label M  # Show in megabytes
+  $script_name -f --unit-label GiB       # Show free memory with GiB label
+EOF
+}
+
+# Parse arguments function
+parse_arguments() {
+    # First pass: handle long options and convert them to short options
+    local args=()
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --free)
+                args+=("-f")
+                shift
+                ;;
+            --total)
+                args+=("-t")
+                shift
+                ;;
+            --used)
+                args+=("-u")
+                shift
+                ;;
+            --all)
+                args+=("-a")
+                shift
+                ;;
+            --json)
+                args+=("-j")
+                shift
+                ;;
+            --print)
+                args+=("-p")
+                shift
+                ;;
+            --value-only)
+                args+=("-v")
+                shift
+                ;;
+            --help)
+                args+=("-h")
+                shift
+                ;;
+            --unit)
+                if [[ -n "$2" ]]; then
+                    unit="$2"
+                    shift 2
+                else
+                    echo "Error: --unit requires an argument"
+                    exit 1
+                fi
+                ;;
+            --unit-label)
+                if [[ -n "$2" ]]; then
+                    unit_label="$2"
+                    shift 2
+                else
+                    echo "Error: --unit-label requires an argument"
+                    exit 1
+                fi
+                ;;
+            -*)
+                args+=("$1")
+                shift
+                ;;
+            *)
+                echo "Unknown argument: $1"
+                echo "Use -h or --help for usage information"
+                exit 1
+                ;;
+        esac
+    done
+
+    # Second pass: use getopts for short options
+    set -- "${args[@]}"
+    while getopts ":ftaujpvh" opt; do
+        case $opt in
+            f)
+                show_free=true
+                show_all=false
+                ;;
+            t)
+                show_total=true
+                show_all=false
+                ;;
+            u)
+                show_used=true
+                show_all=false
+                ;;
+            a)
+                show_all=true
+                ;;
+            j)
+                output_json=true
+                ;;
+            p)
+                output_json=false
+                ;;
+            v)
+                value_only=true
+                ;;
+            h)
+                show_help
+                exit 0
+                ;;
+            \?)
+                echo "Unknown option: -$OPTARG"
+                echo "Use -h or --help for usage information"
+                exit 1
+                ;;
+        esac
+    done
+}
+
+# Function to convert memory values based on unit
+convert_unit() {
+    local value=$1
+    local divisor=1
+
+    case "$unit" in
+        GB|gb)
+            divisor=1
+            ;;
+        MB|mb)
+            divisor=0.001
+            ;;
+        *)
+            echo "Invalid unit: $unit. Use GB or MB."
+            exit 1
+            ;;
+    esac
+
+    echo "$(awk "BEGIN {printf \"%.2f\", $value / $divisor}")"
+}
+
+# Function to get memory info on macOS
+get_memory_macos() {
+    total=$(sysctl -n hw.memsize | awk '{print $1/1024/1024/1024}')
+    read used available < <(memory_pressure | awk -v total="$total" '
+        /System-wide memory free percentage:/ {
+            gsub(/%/,"",$5);
+            avail=total*$5/100;
+            used=total-avail;
+            printf "%.2f %.2f", used, avail
+        }
+    ')
+}
+
+# Function to get memory info on Linux
+get_memory_linux() {
+    read total used available < <(free --giga | grep 'Mem:' | awk '{printf "%.2f %.2f %.2f", $2, $3, $NF}')
+}
+
+# Function to output JSON
+output_json_format() {
+    echo -n "{"
+    local first=true
+
+    if [ "$show_total" = true ]; then
+        echo -n "\"total\":\"$(convert_unit "$total")$unit_label\""
+        first=false
+    fi
+
+    if [ "$show_used" = true ]; then
+        [ "$first" = false ] && echo -n ","
+        echo -n "\"used\":\"$(convert_unit "$used")$unit_label\""
+        first=false
+    fi
+
+    if [ "$show_free" = true ]; then
+        [ "$first" = false ] && echo -n ","
+        echo -n "\"available\":\"$(convert_unit "$available")$unit_label\""
+    fi
+
+    echo "}"
+}
+
+# Function to output value only
+output_value_only() {
+    local values=()
+    [ "$show_total" = true ] && values+=("$(convert_unit "$total")")
+    [ "$show_used" = true ] && values+=("$(convert_unit "$used")")
+    [ "$show_free" = true ] && values+=("$(convert_unit "$available")")
+
+    # Join values with space
+    printf "%s" "${values[0]}"
+    for ((i=1; i<${#values[@]}; i++)); do
+        printf " %s" "${values[$i]}"
+    done
+    echo
+}
+
+# Function to output plain text
+output_plain_text() {
+    [ "$show_total" = true ] && printf "Total: %.2f %s\n" "$(convert_unit "$total")" "$unit_label"
+    [ "$show_used" = true ] && printf "Used: %.2f %s\n" "$(convert_unit "$used")" "$unit_label"
+    [ "$show_free" = true ] && printf "Available: %.2f %s\n" "$(convert_unit "$available")" "$unit_label"
+}
+
+# Main execution
+parse_arguments "$@"
+
+# Get memory values based on OS
+case "$OS" in
+    Darwin)
+        get_memory_macos
+        ;;
+    Linux)
+        get_memory_linux
+        ;;
+    *)
+        echo "Unsupported operating system: $OS"
+        exit 1
+        ;;
+esac
+
+# If no specific option selected, show all
+if [ "$show_all" = true ]; then
+    show_free=true
+    show_total=true
+    show_used=true
+fi
+
+# Output based on format
+if [ "$output_json" = true ]; then
+    output_json_format
+elif [ "$value_only" = true ]; then
+    output_value_only
+else
+    output_plain_text
+fi
