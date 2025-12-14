@@ -25,3 +25,6 @@ export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export PATH="$PATH:/Users/emon/.lmstudio/bin"
 # End of LM Studio CLI section
 
+
+# Added by Antigravity
+export PATH="/Users/emon/.antigravity/antigravity/bin:$PATH"
