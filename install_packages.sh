@@ -38,10 +38,17 @@ declare -A package_map=(
     [stow]="stow|stow|stow"
     [curl]="curl|curl|curl"
     [wget]="wget|wget|wget"
+    [rofi]="rofi|rofi-wayland|rofi"
+    [swww]="swww|swww|swww"
+    [networkmanager]="network-manager-gnome|networkmanager|NetworkManager"
+    [waybar]="waybar|waybar|waybar"
+    [hyprshot]="hyprshot|hyprshot|hyprshot"
+    [qt5ct]="qt5ct|qt5ct|qt5ct"
+    [chromium]="chromium|chromium|chromium"
 )
 
 # List of required packages
-packages=(kitty tmux zsh git php composer golang stow, curl, wget)
+packages=(kitty tmux zsh git php composer golang stow curl wget rofi swww networkmanager waybar hyprshot qt5ct chromium)
 
 function get_package_name() {
     local pkg=$1
@@ -100,5 +107,12 @@ if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
     fi
 else
     echo -e "${GREEN}TPM already installed.${NC}"
+fi
+
+# Note about AUR packages for Hyprland setup (Arch Linux only)
+if [ "$package_manager" = "pacman" ]; then
+    echo -e "${YELLOW}Note: The following packages are required for Hyprland but are only available in AUR:${NC}"
+    echo -e "${YELLOW}  - greenclip (clipboard manager)${NC}"
+    echo -e "${YELLOW}Install it manually using an AUR helper (e.g., yay -S greenclip)${NC}"
 fi
 
