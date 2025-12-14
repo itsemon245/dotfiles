@@ -9,7 +9,7 @@
       "group/stats",
       "group/connections",
       "pulseaudio",
-      "backlight",
+      "custom/backlight",
       "battery",
       "tray",
       "clock",

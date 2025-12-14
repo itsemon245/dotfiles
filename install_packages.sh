@@ -45,10 +45,11 @@ declare -A package_map=(
     [hyprshot]="hyprshot|hyprshot|hyprshot"
     [qt5ct]="qt5ct|qt5ct|qt5ct"
     [chromium]="chromium|chromium|chromium"
+    [brightnessctl]="brightnessctl|brightnessctl|brightnessctl"
 )
 
 # List of required packages
-packages=(kitty tmux zsh git php composer golang stow curl wget rofi swww networkmanager waybar hyprshot qt5ct chromium)
+packages=(kitty tmux zsh git php composer golang stow curl wget rofi swww networkmanager waybar hyprshot qt5ct chromium brightnessctl)
 
 function get_package_name() {
     local pkg=$1

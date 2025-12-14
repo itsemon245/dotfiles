@@ -117,11 +117,15 @@
         "format-alt": "  {:%b %d, %Y}",
         "format": "󰥔  {:%OI:%M %p}"
     },
-    "backlight": {
-        "device": "intel_backlight",
-        "format": "{icon}",
-        "format-alt": "{icon}  {percent}%",
-        "tooltip-format": "{percent}%",
+    "custom/backlight": {
+        "format": "{icon} {}%",
+        "tooltip-format": "Brightness: {}%",
+        "exec": "~/.config/waybar/scripts/brightness.sh",
+        "exec-if": "brightnessctl -l 2>/dev/null | grep -qiE 'backlight|acpi_video|intel_backlight|amdgpu_bl' || [ -n \"$(brightnessctl get 2>/dev/null)\" ]",
+        "on-scroll-up": "~/.config/waybar/scripts/brightness-adjust.sh + 5",
+        "on-scroll-down": "~/.config/waybar/scripts/brightness-adjust.sh - 5",
+        "interval": 2,
+        "return-type": "json",
         "format-icons": ["", "", "", "", "", "", "", "", ""]
     },
     "battery": {

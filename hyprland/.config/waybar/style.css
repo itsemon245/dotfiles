@@ -54,7 +54,7 @@
 
 #custom-music,
 #tray,
-#backlight,
+#custom-backlight,
 #clock,
 #battery,
 #pulseaudio,
@@ -102,11 +102,11 @@
   color: @red;
 }
 
-#backlight {
+#custom-backlight {
   color: @yellow;
 }
 
-#backlight{
+#custom-backlight{
     border-radius: 0;
 }
 
