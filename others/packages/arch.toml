@@ -1,0 +1,42 @@
+# Arch Linux Package List
+# This file tracks packages installed via pacman, yay, and paru
+
+[pacman]
+docker-compose
+docker
+# Terminal and shell
+kitty
+tmux
+zsh
+
+# Development tools
+git
+php
+composer
+stow
+
+# System utilities
+curl
+wget
+
+# Desktop environment (Hyprland)
+rofi
+swww
+networkmanager
+waybar
+hyprshot
+qt5ct
+
+# Browsers
+chromium
+
+# System tools
+brightnessctl
+go
+
+[yay]
+# AUR packages
+greenclip
+
+[paru]
+# Alternative AUR helper packages (if using paru instead of yay)

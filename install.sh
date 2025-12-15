@@ -6,7 +6,8 @@ source colors.sh
 git clone https://github.com/itsemon245/dotfiles.git ~/dotfiles
 
 cd ~/dotfiles
-source install_packages.sh
+# Install all packages from TOML file using pkg script
+./others/bin/pkg --all
 rm -f ~/.zshrc
 source update.sh
 source nvm-setup.sh

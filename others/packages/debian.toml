@@ -1,0 +1,33 @@
+# Debian/Ubuntu Package List
+# This file tracks packages installed via apt
+
+[apt]
+# Terminal and shell
+kitty
+tmux
+zsh
+
+# Development tools
+git
+php
+composer
+stow
+
+# System utilities
+curl
+wget
+
+# Desktop environment (Hyprland)
+rofi
+swww
+network-manager-gnome  # Note: different package name than Arch
+waybar
+hyprshot
+qt5ct
+
+# Browsers
+chromium
+
+# System tools
+brightnessctl
+golang  # Note: package name is 'golang' on Debian, 'go' on Arch
