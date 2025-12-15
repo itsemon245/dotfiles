@@ -15,6 +15,15 @@ else
     NC='\033[0m' # No Color
 fi
 
+# Source CLI packages map
+SCRIPT_DIR="$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")"
+if [ -f "$SCRIPT_DIR/cli-packages.sh" ]; then
+    source "$SCRIPT_DIR/cli-packages.sh"
+else
+    echo -e "${YELLOW}Warning: cli-packages.sh not found. CLI categorization may not work correctly.${NC}" >&2
+    declare -A CLI_PACKAGES=()
+fi
+
 # Detect distribution
 detect_distro() {
     if [ -f /etc/os-release ]; then
@@ -25,6 +34,9 @@ detect_distro() {
                 ;;
             debian|ubuntu|pop)
                 echo "debian"
+                ;;
+            fedora|rhel|centos|rocky|almalinux)
+                echo "fedora"
                 ;;
             *)
                 echo "unknown"
@@ -123,16 +135,37 @@ package_exists_debian() {
     return 1
 }
 
+# Check if package exists in Fedora repositories (dnf)
+package_exists_fedora() {
+    local package=$1
+    
+    # Check dnf
+    if dnf info "$package" &>/dev/null 2>&1; then
+        return 0
+    fi
+    
+    return 1
+}
+
 # Check if package exists in the other distro's package repositories
 package_exists_other_distro() {
     local current_distro=$1
     local package=$2
     
-    if [ "$current_distro" = "arch" ]; then
-        package_exists_debian "$package"
-    else
-        package_exists_arch "$package"
-    fi
+    case "$current_distro" in
+        arch)
+            package_exists_debian "$package" || package_exists_fedora "$package"
+            ;;
+        debian)
+            package_exists_arch "$package" || package_exists_fedora "$package"
+            ;;
+        fedora)
+            package_exists_arch "$package" || package_exists_debian "$package"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 }
 
 # Update TOML file with package (preserves comments)
@@ -150,16 +183,37 @@ update_toml() {
         case "$distro" in
             arch)
                 cat > "$toml_file" <<EOF
-[pacman]
+# CLI packages
+[cli:pacman]
 
-[yay]
+[cli:yay]
 
-[paru]
+[cli:paru]
+
+# Desktop packages
+[desktop:pacman]
+
+[desktop:yay]
+
+[desktop:paru]
 EOF
                 ;;
             debian)
                 cat > "$toml_file" <<EOF
-[apt]
+# CLI packages
+[cli:apt]
+
+# Desktop packages
+[desktop:apt]
+EOF
+                ;;
+            fedora)
+                cat > "$toml_file" <<EOF
+# CLI packages
+[cli:dnf]
+
+# Desktop packages
+[desktop:dnf]
 EOF
                 ;;
         esac
@@ -170,30 +224,44 @@ EOF
         return 0
     fi
     
-    # Add package to appropriate section
-    local section="[$package_manager]"
+    # Determine package category
+    local category=$(get_package_category "$package")
+    local target_section="[${category}:${package_manager}]"
+    
+    # Also check for legacy sections for backward compatibility
+    local legacy_section="[${package_manager}]"
+    
     local temp_file=$(mktemp)
-    local in_section=0
+    local target_section_found=0
+    local legacy_section_found=0
     local inserted=0
-    local section_found=0
     
     while IFS= read -r line || [ -n "$line" ]; do
         # Preserve the original line for comments
         local original_line="$line"
+        local clean_line="${line%%#*}"
+        clean_line=$(echo "$clean_line" | xargs)
         
-        # Check if we're entering the target section
-        if [ "$line" = "$section" ]; then
-            section_found=1
-            in_section=1
+        # Check if we're entering the target section (new format)
+        if [ "$clean_line" = "$target_section" ]; then
+            target_section_found=1
             echo "$original_line" >> "$temp_file"
-            # Insert package right after section header (if not already there)
+            # Insert package right after section header
             if [ $inserted -eq 0 ]; then
                 echo "$package" >> "$temp_file"
                 inserted=1
             fi
-        # Check if we're entering a different section
-        elif [[ "$line" =~ ^\[.*\]$ ]]; then
-            in_section=0
+        # Check if we're entering legacy section (backward compatibility)
+        elif [ "$clean_line" = "$legacy_section" ]; then
+            legacy_section_found=1
+            echo "$original_line" >> "$temp_file"
+            # Insert package right after section header
+            if [ $inserted -eq 0 ]; then
+                echo "$package" >> "$temp_file"
+                inserted=1
+            fi
+        # Check if we're entering any other section
+        elif [[ "$clean_line" =~ ^\[.*\]$ ]]; then
             echo "$original_line" >> "$temp_file"
         # Regular line - preserve it (including comments)
         else
@@ -201,45 +269,65 @@ EOF
         fi
     done < "$toml_file"
     
-    # If section doesn't exist, add it at the end
-    if [ $section_found -eq 0 ]; then
+    # If neither section exists, add the new format section at the end
+    if [ $inserted -eq 0 ]; then
         echo "" >> "$temp_file"
-        echo "$section" >> "$temp_file"
+        echo "$target_section" >> "$temp_file"
         echo "$package" >> "$temp_file"
     fi
     
     mv "$temp_file" "$toml_file"
 }
 
-# Update TOML files for both distros if package is common
-# Checks if package exists in the other distro's package repositories.
-# If it exists in both distros' repositories, syncs to both TOML files.
+# Update TOML files for all distros if package is common
+# Checks if package exists in other distros' package repositories.
+# If it exists in multiple distros' repositories, syncs to all relevant TOML files.
 update_toml_sync() {
     local current_distro=$1
     local package_manager=$2
     local package=$3
     
-    # Determine the other distro
-    if [ "$current_distro" = "arch" ]; then
-        local other_distro="debian"
-        local other_pm="apt"
-    else
-        local other_distro="arch"
-        local other_pm="pacman"
-    fi
-    
     # Update current distro's TOML first
     update_toml "$current_distro" "$package_manager" "$package"
     
-    # Check if package exists in the other distro's package repositories
-    # This works for both existing packages in TOML and new packages
-    if package_exists_other_distro "$current_distro" "$package"; then
-        echo -e "${CYAN}Package $package exists in ${other_distro} repositories, updating ${other_distro}.toml...${NC}"
-        update_toml "$other_distro" "$other_pm" "$package"
-    fi
+    # Check and sync to other distros if package exists there
+    for other_distro in arch debian fedora; do
+        # Skip current distro
+        [ "$other_distro" = "$current_distro" ] && continue
+        
+        # Determine package manager for other distro
+        case "$other_distro" in
+            arch) other_pm="pacman" ;;
+            debian) other_pm="apt" ;;
+            fedora) other_pm="dnf" ;;
+        esac
+        
+        # Check if package exists in this distro's repositories
+        case "$other_distro" in
+            arch)
+                if package_exists_arch "$package"; then
+                    echo -e "${CYAN}Package $package exists in arch repositories, updating arch.toml...${NC}"
+                    update_toml "arch" "$other_pm" "$package"
+                fi
+                ;;
+            debian)
+                if package_exists_debian "$package"; then
+                    echo -e "${CYAN}Package $package exists in debian repositories, updating debian.toml...${NC}"
+                    update_toml "debian" "$other_pm" "$package"
+                fi
+                ;;
+            fedora)
+                if package_exists_fedora "$package"; then
+                    echo -e "${CYAN}Package $package exists in fedora repositories, updating fedora.toml...${NC}"
+                    update_toml "fedora" "$other_pm" "$package"
+                fi
+                ;;
+        esac
+    done
 }
 
 # Remove package from TOML file (checks all sections, preserves comments)
+# Handles both new format [cli:pacman] and legacy format [pacman]
 remove_from_toml() {
     local distro=$1
     local package_manager=$2
@@ -259,11 +347,11 @@ remove_from_toml() {
         # Preserve the original line
         local original_line="$line"
         # Extract package name (remove inline comments and trim)
-        local package_name="${line%%#*}"
-        package_name=$(echo "$package_name" | xargs)
+        local clean_line="${line%%#*}"
+        local package_name=$(echo "$clean_line" | xargs)
         
         # Check if we're entering any section
-        if [[ "$line" =~ ^\[.*\]$ ]]; then
+        if [[ "$clean_line" =~ ^\[.*\]$ ]]; then
             in_section=1
             echo "$original_line" >> "$temp_file"
         # We're in a section - skip the package if it matches (ignoring comments)
@@ -284,32 +372,51 @@ remove_from_toml() {
     fi
 }
 
-# Remove package from TOML files for both distros if package is common
-# Checks if package exists in the other distro's package repositories.
-# If it exists in both distros' repositories, removes from both TOML files.
+# Remove package from TOML files for all distros if package is common
+# Checks if package exists in other distros' package repositories.
+# If it exists in multiple distros' repositories, removes from all relevant TOML files.
 remove_from_toml_sync() {
     local current_distro=$1
     local package_manager=$2
     local package=$3
     
-    # Determine the other distro
-    if [ "$current_distro" = "arch" ]; then
-        local other_distro="debian"
-        local other_pm="apt"
-    else
-        local other_distro="arch"
-        local other_pm="pacman"
-    fi
-    
     # Remove from current distro's TOML first
     remove_from_toml "$current_distro" "$package_manager" "$package"
     
-    # Check if package exists in the other distro's package repositories
-    # This works for both existing packages in TOML and new packages
-    if package_exists_other_distro "$current_distro" "$package"; then
-        echo -e "${CYAN}Package $package exists in ${other_distro} repositories, removing from ${other_distro}.toml...${NC}"
-        remove_from_toml "$other_distro" "$other_pm" "$package"
-    fi
+    # Check and remove from other distros if package exists there
+    for other_distro in arch debian fedora; do
+        # Skip current distro
+        [ "$other_distro" = "$current_distro" ] && continue
+        
+        # Determine package manager for other distro
+        case "$other_distro" in
+            arch) other_pm="pacman" ;;
+            debian) other_pm="apt" ;;
+            fedora) other_pm="dnf" ;;
+        esac
+        
+        # Check if package exists in this distro's repositories
+        case "$other_distro" in
+            arch)
+                if package_exists_arch "$package"; then
+                    echo -e "${CYAN}Package $package exists in arch repositories, removing from arch.toml...${NC}"
+                    remove_from_toml "arch" "$other_pm" "$package"
+                fi
+                ;;
+            debian)
+                if package_exists_debian "$package"; then
+                    echo -e "${CYAN}Package $package exists in debian repositories, removing from debian.toml...${NC}"
+                    remove_from_toml "debian" "$other_pm" "$package"
+                fi
+                ;;
+            fedora)
+                if package_exists_fedora "$package"; then
+                    echo -e "${CYAN}Package $package exists in fedora repositories, removing from fedora.toml...${NC}"
+                    remove_from_toml "fedora" "$other_pm" "$package"
+                fi
+                ;;
+        esac
+    done
 }
 
 # Install package on Arch with specific package manager
@@ -441,6 +548,19 @@ install_debian() {
     fi
 }
 
+# Install package on Fedora
+install_fedora() {
+    local package=$1
+    
+    echo -e "${CYAN}Installing $package via dnf...${NC}"
+    if sudo dnf install -y "$package"; then
+        update_toml_sync "fedora" "dnf" "$package"
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Remove package on Arch
 remove_arch() {
     local package=$1
@@ -498,6 +618,20 @@ remove_debian() {
     fi
 }
 
+# Remove package on Fedora
+remove_fedora() {
+    local package=$1
+    
+    echo -e "${CYAN}Removing $package via dnf...${NC}"
+    if sudo dnf remove -y "$package"; then
+        # Remove from TOML if removal was successful
+        remove_from_toml_sync "fedora" "dnf" "$package"
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Search packages on Arch
 search_arch() {
     local query=$1
@@ -524,6 +658,14 @@ search_debian() {
     apt search "$query"
 }
 
+# Search packages on Fedora
+search_fedora() {
+    local query=$1
+    
+    echo -e "${CYAN}Searching dnf repositories for: $query${NC}"
+    dnf search "$query"
+}
+
 # Update package lists and upgrade packages
 update_packages() {
     local distro=$(detect_distro)
@@ -545,6 +687,10 @@ update_packages() {
         debian)
             echo -e "${CYAN}Updating package lists and upgrading packages...${NC}"
             sudo apt update && sudo apt upgrade -y
+            ;;
+        fedora)
+            echo -e "${CYAN}Updating package database and upgrading packages...${NC}"
+            sudo dnf update -y
             ;;
         *)
             echo -e "${RED}Unsupported distribution: $distro${NC}"
@@ -578,6 +724,10 @@ info_package() {
             echo -e "${CYAN}Package info:${NC}"
             apt show "$package" 2>/dev/null || apt-cache show "$package" 2>/dev/null
             ;;
+        fedora)
+            echo -e "${CYAN}Package info:${NC}"
+            dnf info "$package"
+            ;;
         *)
             echo -e "${RED}Unsupported distribution: $distro${NC}"
             return 1
@@ -605,6 +755,13 @@ list_installed() {
                 dpkg -l
             fi
             ;;
+        fedora)
+            if [ -n "$query" ]; then
+                dnf list installed | grep -i "$query"
+            else
+                dnf list installed
+            fi
+            ;;
         *)
             echo -e "${RED}Unsupported distribution: $distro${NC}"
             return 1
@@ -612,9 +769,27 @@ list_installed() {
     esac
 }
 
+# Determine package category
+# Returns: "cli" or "desktop"
+get_package_category() {
+    local package=$1
+    
+    # Check CLI map first (use -v to safely check if key exists)
+    if [[ -v CLI_PACKAGES[$package] ]] && [ -n "${CLI_PACKAGES[$package]}" ]; then
+        echo "cli"
+        return 0
+    fi
+    
+    # Default to desktop if not in CLI map
+    echo "desktop"
+}
+
 # Parse TOML file and extract packages by section
+# Supports both old format [pacman] and new format [cli:pacman], [desktop:pacman]
+# If cli_only is true, filters out desktop packages
 parse_toml_packages() {
     local toml_file=$1
+    local cli_only=${2:-false}
     local section=""
     declare -A packages_by_section
     
@@ -624,41 +799,80 @@ parse_toml_packages() {
     fi
     
     while IFS= read -r line || [ -n "$line" ]; do
-        # Preserve original line for section headers
+        # Preserve original line for comments
         local original_line="$line"
         
         # Remove inline comments (everything after #)
-        line="${line%%#*}"
+        local package_line="${line%%#*}"
         # Remove leading/trailing whitespace
-        line=$(echo "$line" | xargs)
+        package_line=$(echo "$package_line" | xargs)
         
         # Skip empty lines and comment-only lines
-        [ -z "$line" ] && continue
+        [ -z "$package_line" ] && continue
         
-        # Check if it's a section header (use original line to preserve comments in section)
-        if [[ "$original_line" =~ ^\[.*\] ]]; then
-            section="${original_line%%#*}"  # Remove comments from section name
-            section="${section//[\[\]]/}"
+        # Check if it's a section header
+        if [[ "$package_line" =~ ^\[.*\] ]]; then
+            section="${package_line//[\[\]]/}"
             section=$(echo "$section" | xargs)
             packages_by_section["$section"]=""
         # It's a package name (non-empty line that's not a section header)
-        elif [ -n "$section" ] && [ -n "$line" ]; then
+        elif [ -n "$section" ] && [ -n "$package_line" ]; then
+            # Determine if this is a desktop or CLI section
+            local is_desktop_section=false
+            
+            # Check section format: [cli:pacman], [desktop:pacman], or legacy [pacman]
+            if [[ "$section" =~ ^desktop: ]]; then
+                is_desktop_section=true
+            elif [[ ! "$section" =~ ^cli: ]] && [[ ! "$section" =~ : ]]; then
+                # Legacy format [pacman] - determine category from package name
+                local category=$(get_package_category "$package_line")
+                if [ "$category" = "desktop" ]; then
+                    is_desktop_section=true
+                fi
+            fi
+            
+            # Skip desktop packages if cli_only is enabled
+            if [ "$cli_only" = true ] && [ "$is_desktop_section" = true ]; then
+                continue
+            fi
+            
             if [ -z "${packages_by_section[$section]}" ]; then
-                packages_by_section["$section"]="$line"
+                packages_by_section["$section"]="$package_line"
             else
-                packages_by_section["$section"]="${packages_by_section[$section]} $line"
+                packages_by_section["$section"]="${packages_by_section[$section]} $package_line"
             fi
         fi
     done < "$toml_file"
     
     # Output packages by section
+    # For new format [cli:pacman], extract package manager for installation
+    # Group packages by package manager (combining cli and desktop sections)
+    declare -A packages_by_pm
+    
     for section in "${!packages_by_section[@]}"; do
-        echo "${section}:${packages_by_section[$section]}"
+        local pm_name="$section"
+        # Extract package manager from section name
+        if [[ "$section" =~ : ]]; then
+            # New format: [cli:pacman] or [desktop:pacman] -> extract "pacman"
+            pm_name="${section#*:}"
+        fi
+        # Combine packages from both cli and desktop sections for same PM
+        if [ -z "${packages_by_pm[$pm_name]}" ]; then
+            packages_by_pm["$pm_name"]="${packages_by_section[$section]}"
+        else
+            packages_by_pm["$pm_name"]="${packages_by_pm[$pm_name]} ${packages_by_section[$section]}"
+        fi
+    done
+    
+    # Output packages grouped by package manager
+    for pm_name in "${!packages_by_pm[@]}"; do
+        echo "${pm_name}:${packages_by_pm[$pm_name]}"
     done
 }
 
 # Install all packages from TOML file
 install_all_from_toml() {
+    local cli_only=${1:-false}
     local distro=$(detect_distro)
     local toml_file=$(get_toml_path "$distro")
     local failed_packages_file=$(mktemp)
@@ -669,13 +883,30 @@ install_all_from_toml() {
         return 1
     fi
     
-    echo -e "${CYAN}Installing all packages from $toml_file...${NC}"
+    if [ "$cli_only" = true ]; then
+        echo -e "${CYAN}Installing CLI-only packages from $toml_file (skipping desktop packages)...${NC}"
+    else
+        echo -e "${CYAN}Installing all packages from $toml_file...${NC}"
+    fi
     echo ""
     
     local parsed_packages
     
-    # Parse TOML file
-    parsed_packages=$(parse_toml_packages "$toml_file")
+    # Parse TOML file (with cli_only filter if enabled)
+    # Default behavior: on non-Arch distros, skip desktop packages by default
+    # On Arch, install all packages unless --cli-only is specified
+    local filter_cli=false
+    if [ "$cli_only" = true ]; then
+        filter_cli=true
+    elif [ "$distro" != "arch" ]; then
+        # On non-Arch distros, default to CLI-only (skip desktop packages)
+        filter_cli=true
+        echo -e "${YELLOW}Note: Skipping desktop packages on $distro by default.${NC}"
+        echo -e "${YELLOW}Desktop packages are only installed on Arch Linux.${NC}"
+        echo ""
+    fi
+    
+    parsed_packages=$(parse_toml_packages "$toml_file" "$filter_cli")
     
     case "$distro" in
         arch)
@@ -739,6 +970,20 @@ install_all_from_toml() {
                 done
             fi
             ;;
+        fedora)
+            # Install dnf packages
+            local dnf_pkgs=$(echo "$parsed_packages" | grep "^dnf:" | cut -d: -f2-)
+            if [ -n "$dnf_pkgs" ]; then
+                echo -e "${CYAN}=== Installing dnf packages ===${NC}"
+                for package in $dnf_pkgs; do
+                    [ -z "$package" ] && continue
+                    echo -e "${CYAN}Installing $package via dnf...${NC}"
+                    if ! sudo dnf install -y "$package"; then
+                        echo "$package" >> "$failed_packages_file"
+                    fi
+                done
+            fi
+            ;;
         *)
             echo -e "${RED}Unsupported distribution: $distro${NC}"
             rm -f "$failed_packages_file"
@@ -775,6 +1020,9 @@ install_package() {
             ;;
         debian)
             install_debian "$package"
+            ;;
+        fedora)
+            install_fedora "$package"
             ;;
         *)
             echo -e "${RED}Unsupported distribution: $distro${NC}"
@@ -844,6 +1092,8 @@ if [ $# -eq 0 ]; then
     echo -e "${CYAN}Operations:${NC}"
     echo "  install, -S          Install packages (default)"
     echo "  --all, -a             Install all packages from TOML file"
+    echo "  --cli-only            Install only CLI packages (skip desktop packages)"
+    echo "                        On non-Arch distros, this is the default behavior"
     echo "  remove, -R, -Rns      Remove packages"
     echo "  search, -Ss           Search for packages"
     echo "  update, -Syu, upgrade Update package lists and upgrade"
@@ -852,6 +1102,7 @@ if [ $# -eq 0 ]; then
     echo ""
     echo -e "${CYAN}Examples:${NC}"
     echo "  $0 --all                    # Install all packages from TOML"
+    echo "  $0 --all --cli-only         # Install only CLI packages (skip desktop)"
     echo "  $0 kitty tmux zsh           # Install packages (default)"
     echo "  $0 -S kitty                 # Install package (explicit)"
     echo "  $0 -Rns chromium            # Remove package (Arch: pacman style)"
@@ -868,12 +1119,24 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+# Check for --cli-only flag and remove it from arguments
+cli_only=false
+args=()
+for arg in "$@"; do
+    if [ "$arg" = "--cli-only" ]; then
+        cli_only=true
+    else
+        args+=("$arg")
+    fi
+done
+set -- "${args[@]}"
+
 operation=$(parse_operation "$1")
 
 # Handle operations
 case "$operation" in
     install_all)
-        install_all_from_toml
+        install_all_from_toml "$cli_only"
         exit $?
         ;;
     remove)
@@ -902,6 +1165,11 @@ case "$operation" in
                     ;;
                 debian)
                     if ! remove_debian "$package"; then
+                        failed_packages+=("$package")
+                    fi
+                    ;;
+                fedora)
+                    if ! remove_fedora "$package"; then
                         failed_packages+=("$package")
                     fi
                     ;;
@@ -936,6 +1204,9 @@ case "$operation" in
                     ;;
                 debian)
                     search_debian "$query"
+                    ;;
+                fedora)
+                    search_fedora "$query"
                     ;;
                 *)
                     echo -e "${RED}Unsupported distribution: $distro${NC}"

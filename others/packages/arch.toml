@@ -1,42 +1,48 @@
 # Arch Linux Package List
 # This file tracks packages installed via pacman, yay, and paru
+# 
+# Format: [category:package_manager]
+#   - [cli:pacman] = CLI packages installed via pacman
+#   - [desktop:pacman] = Desktop packages installed via pacman
+#   - Packages are auto-categorized based on CLI_PACKAGES map
+#   - Unknown packages default to "desktop" category
 
-[pacman]
+# CLI packages
+[cli:pacman]
+tree
 docker-compose
 docker
-# Terminal and shell
-kitty
 tmux
 zsh
-
-# Development tools
 git
 php
 composer
 stow
-
-# System utilities
 curl
 wget
+go
+imagemagick
+php-imagick
 
-# Desktop environment (Hyprland)
+
+# Desktop packages
+[desktop:pacman]
+kitty
 rofi
 swww
 networkmanager
 waybar
 hyprshot
 qt5ct
-
-# Browsers
 chromium
-
-# System tools
 brightnessctl
-go
 
-[yay]
-# AUR packages
+[cli:yay]
+
+[desktop:yay]
+openrgb-bin
 greenclip
 
-[paru]
-# Alternative AUR helper packages (if using paru instead of yay)
+[cli:paru]
+
+[desktop:paru]

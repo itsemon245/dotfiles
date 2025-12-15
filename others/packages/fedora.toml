@@ -1,15 +1,15 @@
-# Debian/Ubuntu Package List
-# This file tracks packages installed via apt
+# Fedora Package List
+# This file tracks packages installed via dnf
 #
 # Format: [category:package_manager]
-#   - [cli:apt] = CLI packages installed via apt
-#   - [desktop:apt] = Desktop packages installed via apt
+#   - [cli:dnf] = CLI packages installed via dnf
+#   - [desktop:dnf] = Desktop packages installed via dnf
 #   - Packages are auto-categorized based on CLI_PACKAGES map
 #   - Unknown packages default to "desktop" category
 #   - Desktop packages are skipped by default (use --all-desktop to install all)
 
 # CLI packages
-[cli:apt]
+[cli:dnf]
 
 # Desktop packages
-[desktop:apt]
+[desktop:dnf]
