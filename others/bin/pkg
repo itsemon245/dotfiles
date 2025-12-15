@@ -24,6 +24,14 @@ else
     declare -A CLI_PACKAGES=()
 fi
 
+# Source Gaming packages map
+if [ -f "$SCRIPT_DIR/gaming-packages.sh" ]; then
+    source "$SCRIPT_DIR/gaming-packages.sh"
+else
+    echo -e "${YELLOW}Warning: gaming-packages.sh not found. Gaming categorization may not work correctly.${NC}" >&2
+    declare -A GAMING_PACKAGES=()
+fi
+
 # Detect distribution
 detect_distro() {
     if [ -f /etc/os-release ]; then
@@ -196,6 +204,13 @@ update_toml() {
 [desktop:yay]
 
 [desktop:paru]
+
+# Gaming packages
+[gaming:pacman]
+
+[gaming:yay]
+
+[gaming:paru]
 EOF
                 ;;
             debian)
@@ -205,6 +220,9 @@ EOF
 
 # Desktop packages
 [desktop:apt]
+
+# Gaming packages
+[gaming:apt]
 EOF
                 ;;
             fedora)
@@ -214,6 +232,9 @@ EOF
 
 # Desktop packages
 [desktop:dnf]
+
+# Gaming packages
+[gaming:dnf]
 EOF
                 ;;
         esac
@@ -770,26 +791,34 @@ list_installed() {
 }
 
 # Determine package category
-# Returns: "cli" or "desktop"
+# Returns: "gaming", "cli", or "desktop"
 get_package_category() {
     local package=$1
     
-    # Check CLI map first (use -v to safely check if key exists)
+    # Check Gaming map first (use -v to safely check if key exists)
+    if [[ -v GAMING_PACKAGES[$package] ]] && [ -n "${GAMING_PACKAGES[$package]}" ]; then
+        echo "gaming"
+        return 0
+    fi
+    
+    # Check CLI map second (use -v to safely check if key exists)
     if [[ -v CLI_PACKAGES[$package] ]] && [ -n "${CLI_PACKAGES[$package]}" ]; then
         echo "cli"
         return 0
     fi
     
-    # Default to desktop if not in CLI map
+    # Default to desktop if not in gaming or CLI map
     echo "desktop"
 }
 
 # Parse TOML file and extract packages by section
-# Supports both old format [pacman] and new format [cli:pacman], [desktop:pacman]
-# If cli_only is true, filters out desktop packages
+# Supports both old format [pacman] and new format [cli:pacman], [desktop:pacman], [gaming:pacman]
+# If cli_only is true, filters out desktop and gaming packages
+# If gaming_only is true, filters out CLI and desktop packages
 parse_toml_packages() {
     local toml_file=$1
     local cli_only=${2:-false}
+    local gaming_only=${3:-false}
     local section=""
     declare -A packages_by_section
     
@@ -817,22 +846,36 @@ parse_toml_packages() {
             packages_by_section["$section"]=""
         # It's a package name (non-empty line that's not a section header)
         elif [ -n "$section" ] && [ -n "$package_line" ]; then
-            # Determine if this is a desktop or CLI section
+            # Determine section category
             local is_desktop_section=false
+            local is_gaming_section=false
+            local is_cli_section=false
             
-            # Check section format: [cli:pacman], [desktop:pacman], or legacy [pacman]
+            # Check section format: [cli:pacman], [desktop:pacman], [gaming:pacman], or legacy [pacman]
             if [[ "$section" =~ ^desktop: ]]; then
                 is_desktop_section=true
-            elif [[ ! "$section" =~ ^cli: ]] && [[ ! "$section" =~ : ]]; then
+            elif [[ "$section" =~ ^gaming: ]]; then
+                is_gaming_section=true
+            elif [[ "$section" =~ ^cli: ]]; then
+                is_cli_section=true
+            elif [[ ! "$section" =~ : ]]; then
                 # Legacy format [pacman] - determine category from package name
                 local category=$(get_package_category "$package_line")
                 if [ "$category" = "desktop" ]; then
                     is_desktop_section=true
+                elif [ "$category" = "gaming" ]; then
+                    is_gaming_section=true
+                elif [ "$category" = "cli" ]; then
+                    is_cli_section=true
                 fi
             fi
             
-            # Skip desktop packages if cli_only is enabled
-            if [ "$cli_only" = true ] && [ "$is_desktop_section" = true ]; then
+            # Skip packages based on filter flags
+            if [ "$cli_only" = true ] && ([ "$is_desktop_section" = true ] || [ "$is_gaming_section" = true ]); then
+                continue
+            fi
+            
+            if [ "$gaming_only" = true ] && ([ "$is_desktop_section" = true ] || [ "$is_cli_section" = true ]); then
                 continue
             fi
             
@@ -853,10 +896,10 @@ parse_toml_packages() {
         local pm_name="$section"
         # Extract package manager from section name
         if [[ "$section" =~ : ]]; then
-            # New format: [cli:pacman] or [desktop:pacman] -> extract "pacman"
+            # New format: [cli:pacman], [desktop:pacman], or [gaming:pacman] -> extract "pacman"
             pm_name="${section#*:}"
         fi
-        # Combine packages from both cli and desktop sections for same PM
+        # Combine packages from cli, desktop, and gaming sections for same PM
         if [ -z "${packages_by_pm[$pm_name]}" ]; then
             packages_by_pm["$pm_name"]="${packages_by_section[$section]}"
         else
@@ -873,6 +916,7 @@ parse_toml_packages() {
 # Install all packages from TOML file
 install_all_from_toml() {
     local cli_only=${1:-false}
+    local gaming_only=${2:-false}
     local distro=$(detect_distro)
     local toml_file=$(get_toml_path "$distro")
     local failed_packages_file=$(mktemp)
@@ -883,8 +927,10 @@ install_all_from_toml() {
         return 1
     fi
     
-    if [ "$cli_only" = true ]; then
-        echo -e "${CYAN}Installing CLI-only packages from $toml_file (skipping desktop packages)...${NC}"
+    if [ "$gaming_only" = true ]; then
+        echo -e "${CYAN}Installing gaming-only packages from $toml_file (skipping CLI and desktop packages)...${NC}"
+    elif [ "$cli_only" = true ]; then
+        echo -e "${CYAN}Installing CLI-only packages from $toml_file (skipping desktop and gaming packages)...${NC}"
     else
         echo -e "${CYAN}Installing all packages from $toml_file...${NC}"
     fi
@@ -892,21 +938,25 @@ install_all_from_toml() {
     
     local parsed_packages
     
-    # Parse TOML file (with cli_only filter if enabled)
-    # Default behavior: on non-Arch distros, skip desktop packages by default
-    # On Arch, install all packages unless --cli-only is specified
+    # Parse TOML file (with cli_only/gaming_only filter if enabled)
+    # Default behavior: on non-Arch distros, skip desktop and gaming packages by default
+    # On Arch, install all packages unless --cli-only or --gaming-only is specified
     local filter_cli=false
-    if [ "$cli_only" = true ]; then
+    local filter_gaming=false
+    if [ "$gaming_only" = true ]; then
+        filter_gaming=true
+    elif [ "$cli_only" = true ]; then
         filter_cli=true
     elif [ "$distro" != "arch" ]; then
-        # On non-Arch distros, default to CLI-only (skip desktop packages)
+        # On non-Arch distros, default to CLI-only (skip desktop and gaming packages)
         filter_cli=true
-        echo -e "${YELLOW}Note: Skipping desktop packages on $distro by default.${NC}"
-        echo -e "${YELLOW}Desktop packages are only installed on Arch Linux.${NC}"
+        filter_gaming=true
+        echo -e "${YELLOW}Note: Skipping desktop and gaming packages on $distro by default.${NC}"
+        echo -e "${YELLOW}Desktop and gaming packages are only installed on Arch Linux.${NC}"
         echo ""
     fi
     
-    parsed_packages=$(parse_toml_packages "$toml_file" "$filter_cli")
+    parsed_packages=$(parse_toml_packages "$toml_file" "$filter_cli" "$filter_gaming")
     
     case "$distro" in
         arch)
@@ -1092,8 +1142,9 @@ if [ $# -eq 0 ]; then
     echo -e "${CYAN}Operations:${NC}"
     echo "  install, -S          Install packages (default)"
     echo "  --all, -a             Install all packages from TOML file"
-    echo "  --cli-only            Install only CLI packages (skip desktop packages)"
+    echo "  --cli-only            Install only CLI packages (skip desktop and gaming packages)"
     echo "                        On non-Arch distros, this is the default behavior"
+    echo "  --gaming-only         Install only gaming packages (skip CLI and desktop packages)"
     echo "  remove, -R, -Rns      Remove packages"
     echo "  search, -Ss           Search for packages"
     echo "  update, -Syu, upgrade Update package lists and upgrade"
@@ -1102,7 +1153,8 @@ if [ $# -eq 0 ]; then
     echo ""
     echo -e "${CYAN}Examples:${NC}"
     echo "  $0 --all                    # Install all packages from TOML"
-    echo "  $0 --all --cli-only         # Install only CLI packages (skip desktop)"
+    echo "  $0 --all --cli-only         # Install only CLI packages (skip desktop and gaming)"
+    echo "  $0 --all --gaming-only      # Install only gaming packages (skip CLI and desktop)"
     echo "  $0 kitty tmux zsh           # Install packages (default)"
     echo "  $0 -S kitty                 # Install package (explicit)"
     echo "  $0 -Rns chromium            # Remove package (Arch: pacman style)"
@@ -1119,12 +1171,15 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-# Check for --cli-only flag and remove it from arguments
+# Check for --cli-only and --gaming-only flags and remove them from arguments
 cli_only=false
+gaming_only=false
 args=()
 for arg in "$@"; do
     if [ "$arg" = "--cli-only" ]; then
         cli_only=true
+    elif [ "$arg" = "--gaming-only" ]; then
+        gaming_only=true
     else
         args+=("$arg")
     fi
@@ -1136,7 +1191,7 @@ operation=$(parse_operation "$1")
 # Handle operations
 case "$operation" in
     install_all)
-        install_all_from_toml "$cli_only"
+        install_all_from_toml "$cli_only" "$gaming_only"
         exit $?
         ;;
     remove)
@@ -1272,3 +1327,4 @@ case "$operation" in
         exit 1
         ;;
 esac
+

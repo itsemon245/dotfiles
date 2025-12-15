@@ -4,7 +4,8 @@
 # Format: [category:package_manager]
 #   - [cli:pacman] = CLI packages installed via pacman
 #   - [desktop:pacman] = Desktop packages installed via pacman
-#   - Packages are auto-categorized based on CLI_PACKAGES map
+#   - [gaming:pacman] = Gaming packages installed via pacman
+#   - Packages are auto-categorized based on GAMING_PACKAGES and CLI_PACKAGES maps
 #   - Unknown packages default to "desktop" category
 
 # CLI packages
@@ -27,6 +28,7 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+blueman
 qbittorrent
 i2c-tools
 kitty
@@ -48,3 +50,15 @@ greenclip
 [cli:paru]
 
 [desktop:paru]
+
+# Gaming packages
+[gaming:pacman]
+lutris
+steam
+winetricks
+wine-mono
+wine-staging
+
+[gaming:yay]
+
+[gaming:paru]
