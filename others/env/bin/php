@@ -20,13 +20,64 @@ fi
 CACHE_DIR_HOST="${XDG_CACHE_HOME:-$HOME/.cache}/composer"
 mkdir -p "$CACHE_DIR_HOST"
 
-exec docker run --rm -it \
-  -u "$(id -u)":"$(id -g)" \
-  --network "$NETWORK" \
-  --add-host=host.docker.internal:host-gateway \
-  -v "$PWD":/app -w /app \
-  -v "$CACHE_DIR_HOST":/tmp/composer-cache \
-  -e COMPOSER_CACHE_DIR=/tmp/composer-cache \
-  -p "${PORT_RANGE}:${PORT_RANGE}" \
-  "$IMAGE" \
-  php "$@"
+# Set up config directory for psysh/tinker and other tools
+CONFIG_DIR_HOST="${XDG_CONFIG_HOME:-$HOME/.config}"
+mkdir -p "$CONFIG_DIR_HOST"
+
+# Check if this is a server command that needs port mapping
+NEEDS_PORTS=false
+if [[ $# -gt 0 ]]; then
+  # Check for --host or --port flags (indicates server command)
+  for arg in "$@"; do
+    case "$arg" in
+      --host|--port|-H|-p)
+        NEEDS_PORTS=true
+        break
+        ;;
+    esac
+  done
+  
+  # Check command name if flags weren't found
+  if [[ "$NEEDS_PORTS" == "false" ]]; then
+    case "$1" in
+      serve|octane|roadrunner|start|server)
+        NEEDS_PORTS=true
+        ;;
+      artisan)
+        # Check second argument for artisan server commands
+        if [[ $# -gt 1 ]]; then
+          case "$2" in
+            serve|start)
+              NEEDS_PORTS=true
+              ;;
+          esac
+          # Check if it starts with octane or roadrunner (e.g., octane:start, roadrunner:serve)
+          if [[ "$2" =~ ^(octane|roadrunner) ]]; then
+            NEEDS_PORTS=true
+          fi
+        fi
+        ;;
+    esac
+  fi
+fi
+
+# Build docker run command
+DOCKER_ARGS=(
+  --rm -it
+  -u "$(id -u)":"$(id -g)"
+  --network "$NETWORK"
+  --add-host=host.docker.internal:host-gateway
+  -v "$PWD":/app -w /app
+  -v "$CACHE_DIR_HOST":/tmp/composer-cache
+  -v "$CONFIG_DIR_HOST":/tmp/.config
+  -e COMPOSER_CACHE_DIR=/tmp/composer-cache
+  -e HOME=/tmp
+  -e XDG_CONFIG_HOME=/tmp/.config
+)
+
+# Only add port mapping for server commands
+if [[ "$NEEDS_PORTS" == "true" ]]; then
+  DOCKER_ARGS+=(-p "${PORT_RANGE}:${PORT_RANGE}")
+fi
+
+exec docker run "${DOCKER_ARGS[@]}" "$IMAGE" php "$@"

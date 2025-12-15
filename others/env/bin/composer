@@ -18,12 +18,19 @@ fi
 CACHE_DIR_HOST="${XDG_CACHE_HOME:-$HOME/.cache}/composer"
 mkdir -p "$CACHE_DIR_HOST"
 
+# Set up config directory for tools that need it
+CONFIG_DIR_HOST="${XDG_CONFIG_HOME:-$HOME/.config}"
+mkdir -p "$CONFIG_DIR_HOST"
+
 exec docker run --rm -it \
   -u "$(id -u)":"$(id -g)" \
   --network "$NETWORK" \
   --add-host=host.docker.internal:host-gateway \
   -v "$PWD":/app -w /app \
   -v "$CACHE_DIR_HOST":/tmp/composer-cache \
+  -v "$CONFIG_DIR_HOST":/tmp/.config \
   -e COMPOSER_CACHE_DIR=/tmp/composer-cache \
+  -e HOME=/tmp \
+  -e XDG_CONFIG_HOME=/tmp/.config \
   "$IMAGE" \
   composer "$@"
