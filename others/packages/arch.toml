@@ -27,6 +27,8 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+qbittorrent
+i2c-tools
 kitty
 rofi
 swww

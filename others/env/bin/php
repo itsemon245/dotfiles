@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Configure PHP version here (e.g., "8.4", "8.5", "8.6")
+PHP_VERSION="${PHP_VERSION:-8.4}"
+
+# Docker image tag (override via PHP_IMAGE env var)
+IMAGE="${PHP_IMAGE:-my/php:${PHP_VERSION}-dev}"
+PORT_RANGE="${PHP_PORT_RANGE:-8000-8009}"
+
+# Prefer the user's env var, else prefer env_system if present, else bridge
+if [[ -n "${PHP_NETWORK:-}" ]]; then
+  NETWORK="$PHP_NETWORK"
+elif docker network inspect env_system >/dev/null 2>&1; then
+  NETWORK="env_system"
+else
+  NETWORK="bridge"
+fi
+
+CACHE_DIR_HOST="${XDG_CACHE_HOME:-$HOME/.cache}/composer"
+mkdir -p "$CACHE_DIR_HOST"
+
+exec docker run --rm -it \
+  -u "$(id -u)":"$(id -g)" \
+  --network "$NETWORK" \
+  --add-host=host.docker.internal:host-gateway \
+  -v "$PWD":/app -w /app \
+  -v "$CACHE_DIR_HOST":/tmp/composer-cache \
+  -e COMPOSER_CACHE_DIR=/tmp/composer-cache \
+  -p "${PORT_RANGE}:${PORT_RANGE}" \
+  "$IMAGE" \
+  php "$@"

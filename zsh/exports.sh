@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export PATH="$PATH:$HOME/bin:/usr/local/bin"
+export PATH="$HOME/bin:$HOME/env/bin:$/usr/local/bin:$PATH"
 export PATH="$PATH:$HOME/.config/composer/vendor/bin"
 export GTK_IM_MODULE=ibus
 export XMODIFIERS=@im=ibus
