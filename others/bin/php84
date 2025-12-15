@@ -4,7 +4,7 @@ set -euo pipefail
 IMAGE="${PHP84_IMAGE:-my/php:8.4-dev}"
 
 # Map a port range so you can use 8000/8001/8002 across multiple projects.
-PORT_RANGE="${PHP84_PORT_RANGE:-8000-8099}"
+PORT_RANGE="${PHP84_PORT_RANGE:-8000-8005}"
 
 # Optional: mount composer cache for speed
 CACHE_DIR_HOST="${XDG_CACHE_HOME:-$HOME/.cache}/composer"
