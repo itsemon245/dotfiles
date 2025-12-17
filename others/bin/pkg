@@ -714,61 +714,89 @@ remove_from_toml_sync() {
     done
 }
 
-# Install package on Arch with specific package manager
-install_arch_with_pm() {
+# Detect which package manager a package belongs to on Arch
+# Returns: "pacman", "yay", "paru", or empty string if not found
+detect_arch_package_manager() {
     local package=$1
-    local package_manager=$2
+    
+    # Check pacman first
+    if pacman -Si "$package" &>/dev/null; then
+        echo "pacman"
+        return 0
+    fi
+    
+    # Check yay if available
+    if command -v yay &>/dev/null && yay -Si "$package" &>/dev/null; then
+        echo "yay"
+        return 0
+    fi
+    
+    # Check paru if available
+    if command -v paru &>/dev/null && paru -Si "$package" &>/dev/null; then
+        echo "paru"
+        return 0
+    fi
+    
+    # Not found
+    return 1
+}
+
+# Install batch of packages on Arch with specific package manager
+install_arch_batch() {
+    local package_manager=$1
+    local explicit_type=$2
+    shift 2
+    local packages=("$@")
+    
+    if [ ${#packages[@]} -eq 0 ]; then
+        return 0
+    fi
     
     case "$package_manager" in
         pacman)
-            if pacman -Si "$package" &>/dev/null; then
-                echo -e "${CYAN}Installing $package via pacman...${NC}"
-                if sudo pacman -S --noconfirm "$package"; then
-                    return 0
-                else
-                    echo -e "${RED}Failed to install $package via pacman${NC}"
-                    return 1
-                fi
+            echo -e "${CYAN}Installing ${#packages[@]} package(s) via pacman: ${packages[*]}${NC}"
+            if sudo pacman -S --noconfirm "${packages[@]}"; then
+                # Update TOML for each package
+                for package in "${packages[@]}"; do
+                    update_toml_sync "arch" "pacman" "$package" "$explicit_type"
+                done
+                return 0
             else
-                echo -e "${RED}Package $package not found in pacman${NC}"
+                echo -e "${RED}Failed to install packages via pacman${NC}"
                 return 1
             fi
             ;;
         yay)
-            if command -v yay &>/dev/null; then
-                if yay -Si "$package" &>/dev/null; then
-                    echo -e "${CYAN}Installing $package via yay...${NC}"
-                    if yay -S --noconfirm "$package"; then
-                        return 0
-                    else
-                        echo -e "${RED}Failed to install $package via yay${NC}"
-                        return 1
-                    fi
-                else
-                    echo -e "${RED}Package $package not found in yay${NC}"
-                    return 1
-                fi
-            else
+            if ! command -v yay &>/dev/null; then
                 echo -e "${RED}yay is not installed${NC}"
+                return 1
+            fi
+            echo -e "${CYAN}Installing ${#packages[@]} package(s) via yay: ${packages[*]}${NC}"
+            if yay -S --noconfirm "${packages[@]}"; then
+                # Update TOML for each package
+                for package in "${packages[@]}"; do
+                    update_toml_sync "arch" "yay" "$package" "$explicit_type"
+                done
+                return 0
+            else
+                echo -e "${RED}Failed to install packages via yay${NC}"
                 return 1
             fi
             ;;
         paru)
-            if command -v paru &>/dev/null; then
-                if paru -Si "$package" &>/dev/null; then
-                    echo -e "${CYAN}Installing $package via paru...${NC}"
-                    if paru -S --noconfirm "$package"; then
-                        return 0
-                    else
-                        echo -e "${RED}Failed to install $package via paru${NC}"
-                        return 1
-                    fi
-                else
-                    echo -e "${RED}Package $package not found in paru${NC}"
-                    return 1
-                fi
-            else
+            if ! command -v paru &>/dev/null; then
                 echo -e "${RED}paru is not installed${NC}"
+                return 1
+            fi
+            echo -e "${CYAN}Installing ${#packages[@]} package(s) via paru: ${packages[*]}${NC}"
+            if paru -S --noconfirm "${packages[@]}"; then
+                # Update TOML for each package
+                for package in "${packages[@]}"; do
+                    update_toml_sync "arch" "paru" "$package" "$explicit_type"
+                done
+                return 0
+            else
+                echo -e "${RED}Failed to install packages via paru${NC}"
                 return 1
             fi
             ;;
@@ -779,102 +807,161 @@ install_arch_with_pm() {
     esac
 }
 
-# Install package on Arch (auto-detect package manager)
+# Install package on Arch with specific package manager (single package, kept for backward compatibility)
+install_arch_with_pm() {
+    local package=$1
+    local package_manager=$2
+    
+    install_arch_batch "$package_manager" "" "$package"
+}
+
+# Install packages on Arch with intelligent batching
+# Separates pacman and AUR packages, then batch installs each group
+install_arch_batch_intelligent() {
+    local explicit_type=$1
+    shift
+    local packages=("$@")
+    
+    if [ ${#packages[@]} -eq 0 ]; then
+        return 0
+    fi
+    
+    # Note: Don't show detected type for bulk operations - only for single package installs
+    
+    # Separate packages by package manager
+    declare -a pacman_packages=()
+    declare -a aur_packages=()
+    declare -a not_found_packages=()
+    
+    # Determine which AUR helper to use (prefer yay over paru)
+    local aur_helper=""
+    if command -v yay &>/dev/null; then
+        aur_helper="yay"
+    elif command -v paru &>/dev/null; then
+        aur_helper="paru"
+    fi
+    
+    for package in "${packages[@]}"; do
+        local pm=$(detect_arch_package_manager "$package")
+        case "$pm" in
+            pacman)
+                pacman_packages+=("$package")
+                ;;
+            yay|paru)
+                # Consolidate all AUR packages together
+                aur_packages+=("$package")
+                ;;
+            *)
+                not_found_packages+=("$package")
+                ;;
+        esac
+    done
+    
+    local failed=false
+    
+    # Install pacman packages in batch
+    if [ ${#pacman_packages[@]} -gt 0 ]; then
+        echo -e "${CYAN}=== Installing ${#pacman_packages[@]} pacman package(s) ===${NC}"
+        if ! install_arch_batch "pacman" "$explicit_type" "${pacman_packages[@]}"; then
+            failed=true
+        fi
+    fi
+    
+    # Install AUR packages in batch (using preferred helper)
+    if [ ${#aur_packages[@]} -gt 0 ]; then
+        if [ -n "$aur_helper" ]; then
+            echo -e "${CYAN}=== Installing ${#aur_packages[@]} AUR package(s) via $aur_helper ===${NC}"
+            if ! install_arch_batch "$aur_helper" "$explicit_type" "${aur_packages[@]}"; then
+                failed=true
+            fi
+        else
+            echo -e "${RED}AUR packages found but neither yay nor paru is installed${NC}"
+            echo -e "${YELLOW}Packages: ${aur_packages[*]}${NC}"
+            failed=true
+        fi
+    fi
+    
+    # Report not found packages
+    if [ ${#not_found_packages[@]} -gt 0 ]; then
+        echo -e "${RED}Packages not found in any repository: ${not_found_packages[*]}${NC}"
+        failed=true
+    fi
+    
+    [ "$failed" = true ] && return 1
+    return 0
+}
+
+# Install package on Arch (single package, kept for backward compatibility)
 install_arch() {
     local package=$1
     local explicit_type=${2:-""}
     
-    # Show detected type if not explicitly provided
-    if [ -z "$explicit_type" ]; then
-        local detected_type=$(get_package_category "$package" "")
-        echo -e "${CYAN}Detected type: ${detected_type}${NC}"
-    fi
-    
-    # Try pacman first
-    if pacman -Si "$package" &>/dev/null; then
-        echo -e "${CYAN}Installing $package via pacman...${NC}"
-        if sudo pacman -S --noconfirm "$package"; then
-            update_toml_sync "arch" "pacman" "$package" "$explicit_type"
-            return 0
-        else
-            echo -e "${RED}Failed to install $package via pacman${NC}"
-            return 1
-        fi
-    fi
-    
-    # Try yay if available
-    if command -v yay &>/dev/null; then
-        echo -e "${CYAN}Package not found in pacman, trying yay...${NC}"
-        if yay -Si "$package" &>/dev/null; then
-            echo -e "${CYAN}Installing $package via yay...${NC}"
-            if yay -S --noconfirm "$package"; then
-                update_toml_sync "arch" "yay" "$package" "$explicit_type"
-                return 0
-            else
-                echo -e "${RED}Failed to install $package via yay${NC}"
-                return 1
-            fi
-        fi
-    fi
-    
-    # Try paru if available
-    if command -v paru &>/dev/null; then
-        echo -e "${CYAN}Package not found in yay, trying paru...${NC}"
-        if paru -Si "$package" &>/dev/null; then
-            echo -e "${CYAN}Installing $package via paru...${NC}"
-            if paru -S --noconfirm "$package"; then
-                update_toml_sync "arch" "paru" "$package" "$explicit_type"
-                return 0
-            else
-                echo -e "${RED}Failed to install $package via paru${NC}"
-                return 1
-            fi
-        fi
-    fi
-    
-    echo -e "${RED}Package $package not found in pacman or AUR helpers${NC}"
-    return 1
+    install_arch_batch_intelligent "$explicit_type" "$package"
 }
 
-# Install package on Debian
+# Install batch of packages on Debian
+install_debian_batch() {
+    local explicit_type=$1
+    shift
+    local packages=("$@")
+    
+    if [ ${#packages[@]} -eq 0 ]; then
+        return 0
+    fi
+    
+    # Note: Don't show detected type for bulk operations - only for single package installs
+    
+    echo -e "${CYAN}Installing ${#packages[@]} package(s) via apt: ${packages[*]}${NC}"
+    sudo apt update
+    if sudo apt install -y "${packages[@]}"; then
+        # Update TOML for each package
+        for package in "${packages[@]}"; do
+            update_toml_sync "debian" "apt" "$package" "$explicit_type"
+        done
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Install package on Debian (single package, kept for backward compatibility)
 install_debian() {
     local package=$1
     local explicit_type=${2:-""}
     
-    # Show detected type if not explicitly provided
-    if [ -z "$explicit_type" ]; then
-        local detected_type=$(get_package_category "$package" "")
-        echo -e "${CYAN}Detected type: ${detected_type}${NC}"
+    install_debian_batch "$explicit_type" "$package"
+}
+
+# Install batch of packages on Fedora
+install_fedora_batch() {
+    local explicit_type=$1
+    shift
+    local packages=("$@")
+    
+    if [ ${#packages[@]} -eq 0 ]; then
+        return 0
     fi
     
-    echo -e "${CYAN}Installing $package via apt...${NC}"
-    sudo apt update
-    if sudo apt install -y "$package"; then
-        update_toml_sync "debian" "apt" "$package" "$explicit_type"
+    # Note: Don't show detected type for bulk operations - only for single package installs
+    
+    echo -e "${CYAN}Installing ${#packages[@]} package(s) via dnf: ${packages[*]}${NC}"
+    if sudo dnf install -y "${packages[@]}"; then
+        # Update TOML for each package
+        for package in "${packages[@]}"; do
+            update_toml_sync "fedora" "dnf" "$package" "$explicit_type"
+        done
         return 0
     else
         return 1
     fi
 }
 
-# Install package on Fedora
+# Install package on Fedora (single package, kept for backward compatibility)
 install_fedora() {
     local package=$1
     local explicit_type=${2:-""}
     
-    # Show detected type if not explicitly provided
-    if [ -z "$explicit_type" ]; then
-        local detected_type=$(get_package_category "$package" "")
-        echo -e "${CYAN}Detected type: ${detected_type}${NC}"
-    fi
-    
-    echo -e "${CYAN}Installing $package via dnf...${NC}"
-    if sudo dnf install -y "$package"; then
-        update_toml_sync "fedora" "dnf" "$package" "$explicit_type"
-        return 0
-    else
-        return 1
-    fi
+    install_fedora_batch "$explicit_type" "$package"
 }
 
 # Remove package on Arch
@@ -1132,14 +1219,56 @@ get_package_category() {
     echo "desktop"
 }
 
+# Parse comma-separated type list into array
+# Usage: parse_type_list "cli,dev,gaming" -> array with cli dev gaming
+parse_type_list() {
+    local type_list=$1
+    local IFS=','
+    read -ra types <<< "$type_list"
+    printf '%s\n' "${types[@]}" | tr '[:upper:]' '[:lower:]' | xargs -n1
+}
+
+# Check if a type is in the include/exclude lists
+# Usage: should_include_type "cli" "cli,dev" "gaming"
+# Returns 0 if type should be included, 1 if excluded
+should_include_type() {
+    local type=$1
+    local only_types=$2  # comma-separated list of types to include (empty = all)
+    local except_types=$3  # comma-separated list of types to exclude (empty = none)
+    
+    # If --except is specified and type is in the list, exclude it
+    if [ -n "$except_types" ]; then
+        local except_array=($(parse_type_list "$except_types"))
+        for exclude_type in "${except_array[@]}"; do
+            if [ "$type" = "$exclude_type" ]; then
+                return 1  # Excluded
+            fi
+        done
+    fi
+    
+    # If --only is specified, only include types in the list
+    if [ -n "$only_types" ]; then
+        local only_array=($(parse_type_list "$only_types"))
+        for include_type in "${only_array[@]}"; do
+            if [ "$type" = "$include_type" ]; then
+                return 0  # Included
+            fi
+        done
+        return 1  # Not in --only list, exclude
+    fi
+    
+    # No filters, include all
+    return 0
+}
+
 # Parse TOML file and extract packages by section
 # Supports both old format [pacman] and new format [cli:pacman], [desktop:pacman], [gaming:pacman]
-# If cli_only is true, filters out desktop and gaming packages
-# If gaming_only is true, filters out CLI and desktop packages
+# only_types: comma-separated list of types to include (empty = all)
+# except_types: comma-separated list of types to exclude (empty = none)
 parse_toml_packages() {
     local toml_file=$1
-    local cli_only=${2:-false}
-    local gaming_only=${3:-false}
+    local only_types=${2:-""}
+    local except_types=${3:-""}
     local section=""
     declare -A packages_by_section
     
@@ -1168,35 +1297,19 @@ parse_toml_packages() {
         # It's a package name (non-empty line that's not a section header)
         elif [ -n "$section" ] && [ -n "$package_line" ]; then
             # Determine section category
-            local is_desktop_section=false
-            local is_gaming_section=false
-            local is_cli_section=false
+            local section_type=""
             
             # Check section format: [cli:pacman], [desktop:pacman], [gaming:pacman], or legacy [pacman]
-            if [[ "$section" =~ ^desktop: ]]; then
-                is_desktop_section=true
-            elif [[ "$section" =~ ^gaming: ]]; then
-                is_gaming_section=true
-            elif [[ "$section" =~ ^cli: ]]; then
-                is_cli_section=true
+            if [[ "$section" =~ ^([^:]+): ]]; then
+                # New format: extract type from section name
+                section_type="${BASH_REMATCH[1]}"
             elif [[ ! "$section" =~ : ]]; then
                 # Legacy format [pacman] - determine category from package name
-                local category=$(get_package_category "$package_line")
-                if [ "$category" = "desktop" ]; then
-                    is_desktop_section=true
-                elif [ "$category" = "gaming" ]; then
-                    is_gaming_section=true
-                elif [ "$category" = "cli" ]; then
-                    is_cli_section=true
-                fi
+                section_type=$(get_package_category "$package_line")
             fi
             
-            # Skip packages based on filter flags
-            if [ "$cli_only" = true ] && ([ "$is_desktop_section" = true ] || [ "$is_gaming_section" = true ]); then
-                continue
-            fi
-            
-            if [ "$gaming_only" = true ] && ([ "$is_desktop_section" = true ] || [ "$is_cli_section" = true ]); then
+            # Skip packages based on --only and --except filters
+            if ! should_include_type "$section_type" "$only_types" "$except_types"; then
                 continue
             fi
             
@@ -1221,7 +1334,7 @@ parse_toml_packages() {
             pm_name="${section#*:}"
         fi
         # Combine packages from cli, desktop, and gaming sections for same PM
-        if [ -z "${packages_by_pm[$pm_name]}" ]; then
+        if [[ -z "${packages_by_pm[$pm_name]:-}" ]]; then
             packages_by_pm["$pm_name"]="${packages_by_section[$section]}"
         else
             packages_by_pm["$pm_name"]="${packages_by_pm[$pm_name]} ${packages_by_section[$section]}"
@@ -1236,48 +1349,53 @@ parse_toml_packages() {
 
 # Install all packages from TOML file
 install_all_from_toml() {
-    local cli_only=${1:-false}
-    local gaming_only=${2:-false}
+    local only_types=${1:-""}
+    local except_types=${2:-""}
     local distro=$(detect_distro)
     local toml_file=$(get_toml_path "$distro")
     local failed_packages_file=$(mktemp)
     
     if [ ! -f "$toml_file" ]; then
         echo -e "${RED}TOML file not found: $toml_file${NC}"
-        echo -e "${YELLOW}Run '$0 <package-name>' to install packages first${NC}"
+        echo -e "${YELLOW}Run '$0 -S <package-name>' to install packages first${NC}"
         return 1
     fi
     
-    if [ "$gaming_only" = true ]; then
-        echo -e "${CYAN}Installing gaming-only packages from $toml_file (skipping CLI and desktop packages)...${NC}"
-    elif [ "$cli_only" = true ]; then
-        echo -e "${CYAN}Installing CLI-only packages from $toml_file (skipping desktop and gaming packages)...${NC}"
+    # Handle --all on non-Arch distros with confirmation
+    if [ -z "$only_types" ] && [ -z "$except_types" ] && [ "$distro" != "arch" ]; then
+        echo -e "${YELLOW}WARNING: You are about to install ALL packages from $toml_file${NC}"
+        echo -e "${YELLOW}On $distro, this may include desktop and gaming packages.${NC}"
+        echo ""
+        
+        if ! prompt_confirm "Do you want to install all packages?" "no"; then
+            echo ""
+            echo -e "${CYAN}Please specify which types to install (comma-separated):${NC}"
+            echo -e "${CYAN}Example: cli,dev or cli${NC}"
+            read -p "Types: " user_types
+            user_types=$(echo "$user_types" | xargs | tr '[:upper:]' '[:lower:]')
+            
+            if [ -z "$user_types" ]; then
+                echo -e "${YELLOW}No types specified. Aborting.${NC}"
+                return 1
+            fi
+            
+            only_types="$user_types"
+            echo ""
+        fi
+    fi
+    
+    # Build filter message
+    if [ -n "$only_types" ]; then
+        echo -e "${CYAN}Installing packages of type(s): $only_types${NC}"
+    elif [ -n "$except_types" ]; then
+        echo -e "${CYAN}Installing all packages except type(s): $except_types${NC}"
     else
         echo -e "${CYAN}Installing all packages from $toml_file...${NC}"
     fi
     echo ""
     
     local parsed_packages
-    
-    # Parse TOML file (with cli_only/gaming_only filter if enabled)
-    # Default behavior: on non-Arch distros, skip desktop and gaming packages by default
-    # On Arch, install all packages unless --cli-only or --gaming-only is specified
-    local filter_cli=false
-    local filter_gaming=false
-    if [ "$gaming_only" = true ]; then
-        filter_gaming=true
-    elif [ "$cli_only" = true ]; then
-        filter_cli=true
-    elif [ "$distro" != "arch" ]; then
-        # On non-Arch distros, default to CLI-only (skip desktop and gaming packages)
-        filter_cli=true
-        filter_gaming=true
-        echo -e "${YELLOW}Note: Skipping desktop and gaming packages on $distro by default.${NC}"
-        echo -e "${YELLOW}Desktop and gaming packages are only installed on Arch Linux.${NC}"
-        echo ""
-    fi
-    
-    parsed_packages=$(parse_toml_packages "$toml_file" "$filter_cli" "$filter_gaming")
+    parsed_packages=$(parse_toml_packages "$toml_file" "$only_types" "$except_types")
     
     case "$distro" in
         arch)
@@ -1376,25 +1494,33 @@ install_all_from_toml() {
 }
 
 # Main install function
-install_package() {
-    local package=$1
-    local explicit_type=${2:-""}
+# Install batch of packages (intelligent batching)
+install_packages_batch() {
+    local explicit_type=$1
+    shift
+    local packages=("$@")
     local distro=$(detect_distro)
     
-    if [ -z "$package" ]; then
-        echo -e "${RED}Usage: $0 <package-name>${NC}"
+    if [ ${#packages[@]} -eq 0 ]; then
+        echo -e "${RED}Usage: $0 <package-name>...${NC}"
         exit 1
+    fi
+    
+    # Show detected type only for single package installs (not bulk operations)
+    if [ ${#packages[@]} -eq 1 ] && [ -z "$explicit_type" ]; then
+        local detected_type=$(get_package_category "${packages[0]}" "")
+        echo -e "${CYAN}Detected type: ${detected_type}${NC}"
     fi
     
     case "$distro" in
         arch)
-            install_arch "$package" "$explicit_type"
+            install_arch_batch_intelligent "$explicit_type" "${packages[@]}"
             ;;
         debian)
-            install_debian "$package" "$explicit_type"
+            install_debian_batch "$explicit_type" "${packages[@]}"
             ;;
         fedora)
-            install_fedora "$package" "$explicit_type"
+            install_fedora_batch "$explicit_type" "${packages[@]}"
             ;;
         *)
             echo -e "${RED}Unsupported distribution: $distro${NC}"
@@ -1403,7 +1529,72 @@ install_package() {
     esac
 }
 
+# Install package (single package, kept for backward compatibility)
+install_package() {
+    local package=$1
+    local explicit_type=${2:-""}
+    
+    install_packages_batch "$package" "$explicit_type"
+}
+
+# Prompt for confirmation (returns 0 for yes, 1 for no)
+# Usage: prompt_confirm "message" [default]
+# default can be "yes" or "no" (defaults to "no")
+prompt_confirm() {
+    local message=$1
+    local default=${2:-"no"}
+    local prompt_text
+    
+    if [ "$default" = "yes" ]; then
+        prompt_text="${message} [Y/n]: "
+    else
+        prompt_text="${message} [y/N]: "
+    fi
+    
+    read -p "$prompt_text" response
+    response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
+    
+    if [ -z "$response" ]; then
+        [ "$default" = "yes" ] && return 0 || return 1
+    fi
+    
+    case "$response" in
+        y|yes)
+            return 0
+            ;;
+        n|no)
+            return 1
+            ;;
+        *)
+            # Invalid input, use default
+            [ "$default" = "yes" ] && return 0 || return 1
+            ;;
+    esac
+}
+
+# Prompt for double confirmation with red warning (for destructive operations)
+# Returns 0 if both confirmations are yes, 1 otherwise
+prompt_double_confirm() {
+    local message=$1
+    
+    echo -e "${RED}WARNING: This is a destructive operation!${NC}"
+    echo -e "${RED}$message${NC}"
+    echo ""
+    
+    if ! prompt_confirm "Are you sure you want to proceed?" "no"; then
+        return 1
+    fi
+    
+    echo ""
+    if ! prompt_confirm "Please confirm again - this action cannot be undone" "no"; then
+        return 1
+    fi
+    
+    return 0
+}
+
 # Parse command/operation from arguments
+# No longer defaults to install - requires explicit operation
 parse_operation() {
     local first_arg=$1
     
@@ -1437,6 +1628,10 @@ parse_operation() {
             echo "install"
             return 0
             ;;
+        -h|--help|help)
+            echo "help"
+            return 0
+            ;;
     esac
     
     # Check for pacman-style flags (Arch)
@@ -1450,61 +1645,75 @@ parse_operation() {
         return 0
     fi
     
-    # Default to install (package name provided directly)
-    echo "install"
+    # No default - return unknown if no operation specified
+    echo "unknown"
+    return 1
+}
+
+# Show usage information
+show_usage() {
+    local script_name=$(basename "$0")
+    printf "${CYAN}Package Manager Manager${NC}\n\n"
+    printf "${CYAN}Usage:${NC}\n"
+    printf "  ${script_name} [operation] [options] [packages...]\n\n"
+    printf "${CYAN}Operations:${NC}\n"
+    printf "  install, -S              Install packages\n"
+    printf "  remove, -R, -Rns         Remove packages\n"
+    printf "  search, -Ss              Search for packages\n"
+    printf "  update, -Syu, upgrade    Update package lists and upgrade\n"
+    printf "  info, -Si                Show package information\n"
+    printf "  list, -Q                 List installed packages\n"
+    printf "  help, -h, --help         Show this help message\n"
+    printf "  --all, -a                Install/remove all packages from TOML file\n\n"
+    printf "${CYAN}Options:${NC}\n"
+    printf "  --type=TYPE, -t TYPE     Specify package type explicitly\n"
+    printf "                           Example: --type=gaming, -t utils\n"
+    printf "                           Works regardless of position in command line\n"
+    printf "                           If type file doesn't exist, creates/updates general.toml\n"
+    printf "                           Removes package from other type files if it exists\n\n"
+    printf "  --only=TYPES             Install/remove only specified types (comma-separated)\n"
+    printf "                           Example: --only=cli,dev\n"
+    printf "                           Works with --all flag\n\n"
+    printf "  --except=TYPES           Install/remove all types except specified (comma-separated)\n"
+    printf "                           Example: --except=dev\n"
+    printf "                           Works with --all flag\n\n"
+    printf "${CYAN}Examples:${NC}\n"
+    printf "  ${CYAN}Install packages:${NC}\n"
+    printf "  ${script_name} -S git bat                    # Install packages (explicit)\n"
+    printf "  ${script_name} install git bat               # Install packages (subcommand)\n"
+    printf "  ${script_name} -S --type=gaming steam        # Install with explicit type\n"
+    printf "  ${script_name} install greenclip -t utils     # Install as utils type\n\n"
+    printf "  ${CYAN}Install from TOML:${NC}\n"
+    printf "  ${script_name} --all                          # Install all packages (prompts on non-Arch)\n"
+    printf "  ${script_name} --all --only=cli,dev          # Install only cli and dev packages\n"
+    printf "  ${script_name} --all --except=gaming         # Install all except gaming packages\n\n"
+    printf "  ${CYAN}Remove packages:${NC}\n"
+    printf "  ${script_name} -Rns chromium                  # Remove package (Arch: pacman style)\n"
+    printf "  ${script_name} remove kitty                   # Remove package (Debian: apt style)\n"
+    printf "  ${script_name} remove --all --only=gaming    # Remove all gaming packages (with confirmation)\n\n"
+    printf "  ${CYAN}Other operations:${NC}\n"
+    printf "  ${script_name} -Ss neovim                     # Search for packages (Arch)\n"
+    printf "  ${script_name} search neovim                  # Search for packages (Debian)\n"
+    printf "  ${script_name} -Syu                           # Update and upgrade (Arch)\n"
+    printf "  ${script_name} update                         # Update and upgrade (Debian)\n"
+    printf "  ${script_name} -Si chromium                   # Show package info (Arch)\n"
+    printf "  ${script_name} info chromium                  # Show package info (Debian)\n"
+    printf "  ${script_name} -Q                             # List installed packages (Arch)\n"
+    printf "  ${script_name} list                           # List installed packages (Debian)\n"
 }
 
 # Main argument parsing
 if [ $# -eq 0 ]; then
-    echo -e "${CYAN}Package Manager Wrapper${NC}"
-    echo ""
-    echo -e "${CYAN}Usage:${NC}"
-    echo "  $0 [operation] [packages...]"
-    echo ""
-    echo -e "${CYAN}Operations:${NC}"
-    echo "  install, -S          Install packages (default)"
-    echo "  --all, -a             Install all packages from TOML file"
-    echo "  --cli-only            Install only CLI packages (skip desktop and gaming packages)"
-    echo "                        On non-Arch distros, this is the default behavior"
-    echo "  --gaming-only         Install only gaming packages (skip CLI and desktop packages)"
-    echo "  --type=TYPE, -t TYPE  Specify package type explicitly (e.g., --type=gaming, -t utils)"
-    echo "                        Works regardless of position in command line"
-    echo "                        If type file doesn't exist, creates/updates general.toml"
-    echo "                        Removes package from other type files if it exists"
-    echo "  remove, -R, -Rns      Remove packages"
-    echo "  search, -Ss           Search for packages"
-    echo "  update, -Syu, upgrade Update package lists and upgrade"
-    echo "  info, -Si             Show package information"
-    echo "  list, -Q              List installed packages"
-    echo ""
-    echo -e "${CYAN}Examples:${NC}"
-    echo "  $0 --all                    # Install all packages from TOML"
-    echo "  $0 --all --cli-only         # Install only CLI packages (skip desktop and gaming)"
-    echo "  $0 --all --gaming-only      # Install only gaming packages (skip CLI and desktop)"
-    echo "  $0 --type=gaming steam      # Install steam as gaming package"
-    echo "  $0 install greenclip -t utils  # Install greenclip as utils (creates general.toml)"
-    echo "  $0 -t utils greenclip       # Short form, works in any position"
-    echo "  $0 kitty tmux zsh           # Install packages (default)"
-    echo "  $0 -S kitty                 # Install package (explicit)"
-    echo "  $0 -Rns chromium            # Remove package (Arch: pacman style)"
-    echo "  $0 remove kitty             # Remove package (Debian: apt style)"
-    echo "  $0 -R chromium              # Remove package (Arch: simple)"
-    echo "  $0 -Ss neovim               # Search for packages (Arch)"
-    echo "  $0 search neovim            # Search for packages (Debian)"
-    echo "  $0 -Syu                     # Update and upgrade (Arch)"
-    echo "  $0 update                   # Update and upgrade (Debian)"
-    echo "  $0 -Si chromium             # Show package info (Arch)"
-    echo "  $0 info chromium            # Show package info (Debian)"
-    echo "  $0 -Q                       # List installed packages (Arch)"
-    echo "  $0 list                     # List installed packages (Debian)"
+    show_usage
     exit 1
 fi
 
-# Check for --cli-only, --gaming-only, and --type/-t flags and remove them from arguments
+# Parse flags and remove them from arguments
 # This works regardless of position in the command line
-cli_only=false
-gaming_only=false
 explicit_type=""
+only_types=""
+except_types=""
+has_all_flag=false
 args=()
 skip_next=false
 
@@ -1526,11 +1735,7 @@ for i in "${!all_args[@]}"; do
         continue
     fi
     
-    if [ "$arg" = "--cli-only" ]; then
-        cli_only=true
-    elif [ "$arg" = "--gaming-only" ]; then
-        gaming_only=true
-    elif [[ "$arg" =~ ^--type= ]]; then
+    if [[ "$arg" =~ ^--type= ]]; then
         explicit_type="${arg#--type=}"
     elif [[ "$arg" =~ ^-t= ]]; then
         explicit_type="${arg#-t=}"
@@ -1538,6 +1743,14 @@ for i in "${!all_args[@]}"; do
         # Handle -t as separate argument (next arg is the type)
         explicit_type="$next_arg"
         skip_next=true
+    elif [[ "$arg" =~ ^--only= ]]; then
+        only_types="${arg#--only=}"
+    elif [[ "$arg" =~ ^--except= ]]; then
+        except_types="${arg#--except=}"
+    elif [ "$arg" = "--all" ] || [ "$arg" = "-a" ]; then
+        # --all flag - don't add to args, mark that we saw it
+        has_all_flag=true
+        continue
     else
         args+=("$arg")
     fi
@@ -1545,12 +1758,41 @@ done
 
 set -- "${args[@]}"
 
-operation=$(parse_operation "$1")
+# If --all flag was present and no operation was specified, treat as install_all
+if [ "$has_all_flag" = true ] && [ $# -eq 0 ]; then
+    operation="install_all"
+elif [ "$has_all_flag" = true ] && [ "$1" = "" ]; then
+    operation="install_all"
+else
+    # Check if first arg exists before parsing
+    if [ $# -gt 0 ] && [ -n "${1:-}" ]; then
+        operation=$(parse_operation "$1")
+    else
+        operation="unknown"
+    fi
+fi
+
+# Handle help operation
+if [ "$operation" = "help" ]; then
+    show_usage
+    exit 0
+fi
+
+# Handle unknown operation
+if [ "$operation" = "unknown" ]; then
+    if [ $# -gt 0 ] && [ -n "${1:-}" ]; then
+        echo -e "${RED}Error: Unknown operation '${1}'${NC}"
+    else
+        echo -e "${RED}Error: No operation specified${NC}"
+    fi
+    echo -e "${YELLOW}Run 'pkg help' for usage information${NC}"
+    exit 1
+fi
 
 # Handle operations
 case "$operation" in
     install_all)
-        install_all_from_toml "$cli_only" "$gaming_only"
+        install_all_from_toml "$only_types" "$except_types"
         exit $?
         ;;
     remove)
@@ -1563,6 +1805,136 @@ case "$operation" in
             shift
         fi
         
+        # Check if --all flag is present (check in remaining args)
+        remove_all=false
+        for arg in "$@"; do
+            if [ "$arg" = "--all" ] || [ "$arg" = "-a" ]; then
+                remove_all=true
+                # Remove --all from args
+                new_args=()
+                for a in "$@"; do
+                    [ "$a" != "--all" ] && [ "$a" != "-a" ] && new_args+=("$a")
+                done
+                set -- "${new_args[@]}"
+                break
+            fi
+        done
+        
+        # Handle --all removal or removal with --only/--except (both trigger bulk removal)
+        if [ "$remove_all" = true ] || [ -n "$only_types" ] || [ -n "$except_types" ]; then
+            distro=$(detect_distro)
+            toml_file=$(get_toml_path "$distro")
+            
+            if [ ! -f "$toml_file" ]; then
+                echo -e "${RED}TOML file not found: $toml_file${NC}"
+                exit 1
+            fi
+            
+            # Build confirmation message
+            confirm_msg="You are about to remove packages from $toml_file"
+            if [ -n "$only_types" ]; then
+                confirm_msg="$confirm_msg (only type(s): $only_types)"
+            elif [ -n "$except_types" ]; then
+                confirm_msg="$confirm_msg (except type(s): $except_types)"
+            else
+                confirm_msg="$confirm_msg (ALL packages)"
+            fi
+            
+            # Double confirmation for removal (always required for bulk operations)
+            if ! prompt_double_confirm "$confirm_msg"; then
+                echo -e "${YELLOW}Removal cancelled.${NC}"
+                exit 0
+            fi
+            
+            # Parse packages from TOML
+            parsed_packages=$(parse_toml_packages "$toml_file" "$only_types" "$except_types")
+            failed_packages_file=$(mktemp)
+            
+            case "$distro" in
+                arch)
+                    # Remove pacman packages
+                    pacman_pkgs=$(echo "$parsed_packages" | grep "^pacman:" | cut -d: -f2-)
+                    if [ -n "$pacman_pkgs" ]; then
+                        echo -e "${CYAN}=== Removing pacman packages ===${NC}"
+                        for package in $pacman_pkgs; do
+                            [ -z "$package" ] && continue
+                            if ! remove_arch "$package" "$remove_flags"; then
+                                echo "$package" >> "$failed_packages_file"
+                            fi
+                        done
+                    fi
+                    
+                    # Remove yay packages
+                    yay_pkgs=$(echo "$parsed_packages" | grep "^yay:" | cut -d: -f2-)
+                    if [ -n "$yay_pkgs" ]; then
+                        echo ""
+                        echo -e "${CYAN}=== Removing yay packages ===${NC}"
+                        for package in $yay_pkgs; do
+                            [ -z "$package" ] && continue
+                            if ! remove_arch "$package" "$remove_flags"; then
+                                echo "$package" >> "$failed_packages_file"
+                            fi
+                        done
+                    fi
+                    
+                    # Remove paru packages
+                    paru_pkgs=$(echo "$parsed_packages" | grep "^paru:" | cut -d: -f2-)
+                    if [ -n "$paru_pkgs" ]; then
+                        echo ""
+                        echo -e "${CYAN}=== Removing paru packages ===${NC}"
+                        for package in $paru_pkgs; do
+                            [ -z "$package" ] && continue
+                            if ! remove_arch "$package" "$remove_flags"; then
+                                echo "$package" >> "$failed_packages_file"
+                            fi
+                        done
+                    fi
+                    ;;
+                debian)
+                    apt_pkgs=$(echo "$parsed_packages" | grep "^apt:" | cut -d: -f2-)
+                    if [ -n "$apt_pkgs" ]; then
+                        echo -e "${CYAN}=== Removing apt packages ===${NC}"
+                        for package in $apt_pkgs; do
+                            [ -z "$package" ] && continue
+                            if ! remove_debian "$package"; then
+                                echo "$package" >> "$failed_packages_file"
+                            fi
+                        done
+                    fi
+                    ;;
+                fedora)
+                    dnf_pkgs=$(echo "$parsed_packages" | grep "^dnf:" | cut -d: -f2-)
+                    if [ -n "$dnf_pkgs" ]; then
+                        echo -e "${CYAN}=== Removing dnf packages ===${NC}"
+                        for package in $dnf_pkgs; do
+                            [ -z "$package" ] && continue
+                            if ! remove_fedora "$package"; then
+                                echo "$package" >> "$failed_packages_file"
+                            fi
+                        done
+                    fi
+                    ;;
+                *)
+                    echo -e "${RED}Unsupported distribution: $distro${NC}"
+                    rm -f "$failed_packages_file"
+                    exit 1
+                    ;;
+            esac
+            
+            echo ""
+            if [ -s "$failed_packages_file" ]; then
+                failed_list=$(cat "$failed_packages_file" | tr '\n' ' ')
+                echo -e "${YELLOW}Warning: The following packages failed to remove: ${failed_list}${NC}"
+                rm -f "$failed_packages_file"
+                exit 1
+            else
+                echo -e "${GREEN}All packages removed successfully!${NC}"
+                rm -f "$failed_packages_file"
+            fi
+            exit 0
+        fi
+        
+        # Regular removal (specific packages)
         if [ $# -eq 0 ]; then
             echo -e "${RED}Error: No packages specified for removal${NC}"
             exit 1
@@ -1657,6 +2029,13 @@ case "$operation" in
         list_installed "$@"
         ;;
     install)
+        # Handle --all flag (check has_all_flag set during argument parsing)
+        if [ "$has_all_flag" = true ]; then
+            install_all_from_toml "$only_types" "$except_types"
+            exit $?
+        fi
+        
+        # Regular install (specific packages)
         # Check if first arg is the operation flag/command and remove it
         if [[ "$1" =~ ^(-S|--install|install)$ ]]; then
             shift
@@ -1664,18 +2043,13 @@ case "$operation" in
         
         if [ $# -eq 0 ]; then
             echo -e "${RED}Error: No packages specified${NC}"
+            echo -e "${YELLOW}Run 'pkg help' for usage information${NC}"
             exit 1
         fi
         
-        failed_packages=()
-        for package in "$@"; do
-            if ! install_package "$package" "$explicit_type"; then
-                failed_packages+=("$package")
-            fi
-        done
-        
-        if [ ${#failed_packages[@]} -gt 0 ]; then
-            echo -e "${RED}Error: The following packages failed to install: ${failed_packages[*]}${NC}"
+        # Batch install all packages at once (intelligent batching)
+        if ! install_packages_batch "$explicit_type" "$@"; then
+            echo -e "${RED}Error: Some packages failed to install${NC}"
             exit 1
         fi
         

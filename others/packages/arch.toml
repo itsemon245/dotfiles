@@ -10,13 +10,14 @@
 
 # CLI packages
 [cli:pacman]
+neovim
 bat
+git
 tree
 docker-compose
 docker
 tmux
 zsh
-git
 php
 composer
 stow
@@ -45,8 +46,9 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
-openrgb-bin
+google-chrome
 greenclip
+openrgb-bin
 
 [cli:paru]
 
