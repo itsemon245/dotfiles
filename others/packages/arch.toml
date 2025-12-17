@@ -10,6 +10,7 @@
 
 # CLI packages
 [cli:pacman]
+bat
 tree
 docker-compose
 docker
@@ -60,5 +61,9 @@ wine-mono
 wine-staging
 
 [gaming:yay]
+protonup-qt
 
 [gaming:paru]
+
+[dev:yay]
+ngrok
