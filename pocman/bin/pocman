@@ -15,13 +15,14 @@ else
     NC='\033[0m' # No Color
 fi
 
-# Get types directory path
-SCRIPT_DIR="$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")"
-TYPES_DIR="$HOME/dotfiles/others/packages/types"
-if [ ! -d "$TYPES_DIR" ]; then
-    # Fallback to script directory if types directory doesn't exist
-    TYPES_DIR="$SCRIPT_DIR/../packages/types"
-fi
+# Get config directory path (XDG_CONFIG_HOME or default to ~/.config)
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+CONFIG_DIR="$XDG_CONFIG_HOME/pocman"
+TYPES_DIR="$CONFIG_DIR/types"
+
+# Create config directories if they don't exist
+mkdir -p "$CONFIG_DIR"
+mkdir -p "$TYPES_DIR"
 
 # Check if package exists in a type TOML file
 package_in_type_file() {
@@ -49,6 +50,81 @@ package_in_type_file() {
     return 1
 }
 
+# Migrate packages from general.toml to a dedicated type file
+# Called when creating a new dedicated type file for the first time
+migrate_packages_from_general() {
+    local type=$1
+    local type_file="$TYPES_DIR/${type}.toml"
+    local general_file="$TYPES_DIR/general.toml"
+    
+    # If general.toml doesn't exist, nothing to migrate
+    [ ! -f "$general_file" ] && return 0
+    
+    # Read packages from general.toml for this type
+    local packages_to_migrate=()
+    local in_section=0
+    local current_section=""
+    
+    while IFS= read -r line || [ -n "$line" ]; do
+        local clean_line="${line%%#*}"
+        clean_line=$(echo "$clean_line" | xargs)
+        
+        # Check if it's a section header
+        if [[ "$clean_line" =~ ^\[(.*)\]$ ]]; then
+            current_section="${BASH_REMATCH[1]}"
+            in_section=0
+            if [ "$current_section" = "$type" ]; then
+                in_section=1
+            fi
+        # If we're in the target section, collect package names
+        elif [ $in_section -eq 1 ] && [ -n "$clean_line" ]; then
+            packages_to_migrate+=("$clean_line")
+        fi
+    done < "$general_file"
+    
+    # If there are packages to migrate, add them to the type file
+    if [ ${#packages_to_migrate[@]} -gt 0 ]; then
+        for pkg in "${packages_to_migrate[@]}"; do
+            # Add each package to the type file (skip if already exists)
+            if ! package_in_type_file "$type" "$pkg"; then
+                echo "$pkg" >> "$type_file"
+            fi
+        done
+        
+        # Remove the type section from general.toml
+        local temp_file=$(mktemp)
+        in_section=0
+        current_section=""
+        
+        while IFS= read -r line || [ -n "$line" ]; do
+            local original_line="$line"
+            local clean_line="${line%%#*}"
+            clean_line=$(echo "$clean_line" | xargs)
+            
+            # Check if it's a section header
+            if [[ "$clean_line" =~ ^\[(.*)\]$ ]]; then
+                current_section="${BASH_REMATCH[1]}"
+                in_section=0
+                if [ "$current_section" = "$type" ]; then
+                    in_section=1
+                    # Skip this section header
+                    continue
+                else
+                    echo "$original_line" >> "$temp_file"
+                fi
+            # Skip lines in the target section
+            elif [ $in_section -eq 1 ]; then
+                continue
+            # Keep all other lines
+            else
+                echo "$original_line" >> "$temp_file"
+            fi
+        done < "$general_file"
+        
+        mv "$temp_file" "$general_file"
+    fi
+}
+
 # Add package to a type TOML file
 add_package_to_type_file() {
     local type=$1
@@ -58,9 +134,20 @@ add_package_to_type_file() {
     # Create directory if it doesn't exist
     mkdir -p "$TYPES_DIR"
     
+    # Check if this is a new file being created (not a dedicated type)
+    local is_new_file=false
+    if [ ! -f "$type_file" ] && ! is_dedicated_type "$type"; then
+        is_new_file=true
+    fi
+    
     # Create file with section header if it doesn't exist
     if [ ! -f "$type_file" ]; then
         echo "[$type]" > "$type_file"
+        
+        # If this is a new dedicated file (not cli/gaming/desktop), migrate packages from general.toml
+        if [ "$is_new_file" = true ]; then
+            migrate_packages_from_general "$type"
+        fi
     fi
     
     # Check if package already exists
@@ -195,6 +282,20 @@ remove_package_from_other_types() {
     fi
 }
 
+# Check if a type should use a dedicated file (cli, gaming, desktop)
+# These types always get their own files, never go in general.toml
+is_dedicated_type() {
+    local type=$1
+    case "$type" in
+        cli|gaming|desktop)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
 # Check if a type file exists
 type_file_exists() {
     local type=$1
@@ -285,27 +386,16 @@ detect_distro() {
 }
 
 # Get TOML file path for distro
-# First tries ~/packages/$distro.toml, then falls back to ~/dotfiles/others/packages/$distro.toml
-# If neither exists, returns primary path for new file creation
+# Uses XDG_CONFIG_HOME/pocman/$distro.toml
+# Creates directory if it doesn't exist
 get_toml_path() {
     local distro=$1
-    local primary_path="$HOME/packages/${distro}.toml"
-    local fallback_path="$HOME/dotfiles/others/packages/${distro}.toml"
+    local toml_path="$CONFIG_DIR/${distro}.toml"
     
-    # Try primary path first
-    if [ -f "$primary_path" ]; then
-        echo "$primary_path"
-        return 0
-    fi
+    # Ensure config directory exists
+    mkdir -p "$CONFIG_DIR"
     
-    # Try fallback path
-    if [ -f "$fallback_path" ]; then
-        echo "$fallback_path"
-        return 0
-    fi
-    
-    # Neither exists - return primary path for new file creation
-    echo "$primary_path"
+    echo "$toml_path"
 }
 
 # Check if package exists in a TOML file (ignores comments)
@@ -412,6 +502,7 @@ update_toml() {
     local package_manager=$2
     local package=$3
     local explicit_type=${4:-""}
+    local create_type_file=${5:-"false"}
     local toml_file=$(get_toml_path "$distro")
     
     # Create directory if it doesn't exist
@@ -482,15 +573,24 @@ EOF
         remove_package_from_other_types "$explicit_type" "$package"
         
         # Add package to the appropriate type file
-        if type_file_exists "$explicit_type"; then
+        # cli, gaming, desktop always use dedicated files
+        if is_dedicated_type "$explicit_type"; then
+            add_package_to_type_file "$explicit_type" "$package"
+        elif [ "$create_type_file" = "true" ]; then
+            # --create-type-file flag: force creation of dedicated type file
+            add_package_to_type_file "$explicit_type" "$package"
+        elif type_file_exists "$explicit_type"; then
             add_package_to_type_file "$explicit_type" "$package"
         else
-            # Type file doesn't exist, add to general.toml
+            # Type file doesn't exist and not a dedicated type, add to general.toml
             add_package_to_general_toml "$explicit_type" "$package"
         fi
     else
-        # Auto-detect: add to type file if it exists for the detected category
-        if type_file_exists "$category"; then
+        # Auto-detect: add to type file
+        # cli, gaming, desktop always use dedicated files
+        if is_dedicated_type "$category"; then
+            add_package_to_type_file "$category" "$package"
+        elif type_file_exists "$category"; then
             add_package_to_type_file "$category" "$package"
         fi
     fi
@@ -581,9 +681,10 @@ update_toml_sync() {
     local package_manager=$2
     local package=$3
     local explicit_type=${4:-""}
+    local create_type_file=${5:-"false"}
     
     # Update current distro's TOML first
-    update_toml "$current_distro" "$package_manager" "$package" "$explicit_type"
+    update_toml "$current_distro" "$package_manager" "$package" "$explicit_type" "$create_type_file"
     
     # Check and sync to other distros if package exists there
     for other_distro in arch debian fedora; do
@@ -602,19 +703,19 @@ update_toml_sync() {
             arch)
                 if package_exists_arch "$package"; then
                     echo -e "${CYAN}Package $package exists in arch repositories, updating arch.toml...${NC}"
-                    update_toml "arch" "$other_pm" "$package" "$explicit_type"
+                    update_toml "arch" "$other_pm" "$package" "$explicit_type" "$create_type_file"
                 fi
                 ;;
             debian)
                 if package_exists_debian "$package"; then
                     echo -e "${CYAN}Package $package exists in debian repositories, updating debian.toml...${NC}"
-                    update_toml "debian" "$other_pm" "$package" "$explicit_type"
+                    update_toml "debian" "$other_pm" "$package" "$explicit_type" "$create_type_file"
                 fi
                 ;;
             fedora)
                 if package_exists_fedora "$package"; then
                     echo -e "${CYAN}Package $package exists in fedora repositories, updating fedora.toml...${NC}"
-                    update_toml "fedora" "$other_pm" "$package" "$explicit_type"
+                    update_toml "fedora" "$other_pm" "$package" "$explicit_type" "$create_type_file"
                 fi
                 ;;
         esac
@@ -745,7 +846,8 @@ detect_arch_package_manager() {
 install_arch_batch() {
     local package_manager=$1
     local explicit_type=$2
-    shift 2
+    local create_type_file=$3
+    shift 3
     local packages=("$@")
     
     if [ ${#packages[@]} -eq 0 ]; then
@@ -758,7 +860,7 @@ install_arch_batch() {
             if sudo pacman -S --noconfirm "${packages[@]}"; then
                 # Update TOML for each package
                 for package in "${packages[@]}"; do
-                    update_toml_sync "arch" "pacman" "$package" "$explicit_type"
+                    update_toml_sync "arch" "pacman" "$package" "$explicit_type" "$create_type_file"
                 done
                 return 0
             else
@@ -775,7 +877,7 @@ install_arch_batch() {
             if yay -S --noconfirm "${packages[@]}"; then
                 # Update TOML for each package
                 for package in "${packages[@]}"; do
-                    update_toml_sync "arch" "yay" "$package" "$explicit_type"
+                    update_toml_sync "arch" "yay" "$package" "$explicit_type" "$create_type_file"
                 done
                 return 0
             else
@@ -792,7 +894,7 @@ install_arch_batch() {
             if paru -S --noconfirm "${packages[@]}"; then
                 # Update TOML for each package
                 for package in "${packages[@]}"; do
-                    update_toml_sync "arch" "paru" "$package" "$explicit_type"
+                    update_toml_sync "arch" "paru" "$package" "$explicit_type" "$create_type_file"
                 done
                 return 0
             else
@@ -819,7 +921,8 @@ install_arch_with_pm() {
 # Separates pacman and AUR packages, then batch installs each group
 install_arch_batch_intelligent() {
     local explicit_type=$1
-    shift
+    local create_type_file=$2
+    shift 2
     local packages=("$@")
     
     if [ ${#packages[@]} -eq 0 ]; then
@@ -862,7 +965,7 @@ install_arch_batch_intelligent() {
     # Install pacman packages in batch
     if [ ${#pacman_packages[@]} -gt 0 ]; then
         echo -e "${CYAN}=== Installing ${#pacman_packages[@]} pacman package(s) ===${NC}"
-        if ! install_arch_batch "pacman" "$explicit_type" "${pacman_packages[@]}"; then
+        if ! install_arch_batch "pacman" "$explicit_type" "$create_type_file" "${pacman_packages[@]}"; then
             failed=true
         fi
     fi
@@ -871,7 +974,7 @@ install_arch_batch_intelligent() {
     if [ ${#aur_packages[@]} -gt 0 ]; then
         if [ -n "$aur_helper" ]; then
             echo -e "${CYAN}=== Installing ${#aur_packages[@]} AUR package(s) via $aur_helper ===${NC}"
-            if ! install_arch_batch "$aur_helper" "$explicit_type" "${aur_packages[@]}"; then
+            if ! install_arch_batch "$aur_helper" "$explicit_type" "$create_type_file" "${aur_packages[@]}"; then
                 failed=true
             fi
         else
@@ -896,13 +999,14 @@ install_arch() {
     local package=$1
     local explicit_type=${2:-""}
     
-    install_arch_batch_intelligent "$explicit_type" "$package"
+    install_arch_batch_intelligent "$explicit_type" "false" "$package"
 }
 
 # Install batch of packages on Debian
 install_debian_batch() {
     local explicit_type=$1
-    shift
+    local create_type_file=$2
+    shift 2
     local packages=("$@")
     
     if [ ${#packages[@]} -eq 0 ]; then
@@ -916,7 +1020,7 @@ install_debian_batch() {
     if sudo apt install -y "${packages[@]}"; then
         # Update TOML for each package
         for package in "${packages[@]}"; do
-            update_toml_sync "debian" "apt" "$package" "$explicit_type"
+            update_toml_sync "debian" "apt" "$package" "$explicit_type" "$create_type_file"
         done
         return 0
     else
@@ -929,13 +1033,14 @@ install_debian() {
     local package=$1
     local explicit_type=${2:-""}
     
-    install_debian_batch "$explicit_type" "$package"
+    install_debian_batch "$explicit_type" "false" "$package"
 }
 
 # Install batch of packages on Fedora
 install_fedora_batch() {
     local explicit_type=$1
-    shift
+    local create_type_file=$2
+    shift 2
     local packages=("$@")
     
     if [ ${#packages[@]} -eq 0 ]; then
@@ -948,7 +1053,7 @@ install_fedora_batch() {
     if sudo dnf install -y "${packages[@]}"; then
         # Update TOML for each package
         for package in "${packages[@]}"; do
-            update_toml_sync "fedora" "dnf" "$package" "$explicit_type"
+            update_toml_sync "fedora" "dnf" "$package" "$explicit_type" "$create_type_file"
         done
         return 0
     else
@@ -961,7 +1066,7 @@ install_fedora() {
     local package=$1
     local explicit_type=${2:-""}
     
-    install_fedora_batch "$explicit_type" "$package"
+    install_fedora_batch "$explicit_type" "false" "$package"
 }
 
 # Remove package on Arch
@@ -1185,7 +1290,7 @@ get_package_category() {
         return 0
     fi
     
-    # Check type files in order: gaming, cli, then check general.toml
+    # Check type files in order: gaming, cli, desktop, then check general.toml
     if package_in_type_file "gaming" "$package"; then
         echo "gaming"
         return 0
@@ -1193,6 +1298,11 @@ get_package_category() {
     
     if package_in_type_file "cli" "$package"; then
         echo "cli"
+        return 0
+    fi
+    
+    if package_in_type_file "desktop" "$package"; then
+        echo "desktop"
         return 0
     fi
     
@@ -1357,7 +1467,7 @@ install_all_from_toml() {
     
     if [ ! -f "$toml_file" ]; then
         echo -e "${RED}TOML file not found: $toml_file${NC}"
-        echo -e "${YELLOW}Run '$0 -S <package-name>' to install packages first${NC}"
+        echo -e "${YELLOW}Run 'pocman -S <package-name>' to install packages first${NC}"
         return 1
     fi
     
@@ -1497,12 +1607,13 @@ install_all_from_toml() {
 # Install batch of packages (intelligent batching)
 install_packages_batch() {
     local explicit_type=$1
-    shift
+    local create_type_file=$2
+    shift 2
     local packages=("$@")
     local distro=$(detect_distro)
     
     if [ ${#packages[@]} -eq 0 ]; then
-        echo -e "${RED}Usage: $0 <package-name>...${NC}"
+        echo -e "${RED}Usage: pocman <package-name>...${NC}"
         exit 1
     fi
     
@@ -1514,13 +1625,13 @@ install_packages_batch() {
     
     case "$distro" in
         arch)
-            install_arch_batch_intelligent "$explicit_type" "${packages[@]}"
+            install_arch_batch_intelligent "$explicit_type" "$create_type_file" "${packages[@]}"
             ;;
         debian)
-            install_debian_batch "$explicit_type" "${packages[@]}"
+            install_debian_batch "$explicit_type" "$create_type_file" "${packages[@]}"
             ;;
         fedora)
-            install_fedora_batch "$explicit_type" "${packages[@]}"
+            install_fedora_batch "$explicit_type" "$create_type_file" "${packages[@]}"
             ;;
         *)
             echo -e "${RED}Unsupported distribution: $distro${NC}"
@@ -1653,7 +1764,7 @@ parse_operation() {
 # Show usage information
 show_usage() {
     local script_name=$(basename "$0")
-    printf "${CYAN}Package Manager Manager${NC}\n\n"
+    printf "${CYAN}Pocman - The Ultimate Manager of Package Managers${NC}\n\n"
     printf "${CYAN}Usage:${NC}\n"
     printf "  ${script_name} [operation] [options] [packages...]\n\n"
     printf "${CYAN}Operations:${NC}\n"
@@ -1677,29 +1788,33 @@ show_usage() {
     printf "  --except=TYPES           Install/remove all types except specified (comma-separated)\n"
     printf "                           Example: --except=dev\n"
     printf "                           Works with --all flag\n\n"
+    printf "  --create-type-file       Force creation of dedicated type file instead of using general.toml\n"
+    printf "                           Example: pocman -S --type=dev --create-type-file ngrok\n"
+    printf "                           Creates dev.toml and migrates existing dev packages from general.toml\n\n"
     printf "${CYAN}Examples:${NC}\n"
     printf "  ${CYAN}Install packages:${NC}\n"
-    printf "  ${script_name} -S git bat                    # Install packages (explicit)\n"
-    printf "  ${script_name} install git bat               # Install packages (subcommand)\n"
-    printf "  ${script_name} -S --type=gaming steam        # Install with explicit type\n"
-    printf "  ${script_name} install greenclip -t utils     # Install as utils type\n\n"
+    printf "  pocman -S git bat                    # Install packages (explicit)\n"
+    printf "  pocman install git bat               # Install packages (subcommand)\n"
+    printf "  pocman -S --type=gaming steam        # Install with explicit type\n"
+    printf "  pocman install greenclip -t utils     # Install as utils type\n"
+    printf "  pocman -S --type=dev --create-type-file ngrok  # Create dev.toml file\n\n"
     printf "  ${CYAN}Install from TOML:${NC}\n"
-    printf "  ${script_name} --all                          # Install all packages (prompts on non-Arch)\n"
-    printf "  ${script_name} --all --only=cli,dev          # Install only cli and dev packages\n"
-    printf "  ${script_name} --all --except=gaming         # Install all except gaming packages\n\n"
+    printf "  pocman --all                          # Install all packages (prompts on non-Arch)\n"
+    printf "  pocman --all --only=cli,dev          # Install only cli and dev packages\n"
+    printf "  pocman --all --except=gaming         # Install all except gaming packages\n\n"
     printf "  ${CYAN}Remove packages:${NC}\n"
-    printf "  ${script_name} -Rns chromium                  # Remove package (Arch: pacman style)\n"
-    printf "  ${script_name} remove kitty                   # Remove package (Debian: apt style)\n"
-    printf "  ${script_name} remove --all --only=gaming    # Remove all gaming packages (with confirmation)\n\n"
+    printf "  pocman -Rns chromium                  # Remove package (Arch: pacman style)\n"
+    printf "  pocman remove kitty                   # Remove package (Debian: apt style)\n"
+    printf "  pocman remove --all --only=gaming    # Remove all gaming packages (with confirmation)\n\n"
     printf "  ${CYAN}Other operations:${NC}\n"
-    printf "  ${script_name} -Ss neovim                     # Search for packages (Arch)\n"
-    printf "  ${script_name} search neovim                  # Search for packages (Debian)\n"
-    printf "  ${script_name} -Syu                           # Update and upgrade (Arch)\n"
-    printf "  ${script_name} update                         # Update and upgrade (Debian)\n"
-    printf "  ${script_name} -Si chromium                   # Show package info (Arch)\n"
-    printf "  ${script_name} info chromium                  # Show package info (Debian)\n"
-    printf "  ${script_name} -Q                             # List installed packages (Arch)\n"
-    printf "  ${script_name} list                           # List installed packages (Debian)\n"
+    printf "  pocman -Ss neovim                     # Search for packages (Arch)\n"
+    printf "  pocman search neovim                  # Search for packages (Debian)\n"
+    printf "  pocman -Syu                           # Update and upgrade (Arch)\n"
+    printf "  pocman update                         # Update and upgrade (Debian)\n"
+    printf "  pocman -Si chromium                   # Show package info (Arch)\n"
+    printf "  pocman info chromium                  # Show package info (Debian)\n"
+    printf "  pocman -Q                             # List installed packages (Arch)\n"
+    printf "  pocman list                           # List installed packages (Debian)\n"
 }
 
 # Main argument parsing
@@ -1714,6 +1829,7 @@ explicit_type=""
 only_types=""
 except_types=""
 has_all_flag=false
+create_type_file="false"
 args=()
 skip_next=false
 
@@ -1747,6 +1863,9 @@ for i in "${!all_args[@]}"; do
         only_types="${arg#--only=}"
     elif [[ "$arg" =~ ^--except= ]]; then
         except_types="${arg#--except=}"
+    elif [ "$arg" = "--create-type-file" ]; then
+        create_type_file="true"
+        continue
     elif [ "$arg" = "--all" ] || [ "$arg" = "-a" ]; then
         # --all flag - don't add to args, mark that we saw it
         has_all_flag=true
@@ -1785,7 +1904,7 @@ if [ "$operation" = "unknown" ]; then
     else
         echo -e "${RED}Error: No operation specified${NC}"
     fi
-    echo -e "${YELLOW}Run 'pkg help' for usage information${NC}"
+    echo -e "${YELLOW}Run 'pocman help' for usage information${NC}"
     exit 1
 fi
 
@@ -2043,12 +2162,12 @@ case "$operation" in
         
         if [ $# -eq 0 ]; then
             echo -e "${RED}Error: No packages specified${NC}"
-            echo -e "${YELLOW}Run 'pkg help' for usage information${NC}"
+            echo -e "${YELLOW}Run 'pocman help' for usage information${NC}"
             exit 1
         fi
         
         # Batch install all packages at once (intelligent batching)
-        if ! install_packages_batch "$explicit_type" "$@"; then
+        if ! install_packages_batch "$explicit_type" "$create_type_file" "$@"; then
             echo -e "${RED}Error: Some packages failed to install${NC}"
             exit 1
         fi
