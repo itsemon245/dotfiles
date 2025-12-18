@@ -104,12 +104,23 @@ services:
       - system
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+  dbgate:
+    image: dbgate/dbgate:latest
+    container_name: dbgate
+    restart: always
+    ports:
+      - "4000:3000"
+    volumes:
+      - dbgate_data:/root/.dbgate
+    networks:
+      - system
 
 volumes:
   redis_data:
   postgres_data:
   mysql_data:
   pgadmin_data:
+  dbgate_data:
 
 networks:
   system:

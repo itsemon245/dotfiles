@@ -2,3 +2,11 @@
 
 [dev]
 ngrok
+
+[fonts]
+noto-fonts-emoji
+noto-fonts-cjk
+noto-fonts
+inter-font
+ttf-liberation
+ttf-dejavu

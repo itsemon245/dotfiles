@@ -63,7 +63,7 @@ Edit the `PHP_VERSION` variable at the top of:
 **After permanent update, rebuild the Docker image:**
 
 ```bash
-PHPV=8.4 && docker build --build-arg PHP_VERSION=$PHPV -t my/php:$PHPV-dev ./php
+PHPV=8.4 && docker build --build-arg PHP_VERSION=$PHPV -t my/php:$PHPV-dev ~/dotfiles/others/env/php
 ```
 
 Replace `8.4` with your desired version. The `PHPV` variable ensures consistency between the build arg and image tag.

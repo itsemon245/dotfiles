@@ -46,6 +46,7 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+wlogout
 google-chrome
 greenclip
 openrgb-bin
@@ -69,3 +70,11 @@ protonup-qt
 
 [dev:yay]
 ngrok
+
+[fonts:pacman]
+noto-fonts-emoji
+noto-fonts-cjk
+noto-fonts
+inter-font
+ttf-liberation
+ttf-dejavu

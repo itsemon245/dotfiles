@@ -44,6 +44,15 @@ RUN pecl install imagick redis xdebug \
 # Composer (copied from official image)
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
+# Custom PHP configuration
+COPY php.ini /usr/local/etc/php/conf.d/custom.ini
+
+# Node.js, npm, and pnpm
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/* \
+    && npm install -g pnpm
+
 # Defaults that help dev
 ENV COMPOSER_ALLOW_SUPERUSER=1
 WORKDIR /app
