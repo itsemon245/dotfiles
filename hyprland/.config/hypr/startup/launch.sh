@@ -15,4 +15,6 @@ dunst &
 waybar &
 
 ibus exit || true
-ibus-daemon -d --replace
+ibus-daemon -d --replace &
+
+greenclip daemon &
