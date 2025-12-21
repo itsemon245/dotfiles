@@ -1,2 +1,8 @@
 [desktop]
+ibus
+openbangla-keyboard-bin
+fcitx5-qt
+fcitx5-gtk
+fcitx5-configtool
+fcitx5
 wlogout

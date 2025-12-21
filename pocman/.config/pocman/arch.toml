@@ -1,6 +1,6 @@
 # Arch Linux Package List
 # This file tracks packages installed via pacman, yay, and paru
-# 
+#
 # Format: [category:package_manager]
 #   - [cli:pacman] = CLI packages installed via pacman
 #   - [desktop:pacman] = Desktop packages installed via pacman
@@ -10,6 +10,7 @@
 
 # CLI packages
 [cli:pacman]
+gum
 neovim
 bat
 git
@@ -30,6 +31,7 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+ibus
 blueman
 qbittorrent
 i2c-tools
@@ -72,6 +74,7 @@ protonup-qt
 ngrok
 
 [fonts:pacman]
+noto-fonts-extra
 noto-fonts-emoji
 noto-fonts-cjk
 noto-fonts

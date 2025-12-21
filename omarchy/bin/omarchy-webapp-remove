@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+ICON_DIR="$HOME/.local/share/applications/icons"
+DESKTOP_DIR="$HOME/.local/share/applications"
+
+# Ensure directories exist (prevents errors during find)
+mkdir -p "$ICON_DIR"
+
+if [ "$#" -eq 0 ]; then
+  # Find all web apps by searching for the launcher script name in desktop files
+  WEB_APPS=()
+  while IFS= read -r -d '' file; do
+    if grep -qE '^Exec=.*(omarchy-launch-webapp|omarchy-webapp-handler)' "$file"; then
+      WEB_APPS+=("$(basename "${file%.desktop}")")
+    fi
+  done < <(find "$DESKTOP_DIR" -maxdepth 1 -name '*.desktop' -print0)
+
+  if ((${#WEB_APPS[@]})); then
+    IFS=$'\n' SORTED_WEB_APPS=($(sort <<<"${WEB_APPS[*]}"))
+    unset IFS
+
+    # Use gum to select apps
+    APP_NAMES_STRING=$(gum choose --no-limit --header "Select web app to remove..." --selected-prefix="✗ " "${SORTED_WEB_APPS[@]}")
+
+    # Convert newline-separated string to array
+    APP_NAMES=()
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && APP_NAMES+=("$line")
+    done <<< "$APP_NAMES_STRING"
+  else
+    echo "No web apps to remove."
+    exit 1
+  fi
+else
+  # Use arguments if provided
+  APP_NAMES=("$@")
+fi
+
+if [[ ${#APP_NAMES[@]} -eq 0 ]]; then
+  echo "No apps selected. Exiting."
+  exit 0
+fi
+
+for APP_NAME in "${APP_NAMES[@]}"; do
+  # 1. Remove the desktop file
+  rm -f "$DESKTOP_DIR/$APP_NAME.desktop"
+
+  # 2. Remove the icon (checks for both .png and .svg)
+  rm -f "$ICON_DIR/$APP_NAME.png" "$ICON_DIR/$APP_NAME.svg"
+
+  echo "Successfully removed $APP_NAME (desktop file and icons)"
+done

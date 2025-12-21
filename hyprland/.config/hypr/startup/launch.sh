@@ -14,3 +14,5 @@ dunst &
 #Launch waybar
 waybar &
 
+ibus exit || true
+ibus-daemon -d --replace
