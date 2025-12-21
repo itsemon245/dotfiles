@@ -1,4 +1,6 @@
 [desktop]
+python-pywal
+waybar
 networkmanager
 network-manager-applet
 proton-vpn-gtk-app

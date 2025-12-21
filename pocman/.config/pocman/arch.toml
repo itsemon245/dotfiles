@@ -32,6 +32,8 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+python-pywal
+waybar
 network-manager-applet
 networkmanager
 proton-vpn-gtk-app
@@ -45,7 +47,6 @@ i2c-tools
 kitty
 rofi
 swww
-waybar
 hyprshot
 qt5ct
 chromium

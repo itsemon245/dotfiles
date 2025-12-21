@@ -1,21 +1,34 @@
 @import "themes/default.css";
 
+/* ============================================
+   GLOBAL STYLES
+   ============================================ */
+
 * {
-  font-family: FantasqueSansMono Nerd Font;
+  /* font-family: "FantasqueSansMono Nerd Font"; */
+  font-family: 'CaskaydiaCove Nerd Font Propo';
   font-size: 16px;
   min-height: 0;
 }
 
+/* ============================================
+   WAYBAR CONTAINER
+   ============================================ */
+
 #waybar {
-  background: transparent;
-  color: @text;
-  margin: 5px 5px;
+  background: @transparent;
+  color: @fg;
+  margin: 5px;
 }
+
+/* ============================================
+   WORKSPACES
+   ============================================ */
 
 #workspaces {
   border-radius: 1rem;
   margin: 5px;
-  background-color: @surface0;
+  background-color: @surface;
   margin-left: 1rem;
 }
 
@@ -35,23 +48,11 @@
   border-radius: 1rem;
 }
 
-/** Group - Networks */
-#network,#bluetooth {
-  padding: 0.5rem 1rem;
-  margin: 5px 0;
-  background-color: @surface0;
-}
+/* ============================================
+   MODULE GROUPS - Shared Styles
+   ============================================ */
 
-#network{
-  border-radius: 1rem 0 0 1rem;
-  color: @green;
-}
-
-#bluetooth{
-  color: @sky;
-  border-radius: 0 1rem 1rem 0;
-}
-
+/* All modules share these base styles */
 #custom-music,
 #tray,
 #custom-backlight,
@@ -61,35 +62,82 @@
 #custom-lock,
 #custom-power,
 #custom-netspeed,
-#custom-memory{
-  background-color: @surface0;
+#custom-memory,
+#network,
+#bluetooth {
+  background-color: @surface;
   padding: 0.5rem 1rem;
   margin: 5px 0;
 }
-#custom-netspeed{
+
+/* ============================================
+   NETWORK GROUP
+   ============================================ */
+
+#network {
+  border-radius: 1rem 0 0 1rem;
+  color: @green;
+}
+
+#bluetooth {
+  color: @sky;
+  border-radius: 0 1rem 1rem 0;
+}
+
+/* ============================================
+   CUSTOM MODULES
+   ============================================ */
+
+#custom-netspeed {
   color: @green;
   border-radius: 1rem;
   margin-right: 1rem;
-  font-size: 0.8rem;
-  font-weight: bold;
-}
-#custom-memory{
-  color: @red;
-  border-radius: 1rem;
-  margin-right: 1rem;
-  font-size: 0.8rem;
+  font-size: 14px;
   font-weight: bold;
 }
 
+#custom-memory {
+  color: @red;
+  border-radius: 1rem;
+  margin-right: 1rem;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#custom-music {
+  color: @green;
+  border-radius: 1rem;
+}
+
+#custom-lock {
+  border-radius: 1rem 0 0 1rem;
+  color: @lavender;
+}
+
+#custom-power {
+  margin-right: 1rem;
+  border-radius: 0 1rem 1rem 0;
+  color: @red;
+}
+
+#custom-backlight {
+  color: @yellow;
+  border-radius: 0;
+}
+
+/* ============================================
+   SYSTEM MODULES
+   ============================================ */
+
 #clock {
   color: @blue;
-  border-radius: 1rem 0rem 0rem 1rem;
-  border-right: 1px solid @surface2;
+  border-radius: 1rem 0 0 1rem;
+  border-right: 1px solid @border;
 }
 
 #battery {
   color: @green;
-  border-radius: 0rem 1rem 1rem 0rem;
+  border-radius: 0 1rem 1rem 0;
   margin-right: 1rem;
   padding-right: 1.3rem;
 }
@@ -102,34 +150,10 @@
   color: @red;
 }
 
-#custom-backlight {
-  color: @yellow;
-}
-
-#custom-backlight{
-    border-radius: 0;
-}
-
 #pulseaudio {
   color: @maroon;
   border-radius: 1rem;
   margin-left: 1rem;
-}
-
-#custom-music {
-  color: @green;
-  border-radius: 1rem;
-}
-
-#custom-lock {
-    border-radius: 1rem 0px 0px 1rem;
-    color: @lavender;
-}
-
-#custom-power {
-    margin-right: 1rem;
-    border-radius: 0px 1rem 1rem 0px;
-    color: @red;
 }
 
 #tray {
