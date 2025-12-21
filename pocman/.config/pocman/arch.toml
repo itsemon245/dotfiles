@@ -10,6 +10,7 @@
 
 # CLI packages
 [cli:pacman]
+less
 gum
 neovim
 bat
@@ -31,6 +32,12 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+network-manager-applet
+networkmanager
+proton-vpn-gtk-app
+wireguard-tools
+openvpn
+flatpak
 ibus
 blueman
 qbittorrent
@@ -38,7 +45,6 @@ i2c-tools
 kitty
 rofi
 swww
-networkmanager
 waybar
 hyprshot
 qt5ct
@@ -59,6 +65,8 @@ openrgb-bin
 
 # Gaming packages
 [gaming:pacman]
+lib32-vulkan-icd-loader
+vulkan-icd-loader
 lutris
 steam
 winetricks
@@ -66,6 +74,7 @@ wine-mono
 wine-staging
 
 [gaming:yay]
+heroic-games-launcher-bin
 protonup-qt
 
 [gaming:paru]

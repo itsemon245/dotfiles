@@ -1,4 +1,11 @@
 [desktop]
+networkmanager
+network-manager-applet
+proton-vpn-gtk-app
+wireguard-tools
+openvpn
+flatpak
+gnome-software
 ibus
 openbangla-keyboard-bin
 fcitx5-qt
