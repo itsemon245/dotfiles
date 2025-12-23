@@ -71,6 +71,8 @@ DOCKER_ARGS=(
   --rm -it
   -u "$(id -u)":"$(id -g)"
   --network "$NETWORK"
+  --dns 8.8.8.8
+  --dns 1.1.1.1
   --add-host=host.docker.internal:host-gateway
   -v "$PWD":/app -w /app
   -v "$CACHE_DIR_HOST":/tmp/composer-cache

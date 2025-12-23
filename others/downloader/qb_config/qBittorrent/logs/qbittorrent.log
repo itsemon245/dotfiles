@@ -1,0 +1,55 @@
+(N) 2025-12-23T18:06:00 - qBittorrent v5.1.4 started. Process ID: 151
+(N) 2025-12-23T18:06:00 - Using config directory: /config/qBittorrent
+(N) 2025-12-23T18:06:00 - Trying to listen on the following list of IP addresses: "0.0.0.0:6881,[::]:6881"
+(I) 2025-12-23T18:06:00 - Peer ID: "-qB5140-"
+(I) 2025-12-23T18:06:00 - HTTP User-Agent: "qBittorrent/5.1.4"
+(I) 2025-12-23T18:06:00 - Distributed Hash Table (DHT) support: ON
+(I) 2025-12-23T18:06:00 - Local Peer Discovery support: ON
+(I) 2025-12-23T18:06:00 - Peer Exchange (PeX) support: ON
+(I) 2025-12-23T18:06:00 - Anonymous mode: OFF
+(I) 2025-12-23T18:06:00 - Encryption support: ON
+(I) 2025-12-23T18:06:00 - Successfully listening on IP. IP: "127.0.0.1". Port: "TCP/6881"
+(I) 2025-12-23T18:06:00 - Successfully listening on IP. IP: "127.0.0.1". Port: "UTP/6881"
+(I) 2025-12-23T18:06:00 - Successfully listening on IP. IP: "172.19.0.2". Port: "TCP/6881"
+(I) 2025-12-23T18:06:00 - Successfully listening on IP. IP: "172.19.0.2". Port: "UTP/6881"
+(I) 2025-12-23T18:06:00 - Successfully listening on IP. IP: "172.16.0.2". Port: "TCP/6881"
+(I) 2025-12-23T18:06:00 - Successfully listening on IP. IP: "172.16.0.2". Port: "UTP/6881"
+(I) 2025-12-23T18:06:00 - Successfully listening on IP. IP: "::1". Port: "TCP/6881"
+(I) 2025-12-23T18:06:00 - Successfully listening on IP. IP: "::1". Port: "UTP/6881"
+(W) 2025-12-23T18:06:00 - Couldn't load IP geolocation database. Reason: No such file or directory
+(N) 2025-12-23T18:06:00 - Using built-in WebUI.
+(W) 2025-12-23T18:06:00 - Couldn't load WebUI translation for selected locale (C).
+(N) 2025-12-23T18:06:00 - WebUI: Now listening on IP: *, port: 8080
+(I) 2025-12-23T18:06:01 - Detected external IP. IP: "104.28.163.36"
+(I) 2025-12-23T18:06:02 - IP geolocation database loaded. Type: DBIP-Country-Lite. Build time: Mon Dec 1 08:28:10 2025.
+(I) 2025-12-23T18:06:02 - Successfully updated IP geolocation database.
+(W) 2025-12-23T18:06:25 - WebUI: Invalid Host header, port mismatch. Request source IP: '::ffff:172.19.0.1'. Server port: '8080'. Received Host header: 'localhost:2080'
+(W) 2025-12-23T18:06:25 - WebUI: Invalid Host header, port mismatch. Request source IP: '::ffff:172.19.0.1'. Server port: '8080'. Received Host header: 'localhost:2080'
+(N) 2025-12-23T18:09:06 - qBittorrent termination initiated
+(N) 2025-12-23T18:09:06 - Saving resume data completed.
+(N) 2025-12-23T18:09:06 - BitTorrent session successfully finished.
+(N) 2025-12-23T18:09:06 - qBittorrent is now ready to exit
+(N) 2025-12-23T18:10:07 - qBittorrent v5.1.4 started. Process ID: 149
+(N) 2025-12-23T18:10:07 - Using config directory: /config/qBittorrent
+(N) 2025-12-23T18:10:07 - Trying to listen on the following list of IP addresses: "0.0.0.0:6881,[::]:6881"
+(I) 2025-12-23T18:10:07 - Peer ID: "-qB5140-"
+(I) 2025-12-23T18:10:07 - HTTP User-Agent: "qBittorrent/5.1.4"
+(I) 2025-12-23T18:10:07 - Distributed Hash Table (DHT) support: ON
+(I) 2025-12-23T18:10:07 - Local Peer Discovery support: ON
+(I) 2025-12-23T18:10:07 - Peer Exchange (PeX) support: ON
+(I) 2025-12-23T18:10:07 - Anonymous mode: OFF
+(I) 2025-12-23T18:10:07 - Encryption support: ON
+(I) 2025-12-23T18:10:07 - Successfully listening on IP. IP: "127.0.0.1". Port: "TCP/6881"
+(I) 2025-12-23T18:10:07 - Successfully listening on IP. IP: "127.0.0.1". Port: "UTP/6881"
+(I) 2025-12-23T18:10:07 - Successfully listening on IP. IP: "172.19.0.2". Port: "TCP/6881"
+(I) 2025-12-23T18:10:07 - Successfully listening on IP. IP: "172.19.0.2". Port: "UTP/6881"
+(I) 2025-12-23T18:10:07 - Successfully listening on IP. IP: "172.16.0.2". Port: "TCP/6881"
+(I) 2025-12-23T18:10:07 - Successfully listening on IP. IP: "172.16.0.2". Port: "UTP/6881"
+(I) 2025-12-23T18:10:07 - Successfully listening on IP. IP: "::1". Port: "TCP/6881"
+(I) 2025-12-23T18:10:07 - Successfully listening on IP. IP: "::1". Port: "UTP/6881"
+(I) 2025-12-23T18:10:07 - IP geolocation database loaded. Type: DBIP-Country-Lite. Build time: Mon Dec 1 08:28:10 2025.
+(N) 2025-12-23T18:10:08 - Using built-in WebUI.
+(W) 2025-12-23T18:10:08 - Couldn't load WebUI translation for selected locale (C).
+(N) 2025-12-23T18:10:08 - WebUI: Now listening on IP: *, port: 8080
+(I) 2025-12-23T18:10:08 - Detected external IP. IP: "104.28.240.85"
+(N) 2025-12-23T18:10:30 - WebAPI login success. IP: ::ffff:172.19.0.1

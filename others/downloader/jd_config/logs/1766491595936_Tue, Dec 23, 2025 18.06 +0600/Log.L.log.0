@@ -1,0 +1,357 @@
+------------------------Thread: 1:Log.L.log-----------------------
+--ID:1TS:1766491595982-12/23/25 6:06:35 PM -  [org.appwork.builddecision.BuildDecisions(status)] -> ClassPath: JDownloader.jar
+--ID:1TS:1766491595983-12/23/25 6:06:35 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Ant-Version: Apache Ant 1.10.5
+--ID:1TS:1766491595983-12/23/25 6:06:35 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Add-Opens: java.desktop/javax.swing.plaf.synth java.desktop/javax.swing.plaf.basic java.desktop/javax.swing java.desktop/javax.swing.tree java.desktop/java.awt.event
+--ID:1TS:1766491595983-12/23/25 6:06:35 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Add-Exports: java.desktop/sun.swing java.desktop/sun.swing.table java.desktop/sun.swing.plaf.synth java.desktop/com.sun.java.swing.plaf.windows java.desktop/sun.awt.shell java.desktop/com.sun.awt java.base/sun.security.action
+--ID:1TS:1766491595983-12/23/25 6:06:35 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Created-By: Appwork GmbH and JDownloader Community
+--ID:1TS:1766491595983-12/23/25 6:06:35 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Manifest-Version: 1.0
+--ID:1TS:1766491595983-12/23/25 6:06:35 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Main-Class: org.jdownloader.update.launcher.JDLauncher
+--ID:1TS:1766491595983-12/23/25 6:06:35 PM -  [org.appwork.loggingv3.LogV3(info)] -> Application Root: /config
+--ID:1TS:1766491595991-12/23/25 6:06:35 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.update.lastchance.LastChanceConfig.json
+--ID:1TS:1766491596042-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Prefer (merged) JSon Storage from File: /config/cfg/org.jdownloader.updatev2.UpdateSettings.json
+--ID:1TS:1766491596054-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Load JSon Storage from Classpath url: jar:file:/config/JDownloader.jar!/cfg/updateclient/Setup.json
+--ID:1TS:1766491596054-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Prefer (merged) JSon Storage from File: /config/cfg/updateclient/Setup.json
+--ID:1TS:1766491596054-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.appwork.updatesys.client.Setup|Path:/config/cfg/updateclient/Setup
+------------------------Thread: 19:Log.L.log-----------------------
+--ID:19TS:1766491596059-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Prefer (merged) JSon Storage from File: /config/cfg/org.jdownloader.settings.InternetConnectionSettings.json
+--ID:19TS:1766491596059-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.jdownloader.updatev2.InternetConnectionSettings|Path:/config/cfg/org.jdownloader.settings.InternetConnectionSettings
+--ID:19TS:1766491596065-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Load JSon Storage from Classpath url: jar:file:/config/JDownloader.jar!/cfg/updateclient/HttpSettings.json
+--ID:19TS:1766491596065-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/updateclient/HttpSettings.json
+--ID:19TS:1766491596065-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.appwork.updatesys.client.defaultimpl.http.UpdateHttpClientOptions|Path:/config/cfg/updateclient/HttpSettings
+--ID:19TS:1766491596067-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/ProxySelector.json
+--ID:19TS:1766491596067-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.appwork.updatesys.client.defaultimpl.http.ProxySelectorSettings|Path:/config/cfg/ProxySelector
+--ID:19TS:1766491596068-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Read Config(File): /config/cfg/ProxySelector.proxies.json
+--ID:19TS:1766491596079-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/update/versioninfo/JD/extensions.json
+--ID:19TS:1766491596079-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.appwork.updatesys.client.extensions.ExtensionsStorage|Path:/config/update/versioninfo/JD/extensions
+--ID:19TS:1766491596082-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.appwork.updatesys.client.tracker.TrackConfig.json
+--ID:19TS:1766491596084-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/update/versioninfo/JDU/extensions.json
+--ID:19TS:1766491596084-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.appwork.updatesys.client.extensions.ExtensionsStorage|Path:/config/update/versioninfo/JDU/extensions
+------------------------Thread: 1:Log.L.log-----------------------
+--ID:1TS:1766491596115-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(info)] -> Application Root: /config
+--ID:1TS:1766491596123-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(info)] -> Application Root: /config
+--ID:1TS:1766491596130-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Prefer (merged) JSon Storage from File: /config/cfg/org.jdownloader.settings.GraphicalUserInterfaceSettings.json
+--ID:1TS:1766491596147-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Load Translation file:/config/translations/org/jdownloader/gui/translate/GuiTranslation.en.lng/null
+--ID:1TS:1766491596293-12/23/25 6:06:36 PM -  [org.appwork.utils.logging2.extmanager.ExtLogManager(getLogger)] -> Ignored: disabled
+--ID:1TS:1766491596304-12/23/25 6:06:36 PM -  [org.appwork.utils.logging2.extmanager.ExtLogManager(getLogger)] -> Ignored: jdk.internal.dynalink.support.Guards
+--ID:1TS:1766491596406-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> setExecutable:true
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> LOG_INIT_DONE=2 instances
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> awt.toolkit=sun.awt.X11.XToolkit
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> awt.useSystemAAFontSettings=gasp
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> classloader_00000000=org.jdownloader.update.launcher.ClassLoaderExtensionImpl
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> classloader_00000001=org.jdownloader.update.launcher.CL2
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> com.sun.jndi.cosnaming.object.trustURLCodebase=false
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> com.sun.jndi.ldap.object.trustURLCodebase=false
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> com.sun.jndi.rmi.object.trustURLCodebase=false
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> extlogmanager.avoidsystemclassloader.hack=sun.misc.Launcher$AppClassLoader@70dea4e
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> file.encoding=UTF-8
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> file.encoding.pkg=sun.io
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> file.separator=/
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> ftpStyle=new
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.awt.graphicsenv=sun.awt.X11GraphicsEnvironment
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.awt.headless=false
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.awt.printerjob=sun.print.PSPrinterJob
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.class.path=JDownloader.jar
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.class.version=52.0
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.endorsed.dirs=/usr/lib/jvm/java-1.8-openjdk/jre/lib/endorsed
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.ext.dirs=/usr/lib/jvm/java-1.8-openjdk/jre/lib/ext:/usr/java/packages/lib/ext
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.home=/usr/lib/jvm/java-1.8-openjdk/jre
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.io.tmpdir=/tmp
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.library.path=/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.net.preferIPv6Addresses=system
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.rmi.server.useCodebaseOnly=true
+--ID:1TS:1766491596407-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.runtime.name=OpenJDK Runtime Environment
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.runtime.version=1.8.0_432-b06
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.specification.maintenance.version=6
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.specification.name=Java Platform API Specification
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.specification.vendor=Oracle Corporation
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.specification.version=1.8
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.util.Arrays.useLegacyMergeSort=true
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.util.logging.manager=org.appwork.utils.logging2.extmanager.ExtLogManager
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.vendor=IcedTea
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.vendor.url=https://icedtea.classpath.org
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.vendor.url.bug=https://icedtea.classpath.org/bugzilla
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.version=1.8.0_432
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.vm.info=mixed mode
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.vm.name=OpenJDK 64-Bit Server VM
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.vm.specification.name=Java Virtual Machine Specification
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.vm.specification.vendor=Oracle Corporation
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.vm.specification.version=1.8
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.vm.vendor=IcedTea
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> java.vm.version=25.432-b06
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.build.builddate=Tue Dec 23 12:50:32 CET 2025
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.build.buildtimestamp=1766490632119
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.randomNumber=2922492681739912739
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.revision.appworkutilsrevision=4055
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.revision.jdbrowserrevision=51993
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.revision.jdclosedrevision=1048
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.revision.jdownloaderrevision=50639
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.revision.jdownloaderserveroptionsrevision=6399
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.revision.jdownloaderupdaterrevision=5770
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.revision.myjdownloaderclientrevision=49320
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> jd.revision.updateclientv2revision=1061
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> k=0dd0ecf7f742873d745106adea00b64a
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> line.separator=
+
+--ID:1TS:1766491596408-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> org.appwork.LoggerFactory=org.appwork.utils.logging2.LogSourceRedirector
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> org.jdownloader.revision=JDownloader2
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> os.arch=amd64
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> os.name=Linux
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> os.version=6.18.2-arch2-1
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> path.separator=:
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.arch.data.model=64
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.awt.enableExtraMouseButtons=true
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.boot.class.path=/usr/lib/jvm/java-1.8-openjdk/jre/lib/resources.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/rt.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/jsse.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/jce.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/charsets.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/jfr.jar:/usr/lib/jvm/java-1.8-openjdk/jre/classes
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.boot.library.path=/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.cpu.endian=little
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.cpu.isalist=
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.font.fontmanager=sun.awt.X11FontManager
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.io.unicode.encoding=UnicodeLittle
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.java.command=JDownloader.jar
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.java.launcher=SUN_STANDARD
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.jnu.encoding=UTF-8
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.management.compiler=HotSpot 64-Bit Tiered Compilers
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.os.patch.level=unknown
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> sun.swing.enableImprovedDragGesture=true
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> user.country=US
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> user.dir=/config
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> user.home=/dev/null
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> user.language=en
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> user.name=app
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> user.timezone=Asia/Dhaka
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> OS:LINUX|ALPINE|64bit:true
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> CPU:X86|64bit:true
+--ID:1TS:1766491596409-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> JVM:18432006|1.8.0_432-b06|64bit:true
+--ID:1TS:1766491596412-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> DOCKER detected:3346aff7a514
+--ID:1TS:1766491596412-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> VMArgs: [-XX:-UsePerfData, -Dawt.useSystemAAFontSettings=gasp, -Djava.awt.headless=false]
+--ID:1TS:1766491596413-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> MaxMemory=3514302464bytes (3351Megabytes)
+--ID:1TS:1766491596413-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(mainStart)] -> JDownloader2
+--ID:1TS:1766491596413-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(go)] -> Initialize JDownloader2
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491596416-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch$8(edtRun)] -> LAF INIT
+------------------------Thread: 1:Log.L.log-----------------------
+--ID:1TS:1766491596416-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.settings.SilentModeSettings.json
+------------------------Thread: 27:Log.L.log-----------------------
+--ID:27TS:1766491596417-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Prefer (merged) JSon Storage from File: /config/cfg/org.jdownloader.settings.GeneralSettings.json
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491596421-12/23/25 6:06:36 PM -  [jd.gui.swing.laf.LookAndFeelController(setUIManager)] -> Use Look & Feel: org.jdownloader.gui.laf.jddefault.JDDefaultLookAndFeel
+--ID:23TS:1766491596423-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/laf/JDDefaultLookAndFeel.json
+--ID:23TS:1766491596441-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(info)] -> LaF init: org.jdownloader.gui.laf.jddefault.JDDefaultLookAndFeel
+--ID:23TS:1766491596448-12/23/25 6:06:36 PM -  [org.appwork.utils.logging2.extmanager.ExtLogManager(getLogger)] -> Ignored: de.javasoft.plaf.synthetica.SyntheticaLookAndFeel
+--ID:23TS:1766491596451-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Load Translation file:/config/translations/org/appwork/swing/synthetica/LanguageFileSetup.en.lng/null
+--ID:23TS:1766491596453-12/23/25 6:06:36 PM -  [org.jdownloader.gui.laf.jddefault.JDDefaultLookAndFeel(load)] -> Custom LAF XML: /config/cfg/laf/JDDefaultLookAndFeel.xml
+------------------------Thread: 27:Log.L.log-----------------------
+--ID:27TS:1766491596461-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch$7(run)] -> Use 'JSSE' for default SSLSocketStreamFactory because: TLSv1.3 supported! Java-18432006
+--ID:27TS:1766491596470-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Read Config(File): /config/cfg/org.jdownloader.settings.InternetConnectionSettings.customproxylist.json
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491596511-12/23/25 6:06:36 PM -  [org.appwork.utils.logging2.extmanager.ExtLogManager(getLogger)] -> Ignored: de.javasoft.plaf.synthetica.painter.ImagePainter
+--ID:23TS:1766491596592-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(info)] -> LAF Init duration: 151ms
+--ID:23TS:1766491596593-12/23/25 6:06:36 PM -  [jd.gui.swing.laf.LookAndFeelController(setUIManager)] -> LAF init: 173
+--ID:23TS:1766491596593-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch$11(edtRun)] -> InitGUI->326
+--ID:23TS:1766491596623-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/jd.controlling.captcha.CaptchaSettings.json
+--ID:23TS:1766491596628-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/jd.controlling.reconnect.ReconnectConfig.json
+--ID:23TS:1766491596636-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/jd.controlling.downloadcontroller.DownloadControllerConfig.json
+--ID:23TS:1766491596656-12/23/25 6:06:36 PM -  [org.appwork.utils.logging2.extmanager.ExtLogManager(getLogger)] -> Ignored: com.github.weisj.jsvg.parser.SVGLoader
+--ID:23TS:1766491596680-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: exttable/sortAsc: 4x6
+--ID:23TS:1766491596680-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: exttable/sortDesc: 4x6
+--ID:23TS:1766491596730-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Read Config: /config/cfg/ExtTable_downloadstable3.json
+--ID:23TS:1766491596738-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: exttable/widthLocked: 14x14
+--ID:23TS:1766491596740-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: ocr: 14x14
+--ID:23TS:1766491596747-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/menus_v2/DownloadTabBottomBar.json
+--ID:23TS:1766491596757-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: logo/jd_logo_64_64: 19x19
+--ID:23TS:1766491596757-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: logo/jd_logo_64_64: 18x18
+--ID:23TS:1766491596757-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: logo/jd_logo_64_64: 17x17
+--ID:23TS:1766491596761-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Prefer (merged) JSon Storage from File: /config/cfg/org.jdownloader.gui.jdtrayicon.TrayExtension.json
+--ID:23TS:1766491596762-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Load Translation file:/config/translations/org/jdownloader/gui/jdtrayicon/translate/TrayiconTranslation.en.lng/null
+--ID:23TS:1766491596767-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.controlling.filter.LinkFilterSettings.json
+--ID:23TS:1766491596769-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Prefer (merged) JSon Storage from File: /config/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
+--ID:23TS:1766491596772-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.settings.AccountSettings.json
+--ID:23TS:1766491596775-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/jd.controlling.linkchecker.LinkCheckerConfig.json
+--ID:23TS:1766491596775-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/jd.controlling.linkcrawler.LinkCrawlerConfig.json
+--ID:23TS:1766491596778-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Prefer (merged) JSon Storage from File: /config/cfg/org.jdownloader.gui.views.linkgrabber.addlinksdialog.LinkgrabberSettings.json
+--ID:23TS:1766491596785-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/jd.controlling.linkcollector.LinkCollectorConfig.json
+--ID:23TS:1766491596786-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.api.RemoteAPIConfig.json
+--ID:23TS:1766491596788-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.controlling.packagizer.PackagizerSettings.json
+--ID:23TS:1766491596789-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.controlling.ffmpeg.FFmpegSetup.json
+--ID:23TS:1766491596792-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.gui.shortcuts.ShortcutSettings.json
+--ID:23TS:1766491596794-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.updatev2.LastChanceSettings.json
+--ID:23TS:1766491596794-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.appwork.utils.swing.dialog.ExtFileSystemViewSettings.json
+--ID:23TS:1766491596795-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/jd.controlling.faviconcontroller.FavIconsConfig.json
+--ID:23TS:1766491596796-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.settings.SoundSettings.json
+--ID:23TS:1766491596796-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/containerconfig.json
+--ID:23TS:1766491596798-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Prefer (merged) JSon Storage from File: /config/cfg/org.jdownloader.gui.notify.gui.BubbleNotifyConfig.json
+--ID:23TS:1766491596805-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.jdownloader.controlling.hosterrule.HosterRuleConfig|Path:null
+--ID:23TS:1766491596824-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Load Translation file:/config/translations/org/jdownloader/translate/JdownloaderTranslation.en.lng/null
+--ID:23TS:1766491596875-12/23/25 6:06:36 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Load Translation file:/config/translations/org/appwork/utils/locale/AWUTranslation.en.lng/null
+--ID:23TS:1766491596886-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch$11(edtRun)] -> GUIDONE->619
+------------------------Thread: 1:Log.L.log-----------------------
+--ID:1TS:1766491596941-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(go)] -> Initialisation finished
+--ID:1TS:1766491596944-12/23/25 6:06:36 PM -  [jd.SecondLevelLaunch(go)] -> fileChooserComboBoxFolders 1|1
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491596988-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Read Config: /config/cfg/ExtTable_LinkGrabberTableModel.json
+--ID:23TS:1766491596994-12/23/25 6:06:36 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/menus_v2/LinkgrabberTabBottomBar.json
+--ID:23TS:1766491597015-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Read Config: /config/cfg/FILECHOOSER.ejs
+--ID:23TS:1766491597019-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: prio_3: 18x18
+--ID:23TS:1766491597019-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: prio_2: 18x18
+--ID:23TS:1766491597019-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: prio_1: 18x18
+--ID:23TS:1766491597020-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: prio_0: 18x18
+--ID:23TS:1766491597020-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: prio_-1: 18x18
+--ID:23TS:1766491597020-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: prio_-2: 18x18
+--ID:23TS:1766491597020-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: prio_-3: 18x18
+--ID:23TS:1766491597021-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: true-orange: 18x18
+--ID:23TS:1766491597021-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: true: 18x18
+--ID:23TS:1766491597021-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: false: 18x18
+--ID:23TS:1766491597039-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Read Config: /config/cfg/ExtTable_FilterTableModel.json
+--ID:23TS:1766491597045-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Read Config: /config/cfg/quickfilters.json
+--ID:23TS:1766491597055-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/menus_v2/LinkgrabberContext.json
+--ID:23TS:1766491597059-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: exttable/columnButton: 10x10
+--ID:23TS:1766491597063-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: exttable/columnButton: 14x14
+--ID:23TS:1766491597067-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: close: 10x10
+--ID:23TS:1766491597068-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: wrench: 10x10
+------------------------Thread: 19:Log.L.log-----------------------
+--ID:19TS:1766491597293-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/xvideosharing.com.json
+--ID:19TS:1766491597310-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/fastream.to.json
+--ID:19TS:1766491597363-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/media.cm.json
+--ID:19TS:1766491597386-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/proleech.link.json
+--ID:19TS:1766491597478-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/filemoon.sx.json
+--ID:19TS:1766491597514-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/deltabit.co.json
+--ID:19TS:1766491597519-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/maxstream.video.json
+--ID:19TS:1766491597551-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/hotlink.cc.json
+--ID:19TS:1766491597557-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/ddownload.com.json
+--ID:19TS:1766491597568-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/supervideo.tv.json
+--ID:19TS:1766491597584-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/voe.sx.json
+--ID:19TS:1766491597594-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/plugins/HOSTER/drop.download.json
+------------------------Thread: 44:Log.L.log-----------------------
+--ID:44TS:1766491597685-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /session = interface org.appwork.utils.net.httpserver.session.LoginAPIInterface
+--ID:44TS:1766491597688-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /events = interface org.appwork.remoteapi.events.EventsAPIInterface
+--ID:44TS:1766491597689-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.api.captcha.CaptchaMyJDownloaderRemoteSolverSettings.json
+--ID:44TS:1766491597691-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /captcha = interface org.jdownloader.api.captcha.CaptchaAPI
+--ID:44TS:1766491597691-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /jd = interface org.jdownloader.api.jd.JDAPI
+--ID:44TS:1766491597692-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /downloads = interface org.jdownloader.api.downloads.DownloadsAPI
+--ID:44TS:1766491597694-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /downloadsV2 = interface org.jdownloader.api.downloads.v2.DownloadsAPIV2
+--ID:44TS:1766491597695-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /downloadcontroller = interface org.jdownloader.api.downloads.v2.DownloadWatchdogAPI
+--ID:44TS:1766491597696-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /config = interface org.jdownloader.api.config.AdvancedConfigManagerAPI
+--ID:44TS:1766491597697-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /toolbar = interface org.jdownloader.api.toolbar.JDownloaderToolBarAPI
+--ID:44TS:1766491597697-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /accounts = interface org.jdownloader.api.accounts.AccountAPI
+--ID:44TS:1766491597698-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /accountsV2 = interface org.jdownloader.api.accounts.v2.AccountAPIV2
+--ID:44TS:1766491597699-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /system = interface org.jdownloader.api.system.SystemAPI
+--ID:44TS:1766491597700-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /linkcollector = interface org.jdownloader.api.linkcollector.LinkCollectorAPI
+--ID:44TS:1766491597702-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /linkgrabberv2 = interface org.jdownloader.api.linkcollector.v2.LinkCollectorAPIV2
+--ID:44TS:1766491597703-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /content = interface org.jdownloader.api.content.ContentAPI
+--ID:44TS:1766491597704-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /contentV2 = interface org.jdownloader.api.content.v2.ContentAPIV2
+--ID:44TS:1766491597704-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /ui = interface org.jdownloader.api.ui.UIAPI
+--ID:44TS:1766491597704-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /polling = interface org.jdownloader.api.polling.PollingAPI
+--ID:44TS:1766491597705-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /extraction = interface org.jdownloader.api.extraction.ExtractionAPI
+--ID:44TS:1766491597705-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /linkcrawler = interface org.jdownloader.api.linkcrawler.LinkCrawlerAPI
+--ID:44TS:1766491597706-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /plugins = interface org.jdownloader.api.plugins.PluginsAPI
+--ID:44TS:1766491597707-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace / = interface org.jdownloader.api.cnl2.Cnl2APIBasics
+--ID:44TS:1766491597708-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /flash = interface org.jdownloader.api.cnl2.Cnl2APIFlash
+--ID:44TS:1766491597711-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /downloadevents = interface org.jdownloader.api.downloads.DownloadControllerEventPublisherInterface
+--ID:44TS:1766491597711-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /extensions = interface org.jdownloader.api.extensions.ExtensionsAPI
+--ID:44TS:1766491597711-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /update = interface org.jdownloader.api.update.UpdateAPI
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491597712-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: paralell: 18x18
+--ID:23TS:1766491597714-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: batch: 18x18
+------------------------Thread: 44:Log.L.log-----------------------
+--ID:44TS:1766491597716-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /device = interface org.jdownloader.api.device.DeviceAPI
+--ID:44TS:1766491597716-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /reconnect = interface org.jdownloader.api.reconnect.ReconnectAPI
+--ID:44TS:1766491597718-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /log = interface org.jdownloader.api.logs.LogAPI
+--ID:44TS:1766491597721-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /dialogs = interface org.jdownloader.api.dialog.DialogApiInterface
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491597722-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: speed: 18x18
+--ID:23TS:1766491597722-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: chunks: 18x18
+------------------------Thread: 66:Log.L.log-----------------------
+--ID:66TS:1766491597723-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace / = interface org.jdownloader.api.cnl2.Cnl2APIBasics
+--ID:66TS:1766491597724-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to register API namespace /flash = interface org.jdownloader.api.cnl2.Cnl2APIFlash
+------------------------Thread: 71:Log.L.log-----------------------
+--ID:71TS:1766491597725-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.captcha.v2.solver.jac.JACSolverConfig.json
+------------------------Thread: 44:Log.L.log-----------------------
+--ID:44TS:1766491597725-12/23/25 6:06:37 PM -  [jd.controlling.DelayWriteController(init)] -> DelayWriteMode: AUTO
+--ID:44TS:1766491597725-12/23/25 6:06:37 PM -  [jd.controlling.DelayWriteController(init)] -> DelayedWrites disabled!
+------------------------Thread: 71:Log.L.log-----------------------
+--ID:71TS:1766491597743-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.captcha.v2.solver.dbc.DeathByCaptchaSettings.json
+--ID:71TS:1766491597743-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Overridden Config Key found public abstract boolean org.jdownloader.captcha.v2.solver.dbc.DeathByCaptchaSettings.isEnabled()<-->public abstract boolean org.jdownloader.captcha.v2.ChallengeSolverConfig.isEnabled()
+------------------------Thread: 66:Log.L.log-----------------------
+--ID:66TS:1766491597745-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to bind Server to /127.0.0.1:9666
+--ID:66TS:1766491597746-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Try to bind Server to /0:0:0:0:0:0:0:1%lo:9666
+--ID:66TS:1766491597746-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(fine)] -> Start HTTP Server. 9666->9666|LocalHost:true
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491597746-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: add: 18x18
+------------------------Thread: 71:Log.L.log-----------------------
+--ID:71TS:1766491597747-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.captcha.v2.solver.imagetyperz.ImageTyperzConfigInterface.json
+--ID:71TS:1766491597747-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Overridden Config Key found public abstract boolean org.jdownloader.captcha.v2.solver.imagetyperz.ImageTyperzConfigInterface.isEnabled()<-->public abstract boolean org.jdownloader.captcha.v2.ChallengeSolverConfig.isEnabled()
+--ID:71TS:1766491597750-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.captcha.v2.solver.cheapcaptcha.CheapCaptchaConfigInterface.json
+--ID:71TS:1766491597750-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Overridden Config Key found public abstract boolean org.jdownloader.captcha.v2.solver.cheapcaptcha.CheapCaptchaConfigInterface.isEnabled()<-->public abstract boolean org.jdownloader.captcha.v2.ChallengeSolverConfig.isEnabled()
+--ID:71TS:1766491597753-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.captcha.v2.solver.twocaptcha.TwoCaptchaConfigInterface.json
+--ID:71TS:1766491597753-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Overridden Config Key found public abstract boolean org.jdownloader.captcha.v2.solver.twocaptcha.TwoCaptchaConfigInterface.isEnabled()<-->public abstract boolean org.jdownloader.captcha.v2.ChallengeSolverConfig.isEnabled()
+--ID:71TS:1766491597755-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.captcha.v2.solver.antiCaptchaCom.AntiCaptchaComConfigInterface.json
+--ID:71TS:1766491597755-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Overridden Config Key found public abstract boolean org.jdownloader.captcha.v2.solver.antiCaptchaCom.AntiCaptchaComConfigInterface.isEnabled()<-->public abstract boolean org.jdownloader.captcha.v2.ChallengeSolverConfig.isEnabled()
+--ID:71TS:1766491597757-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.captcha.v2.solver.endcaptcha.EndCaptchaConfigInterface.json
+--ID:71TS:1766491597757-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Overridden Config Key found public abstract boolean org.jdownloader.captcha.v2.solver.endcaptcha.EndCaptchaConfigInterface.isEnabled()<-->public abstract boolean org.jdownloader.captcha.v2.ChallengeSolverConfig.isEnabled()
+--ID:71TS:1766491597760-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.captcha.v2.solver.solver9kw.Captcha9kwSettings.json
+--ID:71TS:1766491597760-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(info)] -> Overridden Config Key found public abstract boolean org.jdownloader.captcha.v2.solver.solver9kw.Captcha9kwSettings.isEnabled()<-->public abstract boolean org.jdownloader.captcha.v2.ChallengeSolverConfig.isEnabled()
+--ID:71TS:1766491597768-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.captcha.v2.solver.gui.DialogCaptchaSolverConfig.json
+--ID:71TS:1766491597770-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.captcha.v2.solver.browser.BrowserCaptchaSolverConfig.json
+------------------------Thread: 67:Log.L.log-----------------------
+--ID:67TS:1766491597825-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/org.jdownloader.extensions.extraction.ExtractionExtension.json
+--ID:67TS:1766491597831-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Load Translation file:/config/translations/org/jdownloader/extensions/extraction/translate/ExtractionTranslation.en.lng/null
+--ID:67TS:1766491597871-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/menus_v2/DownloadTableContext.json
+--ID:67TS:1766491597872-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/menus_v2/MainMenu.json
+--ID:67TS:1766491597873-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/cfg/menus_v2/MainToolbar.json
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491597877-12/23/25 6:06:37 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Read Config: /config/cfg/ExtTable_ExtractionJobTableModel4.json
+------------------------Thread: 78:Log.L.log-----------------------
+--ID:78TS:1766491597881-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Load Translation file:/config/translations/org/jdownloader/updatev2/UpdaterTranslation.en.lng/null
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491597891-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Default missing for: public abstract java.lang.String org.jdownloader.gui.translate.GuiTranslation.action_help_tooltip()
+--ID:23TS:1766491597891-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Default missing for: public abstract java.lang.String org.jdownloader.gui.translate.GuiTranslation.action_changelog_tooltip()
+--ID:23TS:1766491597892-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: file: 18x18
+--ID:23TS:1766491597894-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: backup: 18x18
+--ID:23TS:1766491597894-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: save: 18x18
+--ID:23TS:1766491597895-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: load: 18x18
+--ID:23TS:1766491597896-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: restart: 18x18
+--ID:23TS:1766491597896-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: exit: 18x18
+--ID:23TS:1766491597896-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: settings: 18x18
+--ID:23TS:1766491597897-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: logo/myjdownloader: 18x18
+--ID:23TS:1766491597901-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: extension: 18x18
+--ID:23TS:1766491597902-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: extract: 18x18
+--ID:23TS:1766491597902-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: help: 18x18
+--ID:23TS:1766491597903-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: log: 18x18
+--ID:23TS:1766491597903-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: update: 18x18
+--ID:23TS:1766491597904-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: changelog: 18x18
+--ID:23TS:1766491597904-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: xmas-gift: 18x18
+--ID:23TS:1766491597904-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: about: 18x18
+--ID:23TS:1766491597919-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: go-top: 18x18
+--ID:23TS:1766491597920-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: go-up: 18x18
+--ID:23TS:1766491597920-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: go-down: 18x18
+--ID:23TS:1766491597921-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: go-bottom: 18x18
+--ID:23TS:1766491597930-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: delete: 18x18
+--ID:23TS:1766491597932-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: download: 18x18
+--ID:23TS:1766491597933-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: media-playback-start: 18x18
+--ID:23TS:1766491597933-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: error: 18x18
+--ID:23TS:1766491597933-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: skipped: 18x18
+--ID:23TS:1766491597933-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: ok: 18x17
+--ID:23TS:1766491597933-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: wait: 18x18
+--ID:23TS:1766491597934-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: settings: 18x18
+--ID:23TS:1766491597938-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Default missing for: public abstract java.lang.String org.jdownloader.gui.translate.GuiTranslation.action_addcontainer_tooltip()
+--ID:23TS:1766491597939-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: select: 18x18
+------------------------Thread: 80:Log.L.log-----------------------
+--ID:80TS:1766491597959-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: banner/rapidgator.net_en: 369x25
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491597960-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: text: 18x18
+------------------------Thread: 80:Log.L.log-----------------------
+--ID:80TS:1766491597961-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: banner/keep2share.cc_en: 369x25
+--ID:80TS:1766491597961-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: banner/ddownload.com_en: 369x25
+--ID:80TS:1766491597962-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: banner/filejoker.net_en: 369x25
+--ID:80TS:1766491597962-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: banner/filer.net_en: 369x25
+------------------------Thread: 78:Log.L.log-----------------------
+--ID:78TS:1766491597968-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Read Config(URL): jar:file:/config/JDownloader.jar!/cfg/updateclient/Setup.updateservers.json
+------------------------Thread: 23:Log.L.log-----------------------
+--ID:23TS:1766491597973-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: add: 14x14
+--ID:23TS:1766491597986-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: prio_3: 14x14
+--ID:23TS:1766491597992-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: reset: 18x18
+--ID:23TS:1766491597992-12/23/25 6:06:37 PM -  [org.appwork.loggingv3.LogV3(warning)] -> Image warning: width and height should be dividable by 4 for proper highDPI display!: filter: 18x18
+------------------------Thread: 32:Log.L.log-----------------------
+--ID:32TS:1766491601476-12/23/25 6:06:41 PM -  [jd.config.SubConfiguration(save)] -> Save Name:imgur.com|SetMark:1|File:/config/cfg/subconf_imgur.com.ejs
+------------------------Thread: 33:Log.L.log-----------------------
+--ID:33TS:1766491601503-12/23/25 6:06:41 PM -  [org.appwork.utils.logging2.extmanager.ExtLogManager(getLogger)] -> Ignored: org.bouncycastle.util.io.pem.PemReader
+--ID:33TS:1766491601510-12/23/25 6:06:41 PM -  [org.appwork.utils.logging2.extmanager.ExtLogManager(getLogger)] -> Ignored: org.bouncycastle.crypto.CryptoServicesRegistrar

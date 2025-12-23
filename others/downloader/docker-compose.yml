@@ -1,0 +1,54 @@
+services:
+    gluetun:
+        image: qmcgaw/gluetun
+        container_name: vpn_gateway
+        cap_add:
+            - NET_ADMIN
+        devices:
+            - /dev/net/tun:/dev/net/tun
+        environment:
+            - VPN_SERVICE_PROVIDER=${VPN_SERVICE:-custom}
+            - VPN_TYPE=${VPN_TYPE:-wireguard}
+            - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+            - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+            - WIREGUARD_ENDPOINT_IP=${WIREGUARD_ENDPOINT_IP}
+            - WIREGUARD_ENDPOINT_PORT=${WIREGUARD_ENDPOINT_PORT}
+            - WIREGUARD_PUBLIC_KEY=${WIREGUARD_PUBLIC_KEY}
+        ports:
+            - ${QB_PORT:-2080}:8080
+            - ${JD_PORT:-2580}:5800
+            - ${JD_CNL_PORT:-2666}:9666
+            - 6881:6881
+            - 6881:6881/udp
+        restart: unless-stopped
+
+    qbittorrent:
+        image: lscr.io/linuxserver/qbittorrent:latest
+        container_name: qbittorrent
+        network_mode: "service:gluetun"
+        environment:
+            - PUID=${PUID:-1000}
+            - PGID=${PGID:-1000}
+            - TZ=${TZ:-Etc/UTC}
+            - WEBUI_PORT=8080
+        volumes:
+            - ./qb_config:/config
+            - ${DOWNLOAD_PATH:-~/Downloads}:/downloads
+        depends_on:
+            gluetun:
+                condition: service_healthy
+
+    jdownloader:
+        image: jlesage/jdownloader-2:latest
+        container_name: jdownloader
+        network_mode: "service:gluetun"
+        environment:
+            - PUID=${PUID:-1000}
+            - PGID=${PGID:-1000}
+            - TZ=${TZ:-Etc/UTC}
+        volumes:
+            - ./jd_config:/config
+            - ${DOWNLOAD_PATH:-~/Downloads}:/output
+        depends_on:
+            gluetun:
+                condition: service_healthy

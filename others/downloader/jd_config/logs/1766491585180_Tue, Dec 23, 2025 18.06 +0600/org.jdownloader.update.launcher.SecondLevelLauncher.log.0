@@ -1,0 +1,152 @@
+------------------------Thread: 1:org.jdownloader.update.launcher.SecondLevelLauncher.log-----------------------
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> JVM: -XX:-UsePerfData
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> JVM: -Dawt.useSystemAAFontSettings=gasp
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> JVM: -Djava.awt.headless=false
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.runtime.name: OpenJDK Runtime Environment
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: awt.useSystemAAFontSettings: gasp
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.boot.library.path: /usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.vm.version: 25.432-b06
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.vm.vendor: IcedTea
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.vendor.url: https://icedtea.classpath.org
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: path.separator: :
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.vm.name: OpenJDK 64-Bit Server VM
+--ID:1TS:1766491585253-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: file.encoding.pkg: sun.io
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: com.sun.jndi.rmi.object.trustURLCodebase: false
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: user.country: US
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.java.launcher: SUN_STANDARD
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.os.patch.level: unknown
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: extlogmanager.avoidsystemclassloader.hack: sun.misc.Launcher$AppClassLoader@70dea4e
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.vm.specification.name: Java Virtual Machine Specification
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: user.dir: /config
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.runtime.version: 1.8.0_432-b06
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.awt.graphicsenv: sun.awt.X11GraphicsEnvironment
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.util.Arrays.useLegacyMergeSort: true
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.endorsed.dirs: /usr/lib/jvm/java-1.8-openjdk/jre/lib/endorsed
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: os.arch: amd64
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.io.tmpdir: /tmp
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: line.separator: 
+
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.vm.specification.vendor: Oracle Corporation
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.util.logging.manager: org.appwork.utils.logging2.extmanager.ExtLogManager
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: os.name: Linux
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: com.sun.jndi.ldap.object.trustURLCodebase: false
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.jnu.encoding: UTF-8
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.net.preferIPv6Addresses: system
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.library.path: /usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.specification.name: Java Platform API Specification
+--ID:1TS:1766491585254-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.class.version: 52.0
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.management.compiler: HotSpot 64-Bit Tiered Compilers
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: org.appwork.LoggerFactory: org.appwork.utils.logging2.LogSourceRedirector
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: os.version: 6.18.2-arch2-1
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: classloader_00000001: org.jdownloader.update.launcher.CL2
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.rmi.server.useCodebaseOnly: true
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: classloader_00000000: org.jdownloader.update.launcher.ClassLoaderExtensionImpl
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: user.home: /dev/null
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: user.timezone: Asia/Dhaka
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.awt.printerjob: sun.print.PSPrinterJob
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: file.encoding: UTF-8
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.specification.version: 1.8
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.class.path: JDownloader.jar
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: user.name: app
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.vm.specification.version: 1.8
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.java.command: JDownloader.jar -afterupdate
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.home: /usr/lib/jvm/java-1.8-openjdk/jre
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.arch.data.model: 64
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: user.language: en
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.specification.vendor: Oracle Corporation
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: awt.toolkit: sun.awt.X11.XToolkit
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.vm.info: mixed mode
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.version: 1.8.0_432
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.ext.dirs: /usr/lib/jvm/java-1.8-openjdk/jre/lib/ext:/usr/java/packages/lib/ext
+--ID:1TS:1766491585255-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.boot.class.path: /usr/lib/jvm/java-1.8-openjdk/jre/lib/resources.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/rt.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/jsse.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/jce.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/charsets.jar:/usr/lib/jvm/java-1.8-openjdk/jre/lib/jfr.jar:/usr/lib/jvm/java-1.8-openjdk/jre/classes
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.awt.headless: false
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.vendor: IcedTea
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.specification.maintenance.version: 6
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: file.separator: /
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: k: 0dd0ecf7f742873d745106adea00b64a
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: com.sun.jndi.cosnaming.object.trustURLCodebase: false
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: java.vendor.url.bug: https://icedtea.classpath.org/bugzilla
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: LOG_INIT_DONE: 2 instances
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.io.unicode.encoding: UnicodeLittle
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.cpu.endian: little
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysProp: sun.cpu.isalist: 
+--ID:1TS:1766491585256-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/base/sbin:/opt/base/bin
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: TZ: Asia/Dhaka
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_FILE_MANAGER_DENIED_PATHS: 
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: MYJDOWNLOADER_DEVICE_NAME: 
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: APP_NAME: JDownloader 2
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: USER_ID: 1000
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_NOTIFICATION: 0
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_AUTHENTICATION_PASSWORD: 
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: DBUS_SESSION_BUS_ADDRESS: unix:path=/tmp/dbus.base
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: CONTAINER_DEBUG: 0
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: KEEP_APP_RUNNING: 0
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: UMASK: 0022
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: SUP_GROUP_IDS_INTERNAL_GPU: 
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: SUP_GROUP_IDS: 
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: XDG_CACHE_HOME: /config/xdg/cache
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: XDG_STATE_HOME: /config/xdg/state
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: JDOWNLOADER_MAX_MEM: 
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: LD_LIBRARY_PATH: /usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: ENABLE_CJK_FONT: 0
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: PWD: /etc/services.d/app
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv:    : /opt/base/sbin/cinit
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: TAKE_CONFIG_OWNERSHIP: 1
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_AUTHENTICATION_USERNAME: 
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: GTK_A11Y: none
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: GROUP_ID: 1000
+--ID:1TS:1766491585257-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: DOCKER_IMAGE_VERSION: 25.12.3
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: VNC_LOCALHOST_ONLY: 0
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: SECURE_CONNECTION_CERTS_CHECK_INTERVAL: 60
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: JDOWNLOADER_HEADLESS: 0
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_FILE_MANAGER_ALLOWED_PATHS: AUTO
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: EGL_LOG_LEVEL: fatal
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: SHLVL: 3
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: DARK_MODE: 0
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: APP_NICENESS: 0
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: INSTALL_PACKAGES: 
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_LOCALHOST_ONLY: 0
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_FILE_MANAGER: 0
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: PUID: 1000
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: PACKAGES_MIRROR: 
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: ENV: /root/.docker_rc
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: LANG: en_US.UTF-8
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_AUDIO: 0
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_AUTHENTICATION_TOKEN_VALIDITY_TIME: 24
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: DISPLAY: :0
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_LISTENING_PORT: 5800
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: DISPLAY_WIDTH: 1920
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: GSK_RENDERER: cairo
+--ID:1TS:1766491585258-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: XDG_DATA_HOME: /config/xdg/data
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: GDK_BACKEND: x11
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: VNC_PASSWORD: 
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: VNC_LISTENING_PORT: 5900
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: DISPLAY_HEIGHT: 1080
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: XDG_CONFIG_HOME: /config/xdg/config
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: DOCKER_IMAGE_PLATFORM: linux/amd64
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: WEB_AUTHENTICATION: 0
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: HOSTNAME: 3346aff7a514
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: SECURE_CONNECTION_VNC_METHOD: SSL
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: PGID: 1000
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: NO_AT_BRIDGE: 1
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: XDG_RUNTIME_DIR: /tmp/run/user/app
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: SECURE_CONNECTION: 0
+--ID:1TS:1766491585259-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> SysEnv: HOME: /root
+--ID:1TS:1766491585260-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> jar:file:/config/JDownloader.jar!/version.nfo:
+${updateclient.revision}
+--ID:1TS:1766491585260-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> ant-version: Apache Ant 1.10.5
+--ID:1TS:1766491585260-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> add-opens: java.desktop/javax.swing.plaf.synth java.desktop/javax.swin
+--ID:1TS:1766491585260-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> add-exports: java.desktop/sun.swing java.desktop/sun.swing.table java.
+--ID:1TS:1766491585260-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> created-by: Appwork GmbH and JDownloader Community
+--ID:1TS:1766491585260-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> manifest-version: 1.0
+--ID:1TS:1766491585260-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> main-class: org.jdownloader.update.launcher.JDLauncher
+--ID:1TS:1766491585261-12/23/25 6:06:25 PM -  [org.appwork.utils.Application(printSystemProperties)] -> /config/JDownloader.jar- lastModified: 12/23/25 6:06:24 PM
+--ID:1TS:1766491585261-12/23/25 6:06:25 PM -  [org.jdownloader.update.launcher.SecondLevelLauncher(init)] -> Args: [-afterupdate]
+--ID:1TS:1766491585294-12/23/25 6:06:25 PM -  [org.jdownloader.update.launcher.SecondLevelLauncher(init)] -> Restart Controller init done in 33
+--ID:1TS:1766491585294-12/23/25 6:06:25 PM -  [org.jdownloader.update.launcher.SecondLevelLauncher(init)] -> Parse Arguments
+--ID:1TS:1766491585294-12/23/25 6:06:25 PM -  [org.jdownloader.update.launcher.SecondLevelLauncher(init)] -> Parameter Parse done in 0
+--ID:1TS:1766491585294-12/23/25 6:06:25 PM -  [org.jdownloader.update.launcher.SecondLevelLauncher(init)] -> Single Instance Controller
+--ID:1TS:1766491585313-12/23/25 6:06:25 PM -  [org.jdownloader.update.launcher.SecondLevelLauncher(init)] -> Single Instance init done in 19
+--ID:1TS:1766491585313-12/23/25 6:06:25 PM -  [org.jdownloader.update.launcher.SecondLevelLauncher(init)] -> Init UpdateManager
+--ID:1TS:1766491585374-12/23/25 6:06:25 PM -  [org.jdownloader.update.launcher.SecondLevelLauncher(init)] -> Update Manager init done in 61
+--ID:1TS:1766491595866-12/23/25 6:06:35 PM -  [org.jdownloader.update.launcher.SecondLevelLauncher(init)] -> Finished Installation

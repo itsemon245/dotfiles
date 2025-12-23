@@ -1,0 +1,92 @@
+------------------------Thread: 1:Log.L.log-----------------------
+--ID:1TS:1766491578930-12/23/25 6:06:18 PM -  [org.appwork.builddecision.BuildDecisions(status)] -> ClassPath: /config/tmp/update/self/JDU/JDownloader.jar
+--ID:1TS:1766491578930-12/23/25 6:06:18 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Ant-Version: Apache Ant 1.10.5
+--ID:1TS:1766491578930-12/23/25 6:06:18 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Add-Opens: java.desktop/javax.swing.plaf.synth java.desktop/javax.swing.plaf.basic java.desktop/javax.swing java.desktop/javax.swing.tree java.desktop/java.awt.event
+--ID:1TS:1766491578930-12/23/25 6:06:18 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Add-Exports: java.desktop/sun.swing java.desktop/sun.swing.table java.desktop/sun.swing.plaf.synth java.desktop/com.sun.java.swing.plaf.windows java.desktop/sun.awt.shell java.desktop/com.sun.awt java.base/sun.security.action
+--ID:1TS:1766491578930-12/23/25 6:06:18 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Created-By: Appwork GmbH and JDownloader Community
+--ID:1TS:1766491578930-12/23/25 6:06:18 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Manifest-Version: 1.0
+--ID:1TS:1766491578930-12/23/25 6:06:18 PM -  [org.appwork.builddecision.BuildDecisions(status)] ->            Main-Class: org.jdownloader.update.launcher.JDLauncher
+--ID:1TS:1766491578930-12/23/25 6:06:18 PM -  [org.appwork.loggingv3.LogV3(info)] -> Application Root: /config/tmp/update/self/JDU
+--ID:1TS:1766491578939-12/23/25 6:06:18 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/tmp/update/self/JDU/cfg/org.jdownloader.update.lastchance.LastChanceConfig.json
+--ID:1TS:1766491578981-12/23/25 6:06:18 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/tmp/update/self/JDU/cfg/org.jdownloader.updatev2.UpdateSettings.json
+--ID:1TS:1766491578993-12/23/25 6:06:18 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Load JSon Storage from Classpath url: jar:file:/config/tmp/update/self/JDU/JDownloader.jar!/cfg/updateclient/Setup.json
+--ID:1TS:1766491578997-12/23/25 6:06:18 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/tmp/update/self/JDU/cfg/updateclient/Setup.json
+--ID:1TS:1766491578997-12/23/25 6:06:18 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.appwork.updatesys.client.Setup|Path:/config/tmp/update/self/JDU/cfg/updateclient/Setup
+------------------------Thread: 17:Log.L.log-----------------------
+--ID:17TS:1766491579001-12/23/25 6:06:19 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Prefer (merged) JSon Storage from File: /config/tmp/update/self/JDU/cfg/org.jdownloader.settings.InternetConnectionSettings.json
+--ID:17TS:1766491579002-12/23/25 6:06:19 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.jdownloader.updatev2.InternetConnectionSettings|Path:/config/tmp/update/self/JDU/cfg/org.jdownloader.settings.InternetConnectionSettings
+--ID:17TS:1766491579007-12/23/25 6:06:19 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> Load JSon Storage from Classpath url: jar:file:/config/tmp/update/self/JDU/JDownloader.jar!/cfg/updateclient/HttpSettings.json
+--ID:17TS:1766491579007-12/23/25 6:06:19 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/tmp/update/self/JDU/cfg/updateclient/HttpSettings.json
+--ID:17TS:1766491579007-12/23/25 6:06:19 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.appwork.updatesys.client.defaultimpl.http.UpdateHttpClientOptions|Path:/config/tmp/update/self/JDU/cfg/updateclient/HttpSettings
+--ID:17TS:1766491579009-12/23/25 6:06:19 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/tmp/update/self/JDU/cfg/ProxySelector.json
+--ID:17TS:1766491579009-12/23/25 6:06:19 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.appwork.updatesys.client.defaultimpl.http.ProxySelectorSettings|Path:/config/tmp/update/self/JDU/cfg/ProxySelector
+--ID:17TS:1766491579023-12/23/25 6:06:19 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/tmp/update/self/JDU/update/versioninfo/JD/extensions.json
+--ID:17TS:1766491579023-12/23/25 6:06:19 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.appwork.updatesys.client.extensions.ExtensionsStorage|Path:/config/tmp/update/self/JDU/update/versioninfo/JD/extensions
+--ID:17TS:1766491579025-12/23/25 6:06:19 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/tmp/update/self/JDU/cfg/org.appwork.updatesys.client.tracker.TrackConfig.json
+--ID:17TS:1766491579026-12/23/25 6:06:19 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/tmp/update/self/JDU/update/versioninfo/JDU/extensions.json
+--ID:17TS:1766491579026-12/23/25 6:06:19 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Init StorageHandler for Interface:org.appwork.updatesys.client.extensions.ExtensionsStorage|Path:/config/tmp/update/self/JDU/update/versioninfo/JDU/extensions
+------------------------Thread: 18:Log.L.log-----------------------
+--ID:18TS:1766491579032-12/23/25 6:06:19 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Read Config(URL): jar:file:/config/tmp/update/self/JDU/JDownloader.jar!/cfg/updateclient/Setup.updateservers.json
+--ID:18TS:1766491579045-12/23/25 6:06:19 PM -  [org.appwork.loggingv3.LogV3(finer)] -> Read Config(File): /config/tmp/update/self/JDU/cfg/org.jdownloader.settings.InternetConnectionSettings.customproxylist.json
+--ID:18TS:1766491579050-12/23/25 6:06:19 PM -  [org.appwork.loggingv3.LogV3(info)] -> Translation file missing:org/appwork/utils/locale/AWUTranslation.en.lngUse Annotation Dev fallback
+------------------------Thread: 1:Log.L.log-----------------------
+--ID:1TS:1766491584922-12/23/25 6:06:24 PM -  [org.appwork.loggingv3.LogV3(info)] -> Translation file missing:org/jdownloader/updatev2/UpdaterTranslation.en.lngUse Annotation Dev fallback
+------------------------Thread: 25:Log.L.log-----------------------
+--ID:25TS:1766491584937-12/23/25 6:06:24 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/tmp/update/self/JDU/cfg/laf/MetalLookAndFeel.json
+--ID:25TS:1766491584967-12/23/25 6:06:24 PM -  [org.appwork.storage.JsonKeyValueStorage(<init>)] -> CFG File does not exist: /config/tmp/update/self/JDU/cfg/org.jdownloader.update.gui.UpdFrameSettings.json
+------------------------Thread: 1:Log.L.log-----------------------
+--ID:1TS:1766491584993-12/23/25 6:06:24 PM -  [org.appwork.loggingv3.LogV3(info)] -> No Vetos
+--ID:1TS:1766491584993-12/23/25 6:06:24 PM -  [org.appwork.loggingv3.LogV3(info)] -> Fire onShutDownEvents:0
+--ID:1TS:1766491584993-12/23/25 6:06:24 PM -  [org.appwork.loggingv3.LogV3(info)] -> Create ExitThread
+------------------------Thread: 25:Log.L.log-----------------------
+--ID:25TS:1766491585016-12/23/25 6:06:25 PM -  [] -> Exception thrown at org.appwork.loggingv3.LogV3.log(LogV3.java:102):
+java.lang.ClassNotFoundException: net.sf.image4j.codec.ico.ICODecoder
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:387)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:419)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:352)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:352)
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:264)
+	at org.appwork.utils.images.IconIO.isIcoSupported(IconIO.java:765)
+	at org.appwork.resources.Theme.lookupImageUrl(Theme.java:433)
+	at org.appwork.resources.Theme.loadImageFromDisc(Theme.java:942)
+	at org.appwork.resources.Theme.getImage(Theme.java:532)
+	at org.appwork.resources.Theme.getIcon(Theme.java:375)
+	at org.appwork.resources.Theme.getIcon(Theme.java:258)
+	at org.jdownloader.update.UpdaterIcon.get(UpdaterIcon.java:32)
+	at org.jdownloader.update.gui.GuiCorePanelImpl.<init>(GuiCorePanelImpl.java:38)
+	at org.jdownloader.update.gui.UpdateGui.<init>(UpdateGui.java:52)
+	at org.jdownloader.update.gui.UpdateGuiWrapper$7.edtRun(UpdateGuiWrapper.java:195)
+	at org.jdownloader.update.gui.UpdateGuiWrapper$7.edtRun(UpdateGuiWrapper.java:178)
+	at org.appwork.utils.swing.EDTHelper.run(EDTHelper.java:110)
+	at org.appwork.utils.swing.EDTHelper.start(EDTHelper.java:147)
+	at org.appwork.utils.swing.EDTHelper.waitForEDT(EDTHelper.java:162)
+	at org.appwork.utils.swing.EDTHelper.getReturnValue(EDTHelper.java:91)
+	at org.jdownloader.update.gui.UpdateGuiWrapper.getOrCreateGui(UpdateGuiWrapper.java:212)
+	at org.jdownloader.update.gui.UpdateGuiWrapper.access$100(UpdateGuiWrapper.java:23)
+	at org.jdownloader.update.gui.UpdateGuiWrapper$6.runInEDT(UpdateGuiWrapper.java:149)
+	at org.appwork.utils.swing.EDTRunner.edtRun(EDTRunner.java:54)
+	at org.appwork.utils.swing.EDTHelper.run(EDTHelper.java:110)
+	at org.appwork.utils.swing.EDTHelper.start(EDTHelper.java:147)
+	at org.appwork.utils.swing.EDTHelper.start(EDTHelper.java:130)
+	at org.appwork.utils.swing.EDTRunner.<init>(EDTRunner.java:45)
+	at org.jdownloader.update.gui.UpdateGuiWrapper$6.<init>(UpdateGuiWrapper.java:143)
+	at org.jdownloader.update.gui.UpdateGuiWrapper.setVisible(UpdateGuiWrapper.java:143)
+	at org.jdownloader.update.UpdateManager$20.runInEDT(UpdateManager.java:1418)
+	at org.appwork.utils.swing.EDTRunner.edtRun(EDTRunner.java:54)
+	at org.appwork.utils.swing.EDTHelper.run(EDTHelper.java:110)
+	at java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:311)
+	at java.awt.EventQueue.dispatchEventImpl(EventQueue.java:758)
+	at java.awt.EventQueue.access$500(EventQueue.java:97)
+	at java.awt.EventQueue$3.run(EventQueue.java:709)
+	at java.awt.EventQueue$3.run(EventQueue.java:703)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:74)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:728)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:205)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:116)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:105)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:93)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:82)
+

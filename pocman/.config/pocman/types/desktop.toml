@@ -1,4 +1,5 @@
 [desktop]
+cloudflare-warp-bin
 python-pywal
 waybar
 networkmanager
