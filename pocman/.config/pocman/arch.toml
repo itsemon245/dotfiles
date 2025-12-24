@@ -10,6 +10,7 @@
 
 # CLI packages
 [cli:pacman]
+go
 btop
 less
 gum
@@ -26,13 +27,15 @@ composer
 stow
 curl
 wget
-go
 imagemagick
 php-imagick
 
 
 # Desktop packages
 [desktop:pacman]
+cliphist
+xdg-utils
+wl-clipboard
 python-pywal
 waybar
 network-manager-applet

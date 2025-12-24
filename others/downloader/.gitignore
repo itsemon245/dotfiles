@@ -1,2 +1,36 @@
 .env
 !.gitignore
+
+# JDownloader - Auto-generated and frequently changing files
+jd_config/logs/
+jd_config/log/
+jd_config/tmp/
+jd_config/*.jar
+jd_config/build.json
+jd_config/libs/
+jd_config/extensions/
+jd_config/jd/plugins/
+jd_config/jd/captcha/
+jd_config/themes/
+jd_config/translations/
+jd_config/update/
+jd_config/xdg/
+jd_config/java/
+jd_config/licenses/
+jd_config/license*
+
+# JDownloader cfg - Auto-generated UI state and frequently changing files
+jd_config/cfg/ExtTable_*.json
+jd_config/cfg/downloadList.zip
+jd_config/cfg/linkcollector.zip
+jd_config/cfg/org.jdownloader.settings.GraphicalUserInterfaceSettings.lastframestatus.json
+jd_config/cfg/org.jdownloader.settings.GraphicalUserInterfaceSettings.downloadlistscrollposition.json
+jd_config/cfg/accountUsageRules.json
+jd_config/cfg/updateclient/
+
+# qBittorrent - Auto-generated and frequently changing files
+qb_config/.cache/
+qb_config/qBittorrent/logs/
+qb_config/qBittorrent/BT_backup/
+qb_config/qBittorrent/GeoDB/
+qb_config/qBittorrent/rss/

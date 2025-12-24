@@ -1,6 +1,0 @@
-------------------------Thread: 67:org.jdownloader.extensions.ExtensionController.log-----------------------
---ID:67TS:1766491597724-12/23/25 6:06:37 PM -  [org.jdownloader.extensions.ExtensionController(loadJared)] -> Extensions:[/config/extensions/Extraction.jar]
---ID:67TS:1766491597821-12/23/25 6:06:37 PM -  [org.jdownloader.extensions.ExtensionController(initModule)] -> Load Extension: extraction.ExtractionExtension
---ID:67TS:1766491597873-12/23/25 6:06:37 PM -  [org.jdownloader.extensions.ExtensionController(initModule)] -> Loaded Extension: extraction.ExtractionExtension Load Duration:52ms
---ID:67TS:1766491597879-12/23/25 6:06:37 PM -  [org.jdownloader.extensions.ExtensionController(init)] -> @ExtensionController: init in156ms :1
---ID:67TS:1766491597879-12/23/25 6:06:37 PM -  [org.jdownloader.extensions.ExtensionController(init)] -> @ExtensionController:Archive Extractor

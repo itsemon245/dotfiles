@@ -7,14 +7,15 @@ swww img ~/Wallpapers/default.jpg &
 #Network Manager Applet
 nm-applet --indicator &
 
-
-#Notification daemon
-dunst &
-
 #Launch waybar
 waybar &
 
+#Ibus Input Preference
 ibus exit || true
 ibus-daemon -d --replace &
+ibus restart &
 
-greenclip daemon &
+openrgb -p static.orp &
+
+#Notification daemon
+dunst &

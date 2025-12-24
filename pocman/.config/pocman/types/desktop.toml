@@ -1,4 +1,7 @@
 [desktop]
+cliphist
+xdg-utils
+wl-clipboard
 cloudflare-warp-bin
 python-pywal
 waybar

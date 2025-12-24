@@ -1,8 +1,0 @@
-------------------------Thread: 23:Gui.log-----------------------
---ID:23TS:1766491596888-12/23/25 6:06:36 PM -  [jd.gui.swing.jdgui.JDGui(internalInitLocationAndDimension)] -> Check if Screen Location are ok java.awt.Point[x=448,y=176] - java.awt.Dimension[width=1024,height=728]
-------------------------Thread: 45:Gui.log-----------------------
---ID:45TS:1766491596941-12/23/25 6:06:36 PM -  [jd.gui.swing.jdgui.JDGui$27(run)] -> Update bug Finder
---ID:45TS:1766491596941-12/23/25 6:06:36 PM -  [jd.gui.swing.jdgui.JDGui$27(run)] -> Find Counter
---ID:45TS:1766491596941-12/23/25 6:06:36 PM -  [jd.gui.swing.jdgui.JDGui$27(run)] -> /config/JDownloader.jar
---ID:45TS:1766491596941-12/23/25 6:06:36 PM -  [jd.gui.swing.jdgui.JDGui$27(run)] -> Done: 1
---ID:45TS:1766491597941-12/23/25 6:06:37 PM -  [jd.gui.swing.jdgui.JDGui$27(run)] -> Gogogo 1

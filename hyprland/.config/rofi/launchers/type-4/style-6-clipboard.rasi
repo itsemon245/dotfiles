@@ -1,0 +1,6 @@
+configuration{}
+@theme "./style-6.rasi"
+
+element-icon {
+    size: 48px;
+}

@@ -1,1 +1,0 @@
-This folder contains licenses of used 3rd party libraries and resources.
