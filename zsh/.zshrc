@@ -28,3 +28,8 @@ export PATH="$PATH:/Users/emon/.lmstudio/bin"
 
 # Added by Antigravity
 export PATH="/Users/emon/.antigravity/antigravity/bin:$PATH"
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/home/emon/.lmstudio/bin"
+# End of LM Studio CLI section
+

@@ -46,7 +46,6 @@ openvpn
 flatpak
 ibus
 blueman
-qbittorrent
 i2c-tools
 kitty
 rofi
@@ -59,6 +58,7 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+xdman-beta-bin
 cloudflare-warp-bin
 wlogout
 google-chrome
@@ -96,3 +96,6 @@ noto-fonts
 inter-font
 ttf-liberation
 ttf-dejavu
+
+[ml:yay]
+lmstudio

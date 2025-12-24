@@ -14,13 +14,15 @@ services:
             - WIREGUARD_ENDPOINT_IP=${WIREGUARD_ENDPOINT_IP}
             - WIREGUARD_ENDPOINT_PORT=${WIREGUARD_ENDPOINT_PORT}
             - WIREGUARD_PUBLIC_KEY=${WIREGUARD_PUBLIC_KEY}
+            - DOT=off
+            - DNS_ADDRESS=1.1.1.1
         ports:
             - ${QB_PORT:-2080}:8080
             - ${JD_PORT:-2580}:5800
             - ${JD_CNL_PORT:-2666}:9666
             - 6881:6881
             - 6881:6881/udp
-        restart: unless-stopped
+        restart: always
 
     qbittorrent:
         image: lscr.io/linuxserver/qbittorrent:latest
@@ -37,18 +39,4 @@ services:
         depends_on:
             gluetun:
                 condition: service_healthy
-
-    jdownloader:
-        image: jlesage/jdownloader-2:latest
-        container_name: jdownloader
-        network_mode: "service:gluetun"
-        environment:
-            - PUID=${PUID:-1000}
-            - PGID=${PGID:-1000}
-            - TZ=${TZ:-Etc/UTC}
-        volumes:
-            - ./jd_config:/config
-            - ${DOWNLOAD_PATH:-~/Downloads}:/output
-        depends_on:
-            gluetun:
-                condition: service_healthy
+        restart: always
