@@ -33,6 +33,7 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+tela-circle-icon-theme-nord
 python-pip
 uv
 gnome-disk-utility

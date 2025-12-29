@@ -32,7 +32,7 @@ $divider-style: solid;
 $transparent: rgba(0, 0, 0, 0);
 $primary: rgba(237, 135, 150, 1);
 $bg: $transparent;
-$fg: rgba(202, 211, 245, 1);
+$fg: rgba(202, 211, 235, 1);
 
 //Semantic colors
 //RGB
@@ -56,12 +56,18 @@ $info: $blue;
 
 $surface: rgba(54, 58, 79, 1);
 $surface-variant: rgba(73, 77, 100, 1);
-$surface-2: #1a1b26;
+$surface-2: rgba(54, 58, 90, 0.7);
 $border: $surface-2;
 
 $text-primary: $fg;
 $text-secondary: rgba(184, 192, 224, 1);
 $text-tertiary: rgba(165, 173, 203, 1);
+
+//Iron bar specifics
+//spacing in between separate modules, for spacing between modules in the same group use $group-gap
+$spacing: 0.5rem;
+$padding-y: 0.5rem;
+$padding-x: 0.5rem;
 
 /* ============================================
    GENERATED OPACITY VARIANTS (10..90)

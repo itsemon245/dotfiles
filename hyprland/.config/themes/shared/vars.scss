@@ -36,4 +36,16 @@
     /* Extra Ironbar mappings */
     --margin-lg: #{$group-gap};
     --margin-sm: #{$module-margin-left};
+
+    --spacing: #{$spacing};
+    --group-gap: #{$group-gap};
+
+    --padding-y: #{$padding-y};
+    --padding-x: #{$padding-x};
+
+    /* AUTOMATED EXPORT OF VARIANTS */
+    /* Iterates over the $variants map defined in my.scss */
+    @each $name, $value in $variants {
+        --#{$name}: #{$value};
+    }
 }
