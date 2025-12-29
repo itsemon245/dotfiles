@@ -105,19 +105,26 @@ window,
   color: var(--primary)!important;
 }
 
-.popup-bluetooth .header .switch, .popup-bluetooth .devices .box .device .switch{
+.switch{
   border: var(--primary-30);
   border-radius: var(--radius);
-  color: var(--green);
+  background-size: cover;
+  background-position:center;
 }
+
 .popup-bluetooth .header {
-  margin-bottom: 16px;
+  padding-bottom: var(--spacing);
+  border-bottom: 1px var(--primary-30) solid;
+  margin-bottom: var(--spacing);
 }
 .popup-bluetooth .header .switch {
   margin-right: 10px;
 }
-.swtich{
-  background: url(https://api.iconify.design/bi:toggle-off.svg?color=%234b4e4e)
+.popup-bluetooth .devices {
+  min-height: 160px;
+}
+.popup-bluetooth .devices .box .device{
+  padding: var(--spacing) 4px;
 }
 
 /* ==========================================================================
@@ -408,7 +415,7 @@ button:active {
 
 .popup-music .volume .slider {
     padding: 2px;
-    margin: 5px;
+    margin: 0 5px;
 }
 
 /* Tooltips */
