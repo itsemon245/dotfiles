@@ -5,6 +5,7 @@
     --padding: 10px;
     --padding-x: 10px;
     --padding-y: 8px;
+    --font-weight: bold;
 }
 
 /* ==========================================================================
@@ -31,6 +32,7 @@ window,
     font-family: var(--font-family);
     font-size: var(--font-size);
     margin: var(--spacing);
+    font-weight: var(--font-weight);
 }
 
 .widget{
@@ -98,8 +100,24 @@ window,
     transition: all 0.3s ease-in-out;
     opacity: 0.8;
 }
+
 .wlogout{
   color: var(--primary)!important;
+}
+
+.popup-bluetooth .header .switch, .popup-bluetooth .devices .box .device .switch{
+  border: var(--primary-30);
+  border-radius: var(--radius);
+  color: var(--green);
+}
+.popup-bluetooth .header {
+  margin-bottom: 16px;
+}
+.popup-bluetooth .header .switch {
+  margin-right: 10px;
+}
+.swtich{
+  background: url(https://api.iconify.design/bi:toggle-off.svg?color=%234b4e4e)
 }
 
 /* ==========================================================================

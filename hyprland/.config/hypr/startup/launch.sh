@@ -8,7 +8,7 @@ swww img ~/Wallpapers/default.jpg &
 nm-applet --indicator &
 
 #Launch waybar
-waybar &
+ironbar &
 
 #Ibus Input Preference
 ibus exit || true

@@ -13,7 +13,7 @@
 /* Convenience function: v("bg", 80) -> rgba(..., 0.8) */
 :root {
   --font-family: FantasqueSansMono Nerd Font;
-  --font-size: 15px;
+  --font-size: 14px;
   --bar-margin: 5px;
   --radius: 0.8rem;
   --primary: rgb(237, 135, 150);
