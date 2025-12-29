@@ -1,4 +1,8 @@
 [desktop]
+python-pip
+uv
+gnome-disk-utility
+gparted
 xdman-beta-bin
 cliphist
 xdg-utils
