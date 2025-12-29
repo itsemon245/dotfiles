@@ -1,0 +1,39 @@
+@use "../current" as *;
+
+:root {
+    --font-family: #{$font-family};
+    --font-size: #{$font-size};
+
+    --bar-margin: #{$bar-margin};
+    --radius: #{$radius};
+
+    --primary: #{$primary};
+    --bg: #{$bg};
+    --fg: #{$fg};
+
+    --red: #{$red};
+    --green: #{$green};
+    --blue: #{$blue};
+
+    --cyan: #{$cyan};
+    --magenta: #{$magenta};
+    --yellow: #{$yellow};
+    --black: #{$black};
+
+    --danger: #{$danger};
+    --warning: #{$warning};
+    --success: #{$success};
+    --info: #{$info};
+
+    --surface: #{$surface};
+    --surface-variant: #{$surface-variant};
+    --surface-2: #{$surface-2};
+
+    --text-primary: #{$text-primary};
+    --text-secondary: #{$text-secondary};
+    --text-tertiary: #{$text-tertiary};
+
+    /* Extra Ironbar mappings */
+    --margin-lg: #{$group-gap};
+    --margin-sm: #{$module-margin-left};
+}

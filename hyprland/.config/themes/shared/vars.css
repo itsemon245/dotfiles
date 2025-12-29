@@ -1,0 +1,44 @@
+/* Force alpha = pct (10..90) while preserving RGB */
+/* Build a variants map: ("bg-80": <color>, "success-40": <color>, ...) */
+/* Get a variant from the variants map */
+/* Typography */
+/* Layout tokens */
+/* ============================================
+   COLORS (generic names)
+   ============================================ */
+/* ============================================
+   GENERATED OPACITY VARIANTS (10..90)
+   ============================================ */
+/* One map containing all variants */
+/* Convenience function: v("bg", 80) -> rgba(..., 0.8) */
+:root {
+  --font-family: FantasqueSansMono Nerd Font;
+  --font-size: 15px;
+  --bar-margin: 5px;
+  --radius: 0.8rem;
+  --primary: rgb(237, 135, 150);
+  --bg: rgba(0, 0, 0, 0);
+  --fg: rgb(202, 211, 245);
+  --red: rgb(237, 135, 150);
+  --green: rgb(166, 218, 149);
+  --blue: rgb(138, 173, 244);
+  --cyan: rgb(145, 215, 227);
+  --magenta: rgb(198, 160, 246);
+  --yellow: rgb(238, 212, 159);
+  --black: rgb(24, 25, 38);
+  --danger: rgb(237, 135, 150);
+  --warning: rgb(238, 212, 159);
+  --success: rgb(166, 218, 149);
+  --info: rgb(138, 173, 244);
+  --surface: rgb(54, 58, 79);
+  --surface-variant: rgb(73, 77, 100);
+  --surface-2: #1a1b26;
+  --text-primary: rgb(202, 211, 245);
+  --text-secondary: rgb(184, 192, 224);
+  --text-tertiary: rgb(165, 173, 203);
+  /* Extra Ironbar mappings */
+  --margin-lg: 1rem;
+  --margin-sm: 0.5rem;
+}
+
+/*# sourceMappingURL=vars.css.map */

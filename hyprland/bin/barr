@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# This script compiles the SCSS file for the active bar and reloads if it's running.
+
+set -euo pipefail
+
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+# --- Configuration ---
+
+declare -A BAR_COMPILE_CMD
+declare -A BAR_CMD
+
+# Waybar Configuration
+# Compiles style.scss to style.css (minified)
+BAR_COMPILE_CMD["waybar"]="sass --style=compressed $XDG_CONFIG_HOME/waybar/style.scss $XDG_CONFIG_HOME/waybar/style.css"
+BAR_CMD["waybar"]="waybar"
+
+# Ironbar Configuration
+# Compiles vars.scss to vars.css
+BAR_COMPILE_CMD["ironbar"]="sass $XDG_CONFIG_HOME/themes/shared/vars.scss $XDG_CONFIG_HOME/themes/shared/vars.css"
+BAR_CMD["ironbar"]="ironbar"
+
+DEFAULT_BAR="ironbar"
+
+# --- Logic ---
+
+target=""
+
+# Detect active bar
+if pgrep -x "ironbar" >/dev/null; then
+    target="ironbar"
+elif pgrep -x "waybar" >/dev/null; then
+    target="waybar"
+fi
+
+# Prioritize Ironbar if both are somehow running (though script kills others, so unlikely steady state)
+if pgrep -x "ironbar" >/dev/null && pgrep -x "waybar" >/dev/null; then
+    target="ironbar"
+fi
+
+# Fallback checking
+if [[ -z "$target" ]]; then
+    if [[ -n "${DEFAULT_BAR:-}" ]]; then
+        target="$DEFAULT_BAR"
+    else
+        target="ironbar"
+    fi
+fi
+
+echo "Active target: $target"
+
+# Compile
+if [[ -n "${BAR_COMPILE_CMD[$target]}" ]]; then
+    echo "Compiling for $target..."
+    eval "${BAR_COMPILE_CMD[$target]}"
+else
+    echo "No compilation command for $target"
+fi
+
+# Kill other bars
+for bar in "${!BAR_CMD[@]}"; do
+    if [[ "$bar" != "$target" ]]; then
+        if pgrep -x "$bar" >/dev/null; then
+            echo "Killing $bar..."
+            pkill -x "$bar" || true
+        fi
+    fi
+done
+
+# Reload / Start target
+echo "Reloading $target..."
+pkill -x "$target" || true
+nohup ${BAR_CMD[$target]} >/dev/null 2>&1 &
+
+echo "Done."

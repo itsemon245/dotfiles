@@ -8,7 +8,7 @@
 
 */
 
-@use "themes/current" as *;
+@use "../themes/current" as *;
 
 @mixin module-group($pos) {
   @if $pos =="left" {
