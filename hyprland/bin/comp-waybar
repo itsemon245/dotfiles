@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CFG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/waybar"
+IN="$CFG_DIR/style.scss"
+OUT="$CFG_DIR/style.css"
+
+# Compile (minified). Change to --style=expanded if you want readable output.
+sass --style=compressed --no-source-map "$IN" "$OUT"
+
+# Reload waybar if it's running; otherwise start it.
+if pgrep -x waybar >/dev/null 2>&1; then
+  # Waybar reload (commonly supported). If your build doesn't reload cleanly, it will just restart below.
+  pkill -SIGUSR2 waybar 2>/dev/null || true
+
+  # Optional fallback: if still not running, start it
+  sleep 0.05
+  pgrep -x waybar >/dev/null 2>&1 || (nohup waybar >/dev/null 2>&1 &)
+else
+  nohup waybar >/dev/null 2>&1 &
+fi

@@ -1,0 +1,32 @@
+@use "sass:math";
+@use "sass:color";
+@use "sass:map";
+
+/* Force alpha = pct (10..90) while preserving RGB */
+@function with-alpha-pct($c, $pct) {
+  $a: math.div($pct, 100);
+
+  @return rgba(
+    color.channel($c, "red", $space: rgb),
+    color.channel($c, "green", $space: rgb),
+    color.channel($c, "blue", $space: rgb),
+    $a
+  );
+}
+
+/* Build a variants map: ("bg-80": <color>, "success-40": <color>, ...) */
+@function build-variants($bases, $steps: (10,20,30,40,50,60,70,80,90)) {
+  $out: ();
+  @each $name, $base in $bases {
+    @each $pct in $steps {
+      $key: "#{$name}-#{$pct}";
+      $out: map.set($out, $key, with-alpha-pct($base, $pct));
+    }
+  }
+  @return $out;
+}
+
+/* Get a variant from the variants map */
+@function get($variants, $name, $pct) {
+  @return map.get($variants, "#{$name}-#{$pct}");
+}

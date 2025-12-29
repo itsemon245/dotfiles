@@ -1,4 +1,5 @@
 [desktop]
+ironbar-bin
 python-pip
 uv
 gnome-disk-utility

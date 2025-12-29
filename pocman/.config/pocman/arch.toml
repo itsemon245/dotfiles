@@ -62,6 +62,7 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+ironbar-bin
 xdman-beta-bin
 cloudflare-warp-bin
 wlogout
@@ -93,6 +94,7 @@ protonup-qt
 ngrok
 
 [fonts:pacman]
+ttf-fantasque-nerd
 noto-fonts-extra
 noto-fonts-emoji
 noto-fonts-cjk
