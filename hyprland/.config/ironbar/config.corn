@@ -8,12 +8,12 @@ let {
 
   $focused = {
     type = "focused"
-    show_icon = false
+    show_icon = true
     show_title = true
     icon_size = 24
     icon_theme = "Tela-circle-nord"
 
-    truncate.mode = "end"
+    truncate.mode = "middle"
     truncate.max_length = 25
   }
 
@@ -31,6 +31,16 @@ let {
     music_dir = "/home/emon/Music"
   }
 
+  $disk= {
+    type = "custom"
+    cmd = "~/scripts/disk-free"
+
+  }
+
+  $network = {
+    type = "network_manager"
+    icon_size = 32
+  }
   $bluetooth = {
       type = "bluetooth"
       icon_size = 32
@@ -331,9 +341,9 @@ let {
     ]
   }
 
-  $start = [$work1 $work2 $work3 $work4 $work5 $work6 $work7 $work8 $work9 $focused ]
+  $start = [$work1 $work2 $work3 $work4 $work5 $focused ]
   $center = [ $clock ]
-  $end = [ $SysInfo $volume $bluetooth $pacman $wlogout ]
+  $end = [ $SysInfo $network $bluetooth $volume $wlogout ]
 }
   in {
   icon_theme = "Tela-circle-nord"

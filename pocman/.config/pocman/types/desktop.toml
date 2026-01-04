@@ -1,4 +1,17 @@
 [desktop]
+gvfs-smb
+gvfs-mtp
+gvfs
+polkit-gnome
+exfatprogs
+ntfs-3g
+polkit
+udisks2
+nwg-displays
+qt5-quickcontrols
+qt5-declarative
+qt5-svg
+qt5-base
 tela-circle-icon-theme-nord
 ironbar-bin
 python-pip

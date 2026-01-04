@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+df -l -B1 | awk '
+  $1 ~ "^/dev/" && $6 != "/boot" && $6 != "/boot/efi" { sum += $4 }
+  END { printf "%.2fG\n", sum/1024/1024/1024 }'

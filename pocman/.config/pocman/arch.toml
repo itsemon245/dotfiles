@@ -33,6 +33,19 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+gvfs-smb
+gvfs-mtp
+gvfs
+polkit-gnome
+exfatprogs
+ntfs-3g
+polkit
+udisks2
+nwg-displays
+qt5-quickcontrols
+qt5-declarative
+qt5-svg
+qt5-base
 tela-circle-icon-theme-nord
 python-pip
 uv
@@ -95,6 +108,7 @@ protonup-qt
 ngrok
 
 [fonts:pacman]
+ttf-fantasque-sans-mono
 ttf-fantasque-nerd
 noto-fonts-extra
 noto-fonts-emoji

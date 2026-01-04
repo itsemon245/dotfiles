@@ -21,56 +21,146 @@ BAR_CMD["waybar"]="waybar"
 BAR_COMPILE_CMD["ironbar"]="sass $XDG_CONFIG_HOME/themes/shared/vars.scss $XDG_CONFIG_HOME/themes/shared/vars.css"
 BAR_CMD["ironbar"]="ironbar"
 
-DEFAULT_BAR="ironbar"
+DEFAULT_BAR="waybar"
 
-# --- Logic ---
+# --- Functions ---
 
-target=""
-
-# Detect active bar
-if pgrep -x "ironbar" >/dev/null; then
-    target="ironbar"
-elif pgrep -x "waybar" >/dev/null; then
-    target="waybar"
-fi
-
-# Prioritize Ironbar if both are somehow running (though script kills others, so unlikely steady state)
-if pgrep -x "ironbar" >/dev/null && pgrep -x "waybar" >/dev/null; then
-    target="ironbar"
-fi
-
-# Fallback checking
-if [[ -z "$target" ]]; then
-    if [[ -n "${DEFAULT_BAR:-}" ]]; then
-        target="$DEFAULT_BAR"
-    else
-        target="ironbar"
+get_active_bar() {
+    # Prioritize ironbar if running
+    if pgrep -x "ironbar" >/dev/null; then
+        echo "ironbar"
+        return 0
     fi
-fi
+    # Check others
+    for bar in "${!BAR_CMD[@]}"; do
+        [[ "$bar" == "ironbar" ]] && continue
+        if pgrep -x "$bar" >/dev/null; then
+            echo "$bar"
+            return 0
+        fi
+    done
+    return 1
+}
 
-echo "Active target: $target"
+kill_bar() {
+    local bar="$1"
+    if pgrep -x "$bar" >/dev/null; then
+        echo "Killing $bar..."
+        pkill -x "$bar" || true
+    else
+        echo "$bar is not running."
+    fi
+}
 
-# Compile
-if [[ -n "${BAR_COMPILE_CMD[$target]}" ]]; then
-    echo "Compiling for $target..."
-    eval "${BAR_COMPILE_CMD[$target]}"
-else
-    echo "No compilation command for $target"
-fi
-
-# Kill other bars
-for bar in "${!BAR_CMD[@]}"; do
-    if [[ "$bar" != "$target" ]]; then
+kill_all_bars() {
+    echo "Killing all bars..."
+    for bar in "${!BAR_CMD[@]}"; do
         if pgrep -x "$bar" >/dev/null; then
             echo "Killing $bar..."
             pkill -x "$bar" || true
         fi
+    done
+}
+
+start_bar_logic() {
+    local target=""
+    local active=""
+
+    active=$(get_active_bar) || true
+
+    if [[ -n "$active" ]]; then
+        target="$active"
+    else
+        # Fallback to DEFAULT_BAR
+        if [[ -n "${DEFAULT_BAR:-}" ]]; then
+            target="$DEFAULT_BAR"
+        else
+            target="ironbar"
+        fi
     fi
+
+    echo "Active target: $target"
+
+    # Compile
+    if [[ -n "${BAR_COMPILE_CMD[$target]}" ]]; then
+        echo "Compiling for $target..."
+        eval "${BAR_COMPILE_CMD[$target]}"
+    else
+        echo "No compilation command for $target"
+    fi
+
+    # Kill other bars
+    for bar in "${!BAR_CMD[@]}"; do
+        if [[ "$bar" != "$target" ]]; then
+            if pgrep -x "$bar" >/dev/null; then
+                echo "Killing $bar..."
+                pkill -x "$bar" || true
+            fi
+        fi
+    done
+
+    # Reload / Start target
+    echo "Reloading $target..."
+    pkill -x "$target" || true
+    nohup ${BAR_CMD[$target]} >/dev/null 2>&1 &
+
+    echo "Done."
+}
+
+# --- Argument Parsing ---
+
+# Default behavior if no args: start/reload logic
+if [[ $# -eq 0 ]]; then
+    start_bar_logic
+    exit 0
+fi
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --kill-all)
+            kill_all_bars
+            exit 0
+            ;;
+        -k|--kill)
+            target_kill=""
+            if [[ -n "${2:-}" ]] && [[ ! "$2" =~ ^- ]]; then
+                target_kill="$2"
+                shift
+            else
+                target_kill=$(get_active_bar) || true
+            fi
+
+            if [[ -n "$target_kill" ]]; then
+                kill_bar "$target_kill"
+            else
+                echo "No active bar to kill."
+            fi
+            exit 0
+            ;;
+        -t|--toggle)
+            active=$(get_active_bar) || true
+            if [[ -n "$active" ]]; then
+                kill_bar "$active"
+                echo "Toggled off."
+            else
+                start_bar_logic
+            fi
+            exit 0
+            ;;
+        -h|--help)
+            echo "Usage: $(basename "$0") [OPTIONS]"
+            echo "Options:"
+            echo "  -k, --kill [NAME]   Kill specified bar, or active bar if NAME not provided"
+            echo "  --kill-all          Kill all known bars"
+            echo "  -t, --toggle        Toggle active bar (Start default if none running, Stop if running)"
+            echo "  -h, --help          Show this help message"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage."
+            exit 1
+            ;;
+    esac
+    shift
 done
-
-# Reload / Start target
-echo "Reloading $target..."
-pkill -x "$target" || true
-nohup ${BAR_CMD[$target]} >/dev/null 2>&1 &
-
-echo "Done."

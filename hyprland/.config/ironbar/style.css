@@ -67,7 +67,6 @@ window,
 .script,
 .zscroll,
 .music,
-.bluetooth,
 .workspaces{
     background: var(--surface-2);
     color: var(--fg);
@@ -76,8 +75,27 @@ window,
     opacity: 0.8;
     box-shadow: rgba(0, 0, 0, 0.288) 2px 2px 5px 2px;
     /* Most common right margin */
-    padding: 0 var(--padding)
+    padding: 0 var(--padding);
     /* Most common padding */
+}
+
+.bluetooth,.network_manager {
+  background: var(--surface-2);
+  margin: 0;
+  padding: 0;
+  color: var(--fg);
+}
+
+.bluetooth,
+.bluetooth label,
+.bluetooth * {
+    color: var(--blue) !important;
+}
+
+.network_manager,
+.network_manager label,
+.network_manager * {
+    color: var(--green) !important;
 }
 
 /* Common Hover Effects */
@@ -94,7 +112,8 @@ window,
 .work7:hover,
 .work8:hover,
 .work9:hover,
-.bleutooth:hover{
+.bluetooth:hover,
+.network_manager:hover{
     color: var(--cyan);
     background: var(--primary-30);
     transition: all 0.3s ease-in-out;
@@ -196,11 +215,13 @@ window,
 
 /* Clock */
 .clock {
-    color: var(--cyan);
-    font-family: CaskaydiaCove Nerd Font;
-    font-weight: bold;
     margin-left: var(--spacing);
     margin-right: var(--spacing);
+}
+.clock .label{
+    color: var(--primary);
+    font-family: CaskaydiaCove Nerd Font;
+    font-weight: bold;
 }
 
 .clock_date {
@@ -208,8 +229,10 @@ window,
 }
 
 /* Focused Window Title */
-.focused {
-    color: var(--green);
+.focused .label {
+    color: var(--primary);
+}
+.focused{
     margin-left: var(--spacing);
 }
 
@@ -240,7 +263,7 @@ window,
   border-radius: var(--radius) 0 0 var(--radius);
 }
 /*last workspace*/
-.work9{
+.work5{
   --radius: 10px;
   border-radius: 0 var(--radius) var(--radius) 0;
 }
@@ -334,19 +357,27 @@ label {
     color: var(--fg);
 }
 
-button {
-    padding-left: var(--margin-sm);
-    padding-right: var(--margin-sm);
-}
-
 button:hover,
 button:active {
-    background-color: var(--surface-2);
+    background-color: var(--surface);
+    transition: colors;
 }
 
 /* Spacing Helpers */
 #end>*+* {
     margin-right: var(--spacing);
+}
+
+/* Remove spacing between bluetooth and network_manager - override the general rule */
+#end .bluetooth,
+#end .network_manager {
+    margin-right: 0 !important;
+}
+
+/* When they're adjacent, remove any left margin from the second one */
+#end .bluetooth + .network_manager,
+#end .network_manager + .bluetooth {
+    margin-left: 0 !important;
 }
 
 /* /* Spacing Helpers */ */
