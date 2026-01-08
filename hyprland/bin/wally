@@ -45,6 +45,31 @@ show_usage() {
     echo "  set <image>      Directly set a wallpaper"
 }
 
+update_system_theme() {
+    local img="$1"
+
+    notify_progress 70 "Generating colors..." "low"
+
+    # 1. Run Wallust
+    # -q: quiet
+    wallust run "$img" -q
+
+    # 2. Reload Apps
+
+    # Reload Waybar
+    pkill waybar && hyprctl dispatch exec waybar
+
+    # Reload Dunst
+    killall dunst # It auto-restarts on next notify
+
+    # Reload Kitty (If enabled)
+    killall -SIGUSR1 kitty
+
+    # Reload Hyprland Colors (Not strictly necessary as it reads vars on startup,
+    # but strictly speaking you might need to reload config)
+    # hyprctl reload
+}
+
 notify_progress() {
     local pct="$1"
     local msg="$2"
@@ -79,6 +104,7 @@ FINAL_TRANSITION_FLAGS=""
 
 apply_wallpaper() {
     swww img "$DEFAULT_WALLPAPER" $FINAL_TRANSITION_FLAGS
+    update_system_theme "$DEFAULT_WALLPAPER"
 }
 
 # ==============================================================================

@@ -33,6 +33,7 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+adw-gtk-theme
 libnotify
 gnome-software
 ffmpeg
@@ -79,6 +80,7 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+wallust
 realesrgan-ncnn-vulkan-bin
 upscaler
 ironbar-bin

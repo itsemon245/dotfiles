@@ -1,4 +1,6 @@
 [desktop]
+adw-gtk-theme
+wallust
 realesrgan-ncnn-vulkan-bin
 libnotify
 upscaler

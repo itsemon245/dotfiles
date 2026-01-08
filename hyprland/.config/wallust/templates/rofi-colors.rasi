@@ -1,0 +1,8 @@
+* {
+    background:     {{background}}CC; /* Transparent bg */
+    background-alt: {{color0}}CC;
+    foreground:     {{foreground}};
+    selected:       {{color4}};
+    active:         {{color2}};
+    urgent:         {{color1}};
+}

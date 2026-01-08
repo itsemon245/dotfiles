@@ -1,0 +1,35 @@
+# ~/.config/wallust/wallust.toml
+
+# How to generate colors from image
+backend = "wal" # Options: full, resized, wal, thief, etc.
+color_space = "lab" # Best for accuracy
+palette = "dark16" # Generates 16 colors (0-15) + bg/fg/cursor
+
+# =========================================================
+# TEMPLATES DEFINITIONS
+# =========================================================
+
+# 1. Hyprland Colors
+[[entry]]
+template = "hyprland-colors.conf"
+target = "~/.config/hypr/colors.conf"
+
+# 2. Waybar CSS (Replaces your SCSS compilation)
+[[entry]]
+template = "waybar-colors.css"
+target = "~/.config/waybar/colors.css"
+
+# 3. Dunst Config (Replaces hardcoded colors)
+[[entry]]
+template = "dunstrc"
+target = "~/.config/dunst/dunstrc"
+
+# 4. Rofi Colors
+[[entry]]
+template = "rofi-colors.rasi"
+target = "~/.config/rofi/colors.rasi"
+
+# 5. Kitty Colors
+[[entry]]
+template = "kitty-colors.conf"
+target = "~/.config/kitty/colors.conf"
