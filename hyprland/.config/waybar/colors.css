@@ -1,0 +1,33 @@
+@define-color background #242524;
+@define-color foreground #F3DCB1;
+@define-color cursor #9AAD9A;
+
+@define-color color0 #4A4A49;
+@define-color color1 #87292C;
+@define-color color2 #325E63;
+@define-color color3 #A34506;
+@define-color color4 #914E6E;
+@define-color color5 #4D7650;
+@define-color color6 #A57417;
+@define-color color7 #E5C586;
+@define-color color8 #A08A5E;
+@define-color color9 #B4363B;
+@define-color color10 #427E84;
+@define-color color11 #D95C08;
+@define-color color12 #C16892;
+@define-color color13 #679D6B;
+@define-color color14 #DC9B1F;
+@define-color color15 #E5C586;
+
+@define-color primary #914E6E;
+@define-color secondary #4D7650;
+@define-color urgent #87292C;
+
+/*
+   Opacity variants fix:
+   We append Hex Alpha codes directly.
+   CC = 80% opacity
+   80 = 50% opacity
+*/
+@define-color background-80 #242524CC;
+@define-color background-50 #24252480;

@@ -116,26 +116,24 @@
 # ==============================================================================
 
 [urgency_low]
-    # Dark Grey Background with transparency
-    background = "#1e1e2eCC"
-    foreground = "#cdd6f4"
-    frame_color = "#313244"
+    # Background with 80% opacity
+    background = "#242524CC"
+    foreground = "#F3DCB1"
+    frame_color = "#A08A5E"
     timeout = 3
 
 [urgency_normal]
-    # Dark Grey Background with transparency
-    background = "#1e1e2eCC"
-    foreground = "#cdd6f4"
-    # Blue-ish Border
-    frame_color = "#89b4fa"
+    background = "#242524CC"
+    foreground = "#F3DCB1"
+    # Use Primary Color (Color4) for normal borders
+    frame_color = "#914E6E"
     timeout = 6
 
 [urgency_critical]
-    # Red Background with transparency
-    background = "#1e1e2eCC"
-    foreground = "#cdd6f4"
-    # Red Border
-    frame_color = "#f38ba8"
+    background = "#242524CC"
+    foreground = "#F3DCB1"
+    # Use Red (Color1) for critical
+    frame_color = "#87292C"
     timeout = 0
 
 # ==============================================================================
@@ -275,4 +273,5 @@
 #    set_stack_tag = "volume"
 #
 # vim: ft=cfg
+
 

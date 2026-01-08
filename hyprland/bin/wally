@@ -16,6 +16,10 @@ CACHE_DIR="$HOME/.cache/wally"
 # Rofi Theme Path
 ROFI_THEME="$HOME/.config/rofi/launchers/type-3/style-2-big-thumb.rasi"
 
+# Target Resolution Width (e.g., 2560 for 1440p, 1920 for 1080p)
+# The final image will be resized to this width to save space.
+TARGET_WIDTH=2560
+
 # --- UPSCALER SETTINGS ---
 UPSCALER_BIN="realesrgan-ncnn-vulkan"
 UPSCALE_MODEL="realesrgan-x4plus-anime"
@@ -26,7 +30,7 @@ TRANSITION_FPS=60
 TRANSITION_DURATION=2
 
 # Dependencies
-DEPENDENCIES=("rofi" "swww" "identify" "convert" "$UPSCALER_BIN" "dunstify")
+DEPENDENCIES=("rofi" "swww" "identify" "convert" "$UPSCALER_BIN" "dunstify" "wallust")
 
 # Fixed Notification ID
 NOTIF_ID=991011
@@ -45,41 +49,12 @@ show_usage() {
     echo "  set <image>      Directly set a wallpaper"
 }
 
-update_system_theme() {
-    local img="$1"
-
-    notify_progress 70 "Generating colors..." "low"
-
-    # 1. Run Wallust
-    # -q: quiet
-    wallust run "$img" -q
-
-    # 2. Reload Apps
-
-    # Reload Waybar
-    pkill waybar && hyprctl dispatch exec waybar
-
-    # Reload Dunst
-    killall dunst # It auto-restarts on next notify
-
-    # Reload Kitty (If enabled)
-    killall -SIGUSR1 kitty
-
-    # Reload Hyprland Colors (Not strictly necessary as it reads vars on startup,
-    # but strictly speaking you might need to reload config)
-    # hyprctl reload
-}
-
 notify_progress() {
     local pct="$1"
     local msg="$2"
     local urgency="${3:-low}"
-
-    # We use the FULL_PATH (the wallpaper image itself) as the notification icon
-    # Fallback to 'image-x-generic' if variable is empty
     local icon_path="${FULL_PATH:-image-x-generic}"
 
-    # -t 0 : FORCE the notification to stay open
     dunstify "   Wally" "$msg" \
         -r "$NOTIF_ID" \
         -u "$urgency" \
@@ -91,13 +66,29 @@ notify_progress() {
 notify_done() {
     local icon_path="${FULL_PATH:-image-x-generic}"
 
-    # -t 5000 : Close after 5s
     dunstify "   Wally" "$1" \
         -r "$NOTIF_ID" \
         -u "low" \
         -h int:value:100 \
         -i "$icon_path" \
         -t 5000
+}
+
+update_system_theme() {
+    local img="$1"
+
+    notify_progress 70 "Generating colors..." "low"
+
+    wallust run "$img" -q
+
+    # Reload Apps
+    pkill waybar && hyprctl dispatch exec waybar
+    killall dunst
+    killall -SIGUSR1 kitty
+
+    if pgrep -x "qt5ct" > /dev/null; then
+        killall -SIGUSR1 qt5ct
+    fi
 }
 
 FINAL_TRANSITION_FLAGS=""
@@ -135,7 +126,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # ==============================================================================
-# DEPENDENCY GUARD & TRANSITION SETUP
+# CHECKS & SETUP
 # ==============================================================================
 
 missing_deps=()
@@ -160,11 +151,12 @@ fi
 
 FINAL_TRANSITION_FLAGS="--transition-type $SELECTED_TYPE --transition-fps $TRANSITION_FPS --transition-duration $TRANSITION_DURATION --transition-pos 0.5,0.5"
 
+mkdir -p "$CACHE_DIR"
+
 # ==============================================================================
 # SELECTION LOGIC
 # ==============================================================================
 
-mkdir -p "$CACHE_DIR"
 FULL_PATH=""
 FILENAME=""
 
@@ -211,12 +203,11 @@ fi
 [ ! -f "$FULL_PATH" ] && { dunstify "   Wally Error" "File not found." -u critical; exit 1; }
 
 # ==============================================================================
-# PHASE 1: PREPARATION & FORMAT NORMALIZATION
+# PHASE 1: PREPARATION & NORMALIZATION
 # ==============================================================================
 
 notify_progress 10 "Initializing..." "low"
 
-# Normalize to PNG
 EXT="${FILENAME##*.}"
 EXT="${EXT,,}"
 
@@ -242,7 +233,7 @@ notify_progress 30 "Setting preview..." "low"
 apply_wallpaper
 
 # ==============================================================================
-# PHASE 2: INTELLIGENT SELECTION
+# PHASE 2: INTELLIGENT SELECTION & RESIZING
 # ==============================================================================
 
 FILENAME_NO_EXT="${FILENAME%.*}"
@@ -254,7 +245,7 @@ if [ "$FORCE_ORIGINAL" = true ]; then
     exit 0
 fi
 
-# PATH 2: Check Cache (Automatic)
+# PATH 2: Check Cache
 if [ -f "$CACHE_FILE" ]; then
     notify_progress 80 "Found cached high-res..." "low"
     cp "$CACHE_FILE" "$DEFAULT_WALLPAPER"
@@ -263,20 +254,38 @@ if [ -f "$CACHE_FILE" ]; then
     exit 0
 fi
 
-# PATH 3: Upscaling (If requested + No cache)
+# PATH 3: Upscaling + Downsizing
 if [ "$ENABLE_UPSCALE" = true ]; then
 
     notify_progress 50 "Upscaling..." "low"
 
-    "$UPSCALER_BIN" -i "$FULL_PATH" -o "$CACHE_FILE" -n "$UPSCALE_MODEL"
+    # Temporary file for the raw huge AI output (4x native)
+    TEMP_UPSCALE="$CACHE_DIR/temp_${FILENAME_NO_EXT}.png"
+
+    # 1. Upscale using AI (Scale factor 4 = Native. Tile size 400 for speed on 3060 Ti)
+    "$UPSCALER_BIN" -i "$FULL_PATH" -o "$TEMP_UPSCALE" -n "$UPSCALE_MODEL" -s 4 -t 400
 
     if [ $? -eq 0 ]; then
-        notify_progress 90 "Applying Upscale..." "low"
-        cp "$CACHE_FILE" "$DEFAULT_WALLPAPER"
-        apply_wallpaper
-        notify_done "Wallpaper Set."
+        notify_progress 60 "Optimizing Size..." "low"
+
+        # 2. Resize DOWN to target monitor width (2560px)
+        # This keeps the sharpness but fixes the file size and grid artifacts
+        convert "$TEMP_UPSCALE" -resize "$TARGET_WIDTH"x "$CACHE_FILE"
+
+        # Cleanup huge temp file
+        rm "$TEMP_UPSCALE"
+
+        if [ -f "$CACHE_FILE" ]; then
+            notify_progress 90 "Applying Upscale..." "low"
+            cp "$CACHE_FILE" "$DEFAULT_WALLPAPER"
+            apply_wallpaper
+            notify_done "Wallpaper Set."
+        else
+             dunstify "   Wally Error" "Optimization failed." -u critical
+        fi
     else
         dunstify "   Wally Error" "Upscaling failed." -u critical
+        [ -f "$TEMP_UPSCALE" ] && rm "$TEMP_UPSCALE"
     fi
 
 else

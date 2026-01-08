@@ -1,35 +1,27 @@
 # ~/.config/wallust/wallust.toml
 
-# How to generate colors from image
-backend = "wal" # Options: full, resized, wal, thief, etc.
-color_space = "lab" # Best for accuracy
-palette = "dark16" # Generates 16 colors (0-15) + bg/fg/cursor
+# =========================================
+# BACKEND SETTINGS
+# =========================================
+backend = "wal"
+color_space = "lab"
+palette = "dark16"
 
-# =========================================================
-# TEMPLATES DEFINITIONS
-# =========================================================
+# =========================================
+# TEMPLATES (v3 Syntax)
+# =========================================
+[templates]
 
-# 1. Hyprland Colors
-[[entry]]
-template = "hyprland-colors.conf"
-target = "~/.config/hypr/colors.conf"
+# template_name = { template = "source", target = "destination" }
 
-# 2. Waybar CSS (Replaces your SCSS compilation)
-[[entry]]
-template = "waybar-colors.css"
-target = "~/.config/waybar/colors.css"
+hyprland = { template = "hyprland-colors.conf", target = "~/.config/hypr/colors.conf" }
 
-# 3. Dunst Config (Replaces hardcoded colors)
-[[entry]]
-template = "dunstrc"
-target = "~/.config/dunst/dunstrc"
+waybar = { template = "waybar-colors.css", target = "~/.config/waybar/colors.css" }
 
-# 4. Rofi Colors
-[[entry]]
-template = "rofi-colors.rasi"
-target = "~/.config/rofi/colors.rasi"
+dunst = { template = "dunstrc", target = "~/.config/dunst/dunstrc" }
 
-# 5. Kitty Colors
-[[entry]]
-template = "kitty-colors.conf"
-target = "~/.config/kitty/colors.conf"
+rofi = { template = "rofi-colors.rasi", target = "~/.config/rofi/colors.rasi" }
+
+kitty = { template = "kitty-colors.conf", target = "~/.config/kitty/colors.conf" }
+
+#qt_colors = { template = "qt-colors.conf", target = "~/.config/qt5ct/colors/wally.conf" }
