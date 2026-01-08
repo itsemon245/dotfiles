@@ -16,21 +16,20 @@ CACHE_DIR="$HOME/.cache/wally"
 # Rofi Theme Path
 ROFI_THEME="$HOME/.config/rofi/launchers/type-3/style-2-big-thumb.rasi"
 
-# Target Resolution Width (e.g., 2560, 3840)
-TARGET_WIDTH=2560
-
-# Upscaler Binary and Model
+# --- UPSCALER SETTINGS ---
 UPSCALER_BIN="realesrgan-ncnn-vulkan"
 UPSCALE_MODEL="realesrgan-x4plus-anime"
 
 # --- Transition Settings ---
-# Options: "random", "simple", "fade", "left", "right", "top", "bottom", "wipe", "wave", "grow", "center", "outer"
 TRANSITION_TYPE="random"
 TRANSITION_FPS=60
 TRANSITION_DURATION=2
 
 # Dependencies
-DEPENDENCIES=("rofi" "swww" "identify" "convert" "$UPSCALER_BIN" "notify-send")
+DEPENDENCIES=("rofi" "swww" "identify" "convert" "$UPSCALER_BIN" "dunstify")
+
+# Fixed Notification ID
+NOTIF_ID=991011
 
 # ==============================================================================
 # FUNCTIONS
@@ -38,34 +37,44 @@ DEPENDENCIES=("rofi" "swww" "identify" "convert" "$UPSCALER_BIN" "notify-send")
 
 show_usage() {
     echo "Usage: wally [OPTIONS] [COMMAND]"
-    echo ""
     echo "Options:"
-    echo "  -u, --upscale    Enable AI upscaling (disabled by default)"
-    echo "  -h, --help       Show this help message"
-    echo ""
+    echo "  -u, --upscale    Enable AI upscaling (if not already cached)"
+    echo "  --no-upscale     Force original image (ignore cache)"
     echo "Commands:"
-    echo "  (empty)          Open Rofi selection menu"
-    echo "  set <image>      Directly set a wallpaper (filename or path)"
+    echo "  (empty)          Open Rofi menu"
+    echo "  set <image>      Directly set a wallpaper"
 }
 
-send_notify() {
-    local title="$1"
-    local message="$2"
-    local urgency="${3:-normal}"
-    local icon="$4"
+notify_progress() {
+    local pct="$1"
+    local msg="$2"
+    local urgency="${3:-low}"
 
-    if command -v notify-send &> /dev/null; then
-        if [ -n "$icon" ]; then
-            notify-send "$title" "$message" -u "$urgency" -i "$icon"
-        else
-            notify-send "$title" "$message" -u "$urgency"
-        fi
-    else
-        echo "[Wally - $urgency] $title: $message" >&2
-    fi
+    # We use the FULL_PATH (the wallpaper image itself) as the notification icon
+    # Fallback to 'image-x-generic' if variable is empty
+    local icon_path="${FULL_PATH:-image-x-generic}"
+
+    # -t 0 : FORCE the notification to stay open
+    dunstify "   Wally" "$msg" \
+        -r "$NOTIF_ID" \
+        -u "$urgency" \
+        -h int:value:"$pct" \
+        -i "$icon_path" \
+        -t 0
 }
 
-# Variable to hold the calculated transition string
+notify_done() {
+    local icon_path="${FULL_PATH:-image-x-generic}"
+
+    # -t 5000 : Close after 5s
+    dunstify "   Wally" "$1" \
+        -r "$NOTIF_ID" \
+        -u "low" \
+        -h int:value:100 \
+        -i "$icon_path" \
+        -t 5000
+}
+
 FINAL_TRANSITION_FLAGS=""
 
 apply_wallpaper() {
@@ -77,18 +86,20 @@ apply_wallpaper() {
 # ==============================================================================
 
 ENABLE_UPSCALE=false
+FORCE_ORIGINAL=false
 DIRECT_INPUT=""
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -u|--upscale) ENABLE_UPSCALE=true ;;
+        --no-upscale) FORCE_ORIGINAL=true ;;
         -h|--help) show_usage; exit 0 ;;
         set)
             if [ -n "$2" ]; then
                 DIRECT_INPUT="$2"
                 shift
             else
-                echo "Error: 'set' requires a filename or path."
+                dunstify "   Wally Error" "'set' requires a filename." -u critical
                 exit 1
             fi
             ;;
@@ -101,7 +112,6 @@ done
 # DEPENDENCY GUARD & TRANSITION SETUP
 # ==============================================================================
 
-# 1. Check Dependencies
 missing_deps=()
 for cmd in "${DEPENDENCIES[@]}"; do
     if ! command -v "$cmd" &> /dev/null; then
@@ -110,12 +120,10 @@ for cmd in "${DEPENDENCIES[@]}"; do
 done
 
 if [ ${#missing_deps[@]} -gt 0 ]; then
-    error_msg="Missing dependencies: ${missing_deps[*]}"
-    notify-send "Wally Error" "$error_msg" -u critical
+    dunstify "   Wally Error" "Missing: ${missing_deps[*]}" -u critical
     exit 1
 fi
 
-# 2. Setup Transition Logic
 if [ "$TRANSITION_TYPE" == "random" ]; then
     TRANS_LIST=("simple" "fade" "left" "right" "top" "bottom" "wipe" "wave" "grow" "center" "outer")
     RAND_IDX=$((RANDOM % ${#TRANS_LIST[@]}))
@@ -143,7 +151,7 @@ if [ -n "$DIRECT_INPUT" ]; then
         FULL_PATH="$WALLPAPER_DIR/$DIRECT_INPUT"
         FILENAME="$DIRECT_INPUT"
     else
-        send_notify "Wally Error" "Image not found: $DIRECT_INPUT" "critical"
+        dunstify "   Wally Error" "Image not found: $DIRECT_INPUT" -u critical
         exit 1
     fi
 
@@ -157,7 +165,7 @@ else
     done < <(find "$WALLPAPER_DIR" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -print0 | sort -z)
 
     if [ "$rofi_list" == " Random\0icon\x1fmedia-playlist-shuffle" ]; then
-         send_notify "Wally Error" "No images found in $WALLPAPER_DIR" "critical"
+         dunstify "   Wally Error" "No images found in $WALLPAPER_DIR" -u critical
          exit 1
     fi
 
@@ -174,80 +182,77 @@ else
     fi
 fi
 
-[ ! -f "$FULL_PATH" ] && { send_notify "Wally Error" "File not found." "critical"; exit 1; }
+[ ! -f "$FULL_PATH" ] && { dunstify "   Wally Error" "File not found." -u critical; exit 1; }
 
 # ==============================================================================
 # PHASE 1: PREPARATION & FORMAT NORMALIZATION
 # ==============================================================================
 
-send_notify "Wally" "Processing $FILENAME..." "low"
+notify_progress 10 "Initializing..." "low"
 
-# Check extension
+# Normalize to PNG
 EXT="${FILENAME##*.}"
-EXT="${EXT,,}" # Convert to lowercase
+EXT="${EXT,,}"
 
 if [ "$EXT" != "png" ]; then
-    # Construct new path with .png extension
     NEW_PATH="${FULL_PATH%.*}.png"
-
-    send_notify "Wally" "Converting original to PNG..." "low"
-
-    # Convert using ImageMagick
+    notify_progress 20 "Normalizing to PNG..." "low"
     convert "$FULL_PATH" "$NEW_PATH"
 
     if [ $? -eq 0 ] && [ -f "$NEW_PATH" ]; then
-        # If conversion successful:
-        # 1. Remove the old non-png file
         rm "$FULL_PATH"
-
-        # 2. Update variables to point to the new PNG
         FULL_PATH="$NEW_PATH"
         FILENAME=$(basename "$NEW_PATH")
-
-        # 3. Update the 'default.png' link
         cp "$FULL_PATH" "$DEFAULT_WALLPAPER"
     else
-        send_notify "Wally Error" "Format conversion failed." "critical"
-        # Fallback: just copy original to default without replacing source
+        dunstify "   Wally Error" "Format conversion failed." -u critical
         convert "$FULL_PATH" "$DEFAULT_WALLPAPER"
     fi
 else
-    # It is already a PNG, just copy to default location
     cp "$FULL_PATH" "$DEFAULT_WALLPAPER"
 fi
 
-# Apply immediately (Instant Preview)
+notify_progress 30 "Setting preview..." "low"
 apply_wallpaper
 
 # ==============================================================================
-# PHASE 2: OPTIONAL UPSCALING
+# PHASE 2: INTELLIGENT SELECTION
 # ==============================================================================
 
+FILENAME_NO_EXT="${FILENAME%.*}"
+CACHE_FILE="$CACHE_DIR/${FILENAME_NO_EXT}_upscaled.png"
+
+# PATH 1: Force Original
+if [ "$FORCE_ORIGINAL" = true ]; then
+    notify_done "Original Wallpaper Set (Forced)."
+    exit 0
+fi
+
+# PATH 2: Check Cache (Automatic)
+if [ -f "$CACHE_FILE" ]; then
+    notify_progress 80 "Found cached high-res..." "low"
+    cp "$CACHE_FILE" "$DEFAULT_WALLPAPER"
+    apply_wallpaper
+    notify_done "Cached Wallpaper Set."
+    exit 0
+fi
+
+# PATH 3: Upscaling (If requested + No cache)
 if [ "$ENABLE_UPSCALE" = true ]; then
 
-    FILENAME_NO_EXT="${FILENAME%.*}"
-    CACHE_FILE="$CACHE_DIR/${FILENAME_NO_EXT}_upscaled.png"
-    CURRENT_WIDTH=$(identify -format "%w" "$FULL_PATH")
+    notify_progress 50 "Upscaling..." "low"
 
-    if [ "$CURRENT_WIDTH" -lt "$TARGET_WIDTH" ]; then
-        if [ -f "$CACHE_FILE" ]; then
-            cp "$CACHE_FILE" "$DEFAULT_WALLPAPER"
-            apply_wallpaper
-            send_notify "Wally" "High-res loaded from cache." "low" "$DEFAULT_WALLPAPER"
-        else
-            send_notify "Wally" "Upscaling background (x4)..." "normal"
+    "$UPSCALER_BIN" -i "$FULL_PATH" -o "$CACHE_FILE" -n "$UPSCALE_MODEL"
 
-            "$UPSCALER_BIN" -i "$FULL_PATH" -o "$CACHE_FILE" -n "$UPSCALE_MODEL"
-
-            if [ $? -eq 0 ]; then
-                cp "$CACHE_FILE" "$DEFAULT_WALLPAPER"
-                apply_wallpaper
-                send_notify "Wally" "Upscale complete & applied." "low" "$DEFAULT_WALLPAPER"
-            else
-                send_notify "Wally Error" "Upscaling failed. Keeping preview." "critical"
-            fi
-        fi
+    if [ $? -eq 0 ]; then
+        notify_progress 90 "Applying Upscale..." "low"
+        cp "$CACHE_FILE" "$DEFAULT_WALLPAPER"
+        apply_wallpaper
+        notify_done "Wallpaper Set."
     else
-        send_notify "Wally" "Resolution optimal (Upscale skipped)." "low" "$DEFAULT_WALLPAPER"
+        dunstify "   Wally Error" "Upscaling failed." -u critical
     fi
+
+else
+    notify_done "Wallpaper Set."
 fi
