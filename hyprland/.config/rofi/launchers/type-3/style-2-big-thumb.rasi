@@ -2,11 +2,13 @@ configuration{}
 @theme "./style-2.rasi"
 
 mainbox {
-  padding: 60px 40px;
+    padding:  50px 100px;
+    spacing: 20px;
+
 }
 element {
-  padding: 20px 10px;
+  padding: 30px 10px;
 }
 element-icon {
-    size: 200px;
+    size: 220px;
 }

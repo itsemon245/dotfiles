@@ -1,0 +1,39 @@
+* {
+    background:     #050000CC;
+    background-alt: #060000CC;
+    foreground:     #F0E9BC;
+    primary:        #AB6262;
+    selected:       #AB6262;
+    active:         #556B6A;
+    urgent:         #695D57;
+
+    primary-10: rgba(171,98,98, 0.1);
+    primary-20: rgba(171,98,98, 0.2);
+    primary-30: rgba(171,98,98, 0.3);
+    primary-40: rgba(171,98,98, 0.4);
+    primary-50: rgba(171,98,98, 0.5);
+    primary-60: rgba(171,98,98, 0.6);
+    primary-70: rgba(171,98,98, 0.7);
+    primary-80: rgba(171,98,98, 0.8);
+    primary-90: rgba(171,98,98, 0.9);
+
+    background-10: rgba(5,0,0, 0.1);
+    background-20: rgba(5,0,0, 0.2);
+    background-30: rgba(5,0,0, 0.3);
+    background-40: rgba(5,0,0, 0.4);
+    background-50: rgba(5,0,0, 0.5);
+    background-60: rgba(5,0,0, 0.6);
+    background-70: rgba(5,0,0, 0.7);
+    background-80: rgba(5,0,0, 0.8);
+    background-90: rgba(5,0,0, 0.9);
+
+    foreground-10: rgba(240,233,188, 0.1);
+    foreground-20: rgba(240,233,188, 0.2);
+    foreground-30: rgba(240,233,188, 0.3);
+    foreground-40: rgba(240,233,188, 0.4);
+    foreground-50: rgba(240,233,188, 0.5);
+    foreground-60: rgba(240,233,188, 0.6);
+    foreground-70: rgba(240,233,188, 0.7);
+    foreground-80: rgba(240,233,188, 0.8);
+    foreground-90: rgba(240,233,188, 0.9);
+}

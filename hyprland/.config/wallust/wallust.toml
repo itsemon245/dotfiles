@@ -29,7 +29,7 @@ waybar = { template = "waybar-colors.template", target = "~/.config/waybar/color
 
 dunst = { template = "dunstrc", target = "~/.config/dunst/dunstrc" }
 
-rofi = { template = "rofi-colors.rasi", target = "~/.config/rofi/colors.rasi" }
+rofi = { template = "rofi-colors.rasi", target = "~/.config/rofi/colors/wallust.rasi" }
 
 kitty = { template = "kitty-colors.conf", target = "~/.config/kitty/colors.conf" }
 
@@ -47,3 +47,6 @@ qt6 = { template = "qt-colors.conf", target = "~/.config/qt6ct/colors/wally.conf
 # If you use Vesktop, change path to: ~/.config/vesktop/themes/wally.theme.css
 discordplain = { template = "discord.template", target = "~/.config/Vencord/themes/wally.theme.css" }
 discord = { template = "midnight.template", target = "~/.config/Vencord/themes/midnight-wallust.theme.css" }
+
+# Tmux
+tmux = { template = "tmux-colors.conf", target = "~/.tmux-colors.conf" }
