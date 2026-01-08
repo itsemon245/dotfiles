@@ -53,6 +53,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && rm -rf /var/lib/apt/lists/* \
     && npm install -g pnpm
 
+# ffmpeg (installed at the end to preserve cached layers)
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
 # Defaults that help dev
 ENV COMPOSER_ALLOW_SUPERUSER=1
 WORKDIR /app

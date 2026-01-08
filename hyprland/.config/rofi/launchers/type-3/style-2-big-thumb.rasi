@@ -1,0 +1,12 @@
+configuration{}
+@theme "./style-2.rasi"
+
+mainbox {
+  padding: 60px 40px;
+}
+element {
+  padding: 20px 10px;
+}
+element-icon {
+    size: 200px;
+}

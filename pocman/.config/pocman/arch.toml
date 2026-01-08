@@ -33,6 +33,9 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+libnotify
+gnome-software
+ffmpeg
 gvfs-smb
 gvfs-mtp
 gvfs
@@ -76,6 +79,8 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+realesrgan-ncnn-vulkan-bin
+upscaler
 ironbar-bin
 xdman-beta-bin
 cloudflare-warp-bin
@@ -90,8 +95,10 @@ openrgb-bin
 
 # Gaming packages
 [gaming:pacman]
-lib32-vulkan-icd-loader
 vulkan-icd-loader
+discord
+mangohud
+lib32-vulkan-icd-loader
 lutris
 steam
 winetricks
@@ -108,6 +115,7 @@ protonup-qt
 ngrok
 
 [fonts:pacman]
+ttf-iosevka-nerd
 ttf-fantasque-sans-mono
 ttf-fantasque-nerd
 noto-fonts-extra

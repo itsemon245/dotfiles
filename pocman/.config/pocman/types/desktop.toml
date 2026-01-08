@@ -1,4 +1,8 @@
 [desktop]
+realesrgan-ncnn-vulkan-bin
+libnotify
+upscaler
+ffmpeg
 gvfs-smb
 gvfs-mtp
 gvfs
