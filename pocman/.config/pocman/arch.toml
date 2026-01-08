@@ -80,6 +80,7 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+vencord-installer-bin
 wallust
 realesrgan-ncnn-vulkan-bin
 upscaler
@@ -97,6 +98,7 @@ openrgb-bin
 
 # Gaming packages
 [gaming:pacman]
+obs-studio
 vulkan-icd-loader
 discord
 mangohud

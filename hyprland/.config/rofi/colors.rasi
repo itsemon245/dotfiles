@@ -1,8 +1,41 @@
 * {
-    background:     #242524CC; /* Transparent bg */
-    background-alt: #4A4A49CC;
-    foreground:     #F3DCB1;
-    selected:       #914E6E;
-    active:         #325E63;
-    urgent:         #87292C;
+    background:     #1C1D1FCC; /* Transparent bg */
+    background-alt: #47484BCC;
+    foreground:     #E6E7EB;
+    selected:       #7C7D89;
+    active:         #526087;
+    urgent:         #5C6070;
+
+    /* Primary Opacity Variants */
+    primary-10: rgba(124,125,137, 0.1);
+    primary-20: rgba(124,125,137, 0.2);
+    primary-30: rgba(124,125,137, 0.3);
+    primary-40: rgba(124,125,137, 0.4);
+    primary-50: rgba(124,125,137, 0.5);
+    primary-60: rgba(124,125,137, 0.6);
+    primary-70: rgba(124,125,137, 0.7);
+    primary-80: rgba(124,125,137, 0.8);
+    primary-90: rgba(124,125,137, 0.9);
+
+    /* Background Opacity Variants */
+    background-10: rgba(28,29,31, 0.1);
+    background-20: rgba(28,29,31, 0.2);
+    background-30: rgba(28,29,31, 0.3);
+    background-40: rgba(28,29,31, 0.4);
+    background-50: rgba(28,29,31, 0.5);
+    background-60: rgba(28,29,31, 0.6);
+    background-70: rgba(28,29,31, 0.7);
+    background-80: rgba(28,29,31, 0.8);
+    background-90: rgba(28,29,31, 0.9);
+
+    /* Foreground Opacity Variants */
+    foreground-10: rgba(230,231,235, 0.1);
+    foreground-20: rgba(230,231,235, 0.2);
+    foreground-30: rgba(230,231,235, 0.3);
+    foreground-40: rgba(230,231,235, 0.4);
+    foreground-50: rgba(230,231,235, 0.5);
+    foreground-60: rgba(230,231,235, 0.6);
+    foreground-70: rgba(230,231,235, 0.7);
+    foreground-80: rgba(230,231,235, 0.8);
+    foreground-90: rgba(230,231,235, 0.9);
 }

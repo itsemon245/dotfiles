@@ -119,7 +119,7 @@
     # Background with 80% opacity
     background = "{{background}}CC"
     foreground = "{{foreground}}"
-    frame_color = "{{color8}}"
+    frame_color = "{{color4}}"
     timeout = 3
 
 [urgency_normal]

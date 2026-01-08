@@ -89,6 +89,18 @@ update_system_theme() {
     if pgrep -x "qt5ct" > /dev/null; then
         killall -SIGUSR1 qt5ct
     fi
+
+     # --- NEW: Force GTK Reload ---
+    # We toggle the theme setting quickly. This forces running GTK apps to re-read CSS.
+    # Note: Requires 'glib2' package (which has gsettings), usually installed by default.
+    current_theme=$(gsettings get org.gnome.desktop.interface gtk-theme)
+    # Strip single quotes
+    current_theme=${current_theme//\'/}
+    
+    # Switch to Default and back to current to trigger repaint
+    gsettings set org.gnome.desktop.interface gtk-theme "Default"
+    sleep 0.1
+    gsettings set org.gnome.desktop.interface gtk-theme "$current_theme"
 }
 
 FINAL_TRANSITION_FLAGS=""

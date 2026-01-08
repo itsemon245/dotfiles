@@ -5,4 +5,37 @@
     selected:       {{color4}};
     active:         {{color2}};
     urgent:         {{color1}};
+
+    /* Primary Opacity Variants */
+    primary-10: rgba({{color4 | rgb}}, 0.1);
+    primary-20: rgba({{color4 | rgb}}, 0.2);
+    primary-30: rgba({{color4 | rgb}}, 0.3);
+    primary-40: rgba({{color4 | rgb}}, 0.4);
+    primary-50: rgba({{color4 | rgb}}, 0.5);
+    primary-60: rgba({{color4 | rgb}}, 0.6);
+    primary-70: rgba({{color4 | rgb}}, 0.7);
+    primary-80: rgba({{color4 | rgb}}, 0.8);
+    primary-90: rgba({{color4 | rgb}}, 0.9);
+
+    /* Background Opacity Variants */
+    background-10: rgba({{background | rgb}}, 0.1);
+    background-20: rgba({{background | rgb}}, 0.2);
+    background-30: rgba({{background | rgb}}, 0.3);
+    background-40: rgba({{background | rgb}}, 0.4);
+    background-50: rgba({{background | rgb}}, 0.5);
+    background-60: rgba({{background | rgb}}, 0.6);
+    background-70: rgba({{background | rgb}}, 0.7);
+    background-80: rgba({{background | rgb}}, 0.8);
+    background-90: rgba({{background | rgb}}, 0.9);
+
+    /* Foreground Opacity Variants */
+    foreground-10: rgba({{foreground | rgb}}, 0.1);
+    foreground-20: rgba({{foreground | rgb}}, 0.2);
+    foreground-30: rgba({{foreground | rgb}}, 0.3);
+    foreground-40: rgba({{foreground | rgb}}, 0.4);
+    foreground-50: rgba({{foreground | rgb}}, 0.5);
+    foreground-60: rgba({{foreground | rgb}}, 0.6);
+    foreground-70: rgba({{foreground | rgb}}, 0.7);
+    foreground-80: rgba({{foreground | rgb}}, 0.8);
+    foreground-90: rgba({{foreground | rgb}}, 0.9);
 }

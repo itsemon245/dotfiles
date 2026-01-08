@@ -2,8 +2,8 @@
 # Any customization should be done in ~/.gtkrc-2.0.mine instead.
 
 include "/home/emon/.gtkrc-2.0.mine"
-gtk-theme-name="Adwaita"
-gtk-icon-theme-name="Adwaita"
+gtk-theme-name="adw-gtk3-dark"
+gtk-icon-theme-name="Tela-circle-nord"
 gtk-font-name="Inter Variable 11"
 gtk-cursor-theme-name="default"
 gtk-cursor-theme-size=32
@@ -15,5 +15,5 @@ gtk-enable-event-sounds=1
 gtk-enable-input-feedback-sounds=0
 gtk-xft-antialias=1
 gtk-xft-hinting=1
-gtk-xft-hintstyle="hintslight"
+gtk-xft-hintstyle="hintmedium"
 gtk-xft-rgba="rgb"

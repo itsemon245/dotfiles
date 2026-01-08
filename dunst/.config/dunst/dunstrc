@@ -117,23 +117,23 @@
 
 [urgency_low]
     # Background with 80% opacity
-    background = "#242524CC"
-    foreground = "#F3DCB1"
-    frame_color = "#A08A5E"
+    background = "#1C1D1FCC"
+    foreground = "#E6E7EB"
+    frame_color = "#7C7D89"
     timeout = 3
 
 [urgency_normal]
-    background = "#242524CC"
-    foreground = "#F3DCB1"
+    background = "#1C1D1FCC"
+    foreground = "#E6E7EB"
     # Use Primary Color (Color4) for normal borders
-    frame_color = "#914E6E"
+    frame_color = "#7C7D89"
     timeout = 6
 
 [urgency_critical]
-    background = "#242524CC"
-    foreground = "#F3DCB1"
+    background = "#1C1D1FCC"
+    foreground = "#E6E7EB"
     # Use Red (Color1) for critical
-    frame_color = "#87292C"
+    frame_color = "#5C6070"
     timeout = 0
 
 # ==============================================================================

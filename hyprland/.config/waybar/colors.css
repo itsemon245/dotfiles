@@ -1,33 +1,68 @@
-@define-color background #242524;
-@define-color foreground #F3DCB1;
-@define-color cursor #9AAD9A;
+/*
+@define-color background #1C1D1F;
+*/
+@define-color background rgba(28,29,31, 0.2);
 
-@define-color color0 #4A4A49;
-@define-color color1 #87292C;
-@define-color color2 #325E63;
-@define-color color3 #A34506;
-@define-color color4 #914E6E;
-@define-color color5 #4D7650;
-@define-color color6 #A57417;
-@define-color color7 #E5C586;
-@define-color color8 #A08A5E;
-@define-color color9 #B4363B;
-@define-color color10 #427E84;
-@define-color color11 #D95C08;
-@define-color color12 #C16892;
-@define-color color13 #679D6B;
-@define-color color14 #DC9B1F;
-@define-color color15 #E5C586;
+@define-color foreground #E6E7EB;
+@define-color cursor #8995B8;
 
-@define-color primary #914E6E;
-@define-color secondary #4D7650;
-@define-color urgent #87292C;
+@define-color color0 #47484B;
+@define-color color1 #5C6070;
+@define-color color2 #526087;
+@define-color color3 #6C6E77;
+@define-color color4 #7C7D89;
+@define-color color5 #888890;
+@define-color color6 #8A8C94;
+@define-color color7 #D3D4DA;
+@define-color color8 #949498;
+@define-color color9 #676E82;
+@define-color color10 #5B6EA1;
+@define-color color11 #7D7F8C;
+@define-color color12 #86889A;
+@define-color color13 #9A9BA7;
+@define-color color14 #B8BAC5;
+@define-color color15 #D3D4DA;
+
+@define-color primary #7C7D89;
+@define-color secondary #888890;
+@define-color urgent #5C6070;
+
+/* Primary Opacity Variants */
+@define-color primary-10 rgba(124,125,137, 0.1);
+@define-color primary-20 rgba(124,125,137, 0.2);
+@define-color primary-30 rgba(124,125,137, 0.3);
+@define-color primary-40 rgba(124,125,137, 0.4);
+@define-color primary-50 rgba(124,125,137, 0.5);
+@define-color primary-60 rgba(124,125,137, 0.6);
+@define-color primary-70 rgba(124,125,137, 0.7);
+@define-color primary-80 rgba(124,125,137, 0.8);
+@define-color primary-90 rgba(124,125,137, 0.9);
+
+/* Background Opacity Variants */
+@define-color background-10 rgba(28,29,31, 0.1);
+@define-color background-20 rgba(28,29,31, 0.2);
+@define-color background-30 rgba(28,29,31, 0.3);
+@define-color background-40 rgba(28,29,31, 0.4);
+@define-color background-50 rgba(28,29,31, 0.5);
+@define-color background-60 rgba(28,29,31, 0.6);
+@define-color background-70 rgba(28,29,31, 0.7);
+@define-color background-80 rgba(28,29,31, 0.8);
+@define-color background-90 rgba(28,29,31, 0.9);
+
+/* Foreground Opacity Variants */
+@define-color foreground-10 rgba(230,231,235, 0.1);
+@define-color foreground-20 rgba(230,231,235, 0.2);
+@define-color foreground-30 rgba(230,231,235, 0.3);
+@define-color foreground-40 rgba(230,231,235, 0.4);
+@define-color foreground-50 rgba(230,231,235, 0.5);
+@define-color foreground-60 rgba(230,231,235, 0.6);
+@define-color foreground-70 rgba(230,231,235, 0.7);
+@define-color foreground-80 rgba(230,231,235, 0.8);
+@define-color foreground-90 rgba(230,231,235, 0.9);
 
 /*
    Opacity variants fix:
-   We append Hex Alpha codes directly.
-   CC = 80% opacity
-   80 = 50% opacity
+   We use rgba with decimal RGB values for GTK CSS compatibility.
 */
-@define-color background-80 #242524CC;
-@define-color background-50 #24252480;
+@define-color background-80 rgba(28,29,31,0.8);
+@define-color background-50 rgba(28,29,31,0.5);
