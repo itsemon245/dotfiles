@@ -4,3 +4,10 @@ composer/.config/composer/vendor
 others/.local/share/nvim
 others/.local/state/nvim
 **/.DS_Store
+hyprland/.config/hypr/colors.conf
+hyprland/.config/rofi/colors/wallust.rasi
+hyprland/.config/waybar/colors.css
+customization/.config/gtk-4.0/colors.css
+customization/.config/gtk-3.0/colors.css
+tmux/.tmux-colors.conf
+kitty/.config/kitty/colors.conf

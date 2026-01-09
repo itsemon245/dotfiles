@@ -1,0 +1,5 @@
+/* 1. Import the correct system theme */
+@import url("/usr/share/themes/adw-gtk3-dark/gtk-3.0/gtk.css");
+
+/* 2. Import Wallust generated colors */
+@import url("colors.css");
