@@ -46,7 +46,7 @@
 
     # BORDERS
     frame_width = 2
-    frame_color = "#89b4fa" # Catppuccin Blue style accent
+    frame_color = "{{color4}}99" # Catppuccin Blue style accent
 
     # Gaps between notifications
     gap_size = 8
@@ -112,28 +112,39 @@
 # ==============================================================================
 # COLORS
 # We use 8-digit Hex codes here. The last 2 digits are Alpha (Transparency).
-# CC = ~80% Opacity (Allows Blur to show through)
+# Reference for Transparency:
+# FF = 100% (Opaque)
+# E6 = 90%
+# CC = 80% (Default)
+# B3 = 70%
+# 99 = 60%
+# 80 = 50%
+# 66 = 40%
+# 4D = 30%
+# 33 = 20%
+# 1A = 10%
+# 00 = 0%  (Invisible)
 # ==============================================================================
 
 [urgency_low]
-    # Background with 80% opacity
-    background = "{{background}}CC"
+    # Background with 30% opacity (allows more blur to show through)
+    background = "{{background}}4D"
     foreground = "{{foreground}}"
-    frame_color = "{{color4}}"
+    frame_color = "{{color4}}99"
     timeout = 3
 
 [urgency_normal]
-    background = "{{background}}CC"
+    background = "{{background}}4D"
     foreground = "{{foreground}}"
     # Use Primary Color (Color4) for normal borders
-    frame_color = "{{color4}}"
+    frame_color = "{{color4}}99"
     timeout = 6
 
 [urgency_critical]
-    background = "{{background}}CC"
+    background = "{{background}}4D"
     foreground = "{{foreground}}"
-    # Use Red (Color1) for critical
-    frame_color = "{{color1}}"
+    # Use Hardcoded Red with 60% opacity for critical
+    frame_color = "#FF000099"
     timeout = 0
 
 # ==============================================================================

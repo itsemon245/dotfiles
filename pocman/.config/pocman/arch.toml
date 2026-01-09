@@ -33,6 +33,7 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+fastfetch
 adw-gtk-theme
 libnotify
 gnome-software
