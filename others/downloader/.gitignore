@@ -34,3 +34,4 @@ qb_config/qBittorrent/logs/
 qb_config/qBittorrent/BT_backup/
 qb_config/qBittorrent/GeoDB/
 qb_config/qBittorrent/rss/
+qb_config/qBittorrent/qBittorrent-data.conf
