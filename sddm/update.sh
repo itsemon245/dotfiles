@@ -1,0 +1,1 @@
+sudo cp -r ~/dotfiles/sddm/themes/silent /usr/share/sddm/themes/

@@ -38,6 +38,12 @@ rm -rf ~/.config/pocman
 source stow.sh
 # Install all packages from TOML file using pkg script
 ./pocman/bin/pocman --all
+
+echo -e "${CYAN}Updating SDDM theme...${NC}"
+chmod +x ~/dotfiles/sddm/update.sh
+source ~/dotfiles/sddm/update.sh
+echo -e "${GREEN}SDDM theme updated successfully!${NC}"
+
 rm -f ~/.zshrc
 source nvm-setup.sh
 source zsh-setup.sh

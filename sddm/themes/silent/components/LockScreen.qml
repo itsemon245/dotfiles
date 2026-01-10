@@ -10,7 +10,7 @@ Item {
     // TODO: Support for weather info?
     ColumnLayout {
         id: timePositioner
-        spacing: Config.dateMarginTop + 5
+        spacing: Config.dateMarginTop
         Text {
             id: time
             visible: Config.clockDisplay
@@ -20,17 +20,20 @@ Item {
             color: Config.clockColor
             Layout.alignment: Config.clockAlign === "left" ? Qt.AlignLeft : (Config.clockAlign === "right" ? Qt.AlignRight : Qt.AlignHCenter)
 
-	    	
-	    //make it always 12 hour
-	    function updateTime() {
-		    var d = new Date();
-		    var hours = d.getHours();
-		    var minutes = d.getMinutes();
-		    var h12 = hours % 12 || 12;
-		    var hStr = (h12 < 10 ? "0" : "") + h12;
-		    var mStr = (minutes < 10 ? "0" : "") + minutes;
-		    text = hStr + ":" + mStr; 
-	    }
+
+            function updateTime() {
+              //make it always 12 hour
+              var d = new Date();
+              var hours = d.getHours();
+              var minutes = d.getMinutes();
+              var h12 = hours % 12 || 12;
+              var hStr = (h12 < 10 ? "0" : "") + h12;
+              var mStr = (minutes < 10 ? "0" : "") + minutes;
+              text = hStr + ":" + mStr;
+
+              //default follow the format
+              text = new Date().toLocaleString(Qt.locale(Config.dateLocale), Config.clockFormat);
+            }
         }
 
         Text {
