@@ -124,6 +124,12 @@
 # 33 = 20%
 # 1A = 10%
 # 00 = 0%  (Invisible)
+#
+# MODERN MATTE PALETTE (Reference)
+# Success = #10B981 (e.g. #10B981CC for 80%)
+# Danger  = #F43F5E
+# Warning = #F59E0B
+# Info    = #3B82F6
 # ==============================================================================
 
 [urgency_low]

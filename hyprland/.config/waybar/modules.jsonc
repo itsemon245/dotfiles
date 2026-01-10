@@ -9,158 +9,184 @@
 // -----------------------------------------------------
 //
 {
-    "hyprland/workspaces": {
-         //"disable-scroll": true,
-         //"sort-by-name": true,
-         "format": " {icon} ",
-         "on-click": "activate",
-         "active-only": false,
-         "all-outputs": true,
-         "format-icons": {
-           "urgent": " ",
-           "active": "",
-           "default": ""
-         },
-         "persistent-workspaces": {
-           "*": 3
-         }
-     },
-    "cava": {
-      "framerate": 30,
-      "sensitivity": 1,
-      "bars": 12,
-      "lower_cutoff_freq": 50,
-      "higher_cutoff_freq": 10000,
-      "method": "pulse",
-      "source": "auto",
-      "stereo": true,
-      "reverse": false,
-      "bar_delimiter": 32,
-      "monstercat": true,
-      "waves": true,
-      "noise_reduction": 0.60,
-      "input_delay": 2,
-      "format-icons" : ["▁", "▂", "▃", "▄", "▅", "▆", "▇" ],
-      "actions": {
-        "on-click-right": "mode"
-      }
+  "hyprland/workspaces": {
+    //"disable-scroll": true,
+    //"sort-by-name": true,
+    "format": " {icon} ",
+    "on-click": "activate",
+    "active-only": false,
+    "all-outputs": true,
+    "format-icons": {
+      "urgent": " ",
+      "active": "",
+      "default": ""
     },
-    "tray": {
-        "icon-size": 21,
-        "spacing": 16
-    },
-    "custom/music": {
-        "format": "{}",
-        "escape": true,
-        "interval": 1,
-        "tooltip": false,
-        "exec": "playerctl metadata --format='{{status}}' | awk '{ if ($1 == \"Playing\") print \" \"; else print \" \" }' | tr -d '\n'; playerctl metadata --format='  {{ title }}' | head -c 30 | tr -d '\n'; playerctl metadata --format=' | {{playerName}}'",
-        "on-click-middle": "playerctl play-pause",
-        "max-length": 50,
-        "on-click-right": "playerctl next",
-        "on-click": "playerctl play-pause"
-
-    },
-    "group/connections": {
-      "orientation": "horizontal",
-      "modules": [
-        "network",
-        "bluetooth"
-      ]
-    },
-    "group/stats": {
-      "orientation": "horizontal",
-      "modules": [
-        "custom/memory",
-        "custom/netspeed"
-      ]
-    },
-    "custom/memory":{
-      "format": "  {}",
-      "exec": "free --giga -h | grep 'Mem:' | awk '{print $NF}'",
-      "interval": 1,
-      "tooltip-format": "Available Memory"
-    },
-    "custom/netspeed":{
-     "format": "   {}",
-     "exec": "go run ~/scripts/netspeed.go",
-     "interval": 1
-    },
-    "network": {
-      "format": "{ifname}",
-      "format-wifi": " ",
-      "format-ethernet": "  {ipaddr}",
-      "format-disconnected": "Not connected", //An empty format will hide the module.
-      "tooltip-format": " {ifname} via {gwaddri}",
-      "tooltip-format-wifi": "   {essid} ({signalStrength}%)",
-      "tooltip-format-ethernet": "  {ifname} ({ipaddr}/{cidr})",
-      "tooltip-format-disconnected": "Disconnected",
-      "max-length": 50,
-      "on-click": "kitty -e nmtui"
-    },
-    "bluetooth": {
-        "format-disabled": "󰂲",
-        "format-on": "",
-        "tooltip-format-connected": " {device_alias}",
-        "tooltip-format-disabled": " Click to turn on",
-        "tooltip-format-on": " Right Click for more",
-        "interval": 30,
-        "on-click-right": "blueman-manager",
-        "on-click": "rfkill toggle bluetooth",
-        "format-connected": "󰂰",
-        "format-no-controller": ""
-    },
-
-    "clock": {
-        "timezone": "Asia/Dhaka",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format-alt": "  {:%b %d, %Y}",
-        "format": "󰥔  {:%OI:%M %p}"
-    },
-    "custom/backlight": {
-        "format": "{icon} {}%",
-        "tooltip-format": "Brightness: {}%",
-        "exec": "~/.config/waybar/scripts/brightness.sh",
-        "exec-if": "brightnessctl -l 2>/dev/null | grep -qiE 'backlight|acpi_video|intel_backlight|amdgpu_bl' || [ -n \"$(brightnessctl get 2>/dev/null)\" ]",
-        "on-scroll-up": "~/.config/waybar/scripts/brightness-adjust.sh + 5",
-        "on-scroll-down": "~/.config/waybar/scripts/brightness-adjust.sh - 5",
-        "interval": 2,
-        "return-type": "json",
-        "format-icons": ["", "", "", "", "", "", "", "", ""]
-    },
-    "battery": {
-        "states": {
-            "warning": 30,
-            "critical": 15
-        },
-        "format": "{icon}",
-        "format-charging": "",
-        "tooltip-format": "{capacity}%",
-        "tooltip-format-plugged": "Plugged",
-        "format-plugged": "",
-        "format-alt": "{icon}  {capacity}%",
-        "format-icons": [" ", " ", " ", " ", " "]
-        //"format-icons": ["", "",  "", "", "", "", "", "", "", "", "", ""]
-    },
-    "pulseaudio": {
-        // "scroll-step": 1, // %, can be a float
-        "format": "{icon}",
-        "tooltip-format": "{desc} - {volume}%",
-        "format-muted": " ",
-        "format-icons": {
-            "default": ["", "", " "]
-        },
-        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-        "on-click-right": "pavucontrol"
-    },
-    "custom/lock": {
-        "tooltip": false,
-        "on-click": "sh -c '(sleep 0.5s; swaylock)' & disown",
-        "format": "",
-    },
-    "custom/power": {
-        "tooltip": false,
-        "on-click": "wlogout",
-        "format": "󰐥 "
+    "persistent-workspaces": {
+      "*": 3
     }
+  },
+  "cava": {
+    "framerate": 30,
+    "sensitivity": 1,
+    "bars": 12,
+    "lower_cutoff_freq": 50,
+    "higher_cutoff_freq": 10000,
+    "method": "pulse",
+    "source": "auto",
+    "stereo": true,
+    "reverse": false,
+    "bar_delimiter": 32,
+    "monstercat": true,
+    "waves": true,
+    "noise_reduction": 0.60,
+    "input_delay": 2,
+    "format-icons": [
+      "▁",
+      "▂",
+      "▃",
+      "▄",
+      "▅",
+      "▆",
+      "▇"
+    ],
+    "actions": {
+      "on-click-right": "mode"
+    }
+  },
+  "tray": {
+    "icon-size": 21,
+    "spacing": 16
+  },
+  "custom/music": {
+    "format": "{}",
+    "escape": true,
+    "interval": 1,
+    "tooltip": false,
+    "exec": "playerctl metadata --format='{{status}}' | awk '{ if ($1 == \"Playing\") print \" \"; else print \" \" }' | tr -d '\n'; playerctl metadata --format='  {{ title }}' | head -c 30 | tr -d '\n'; playerctl metadata --format=' | {{playerName}}'",
+    "on-click-middle": "playerctl play-pause",
+    "max-length": 50,
+    "on-click-right": "playerctl next",
+    "on-click": "playerctl play-pause"
+  },
+  "group/connections": {
+    "orientation": "horizontal",
+    "modules": [
+      "network",
+      "bluetooth"
+    ]
+  },
+  "group/stats": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/memory",
+      "custom/netspeed"
+    ]
+  },
+  "custom/memory": {
+    "format": "  {}",
+    "exec": "free --giga -h | grep 'Mem:' | awk '{print $NF}'",
+    "interval": 1,
+    "tooltip-format": "Available Memory"
+  },
+  "custom/netspeed": {
+    "format": "   {}",
+    "exec": "go run ~/scripts/netspeed.go",
+    "interval": 1
+  },
+  "network": {
+    "format": "{ifname}",
+    "format-wifi": " ",
+    "format-ethernet": "  {ipaddr}",
+    "format-disconnected": "Not connected", //An empty format will hide the module.
+    "tooltip-format": " {ifname} via {gwaddri}",
+    "tooltip-format-wifi": "   {essid} ({signalStrength}%)",
+    "tooltip-format-ethernet": "  {ifname} ({ipaddr}/{cidr})",
+    "tooltip-format-disconnected": "Disconnected",
+    "max-length": 50,
+    "on-click": "kitty -e nmtui"
+  },
+  "bluetooth": {
+    "format-disabled": "󰂲",
+    "format-on": "",
+    "tooltip-format-connected": " {device_alias}",
+    "tooltip-format-disabled": " Click to turn on",
+    "tooltip-format-on": " Right Click for more",
+    "interval": 30,
+    "on-click-right": "blueman-manager",
+    "on-click": "rfkill toggle bluetooth",
+    "format-connected": "󰂰",
+    "format-no-controller": ""
+  },
+  "clock": {
+    "timezone": "Asia/Dhaka",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "format-alt": "  {:%b %d, %Y}",
+    "format": "󰥔  {:%OI:%M %p}"
+  },
+  "custom/backlight": {
+    "format": "{icon} {}%",
+    "tooltip-format": "Brightness: {}%",
+    "exec": "~/.config/waybar/scripts/brightness.sh",
+    "exec-if": "brightnessctl -l 2>/dev/null | grep -qiE 'backlight|acpi_video|intel_backlight|amdgpu_bl' || [ -n \"$(brightnessctl get 2>/dev/null)\" ]",
+    "on-scroll-up": "~/.config/waybar/scripts/brightness-adjust.sh + 5",
+    "on-scroll-down": "~/.config/waybar/scripts/brightness-adjust.sh - 5",
+    "interval": 2,
+    "return-type": "json",
+    "format-icons": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  "battery": {
+    "states": {
+      "warning": 30,
+      "critical": 15
+    },
+    "format": "{icon}",
+    "format-charging": "",
+    "tooltip-format": "{capacity}%",
+    "tooltip-format-plugged": "Plugged",
+    "format-plugged": "",
+    "format-alt": "{icon}  {capacity}%",
+    "format-icons": [
+      " ",
+      " ",
+      " ",
+      " ",
+      " "
+    ]
+    //"format-icons": ["", "",  "", "", "", "", "", "", "", "", "", ""]
+  },
+  "pulseaudio": {
+    // "scroll-step": 1, // %, can be a float
+    "format": "{icon}",
+    "tooltip-format": "{desc} - {volume}%",
+    "format-muted": " ",
+    "format-icons": {
+      "default": [
+        "",
+        "",
+        " "
+      ]
+    },
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-click-right": "pavucontrol"
+  },
+  "custom/lock": {
+    "tooltip": false,
+    "on-click": "sh -c '(sleep 0.5s; swaylock)' & disown",
+    "format": "",
+  },
+  "custom/power": {
+    "tooltip": false,
+    "on-click": "wlogout",
+    "format": "󰐥 "
+  }
 }

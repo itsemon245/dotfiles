@@ -68,7 +68,7 @@ fi
 
 # Build docker run command
 DOCKER_ARGS=(
-  --rm -it
+  --rm
   -u "$(id -u)":"$(id -g)"
   --network "$NETWORK"
   --dns 8.8.8.8
@@ -82,9 +82,35 @@ DOCKER_ARGS=(
   -e XDG_CONFIG_HOME=/tmp/.config
 )
 
+# Check if TTY is available (for git hooks and non-interactive contexts)
+# Only add TTY flags when a TTY is actually available
+# For git hooks and non-interactive contexts, don't use any TTY flags
+if [ -t 0 ] && [ -t 1 ]; then
+  DOCKER_ARGS+=(-it)
+fi
+
 # Only add port mapping for server commands
 if [[ "$NEEDS_PORTS" == "true" ]]; then
   DOCKER_ARGS+=(-p "${PORT_RANGE}:${PORT_RANGE}")
 fi
 
-exec docker run "${DOCKER_ARGS[@]}" "$IMAGE" php "$@"
+# Convert absolute paths to relative paths for Docker container
+# If lint-staged or other tools pass absolute paths, convert them to relative
+CONVERTED_ARGS=()
+for arg in "$@"; do
+  # Check if argument is an absolute path that's within the current directory
+  if [[ "$arg" == /* ]] && [[ "$arg" == "$PWD"/* ]]; then
+    # Convert absolute path to relative path (remove $PWD prefix)
+    # Handle both $PWD/file and $PWD cases
+    if [[ "$arg" == "$PWD" ]]; then
+      RELATIVE_PATH="."
+    else
+      RELATIVE_PATH="${arg#$PWD/}"
+    fi
+    CONVERTED_ARGS+=("$RELATIVE_PATH")
+  else
+    CONVERTED_ARGS+=("$arg")
+  fi
+done
+
+exec docker run "${DOCKER_ARGS[@]}" "$IMAGE" php "${CONVERTED_ARGS[@]}"

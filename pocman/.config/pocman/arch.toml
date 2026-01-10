@@ -33,6 +33,8 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+sddm
+gnome-sound-recorder
 fastfetch
 adw-gtk-theme
 libnotify
@@ -81,6 +83,9 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+sddm-silent-theme
+wleave-git
+audio-recorder
 vencord-installer-bin
 wallust
 realesrgan-ncnn-vulkan-bin

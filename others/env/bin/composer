@@ -22,7 +22,14 @@ mkdir -p "$CACHE_DIR_HOST"
 CONFIG_DIR_HOST="${XDG_CONFIG_HOME:-$HOME/.config}"
 mkdir -p "$CONFIG_DIR_HOST"
 
-exec docker run --rm -it \
+# Check if TTY is available (for git hooks and non-interactive contexts)
+# Only add TTY flags when a TTY is actually available
+TTY_FLAGS=""
+if [ -t 0 ] && [ -t 1 ]; then
+  TTY_FLAGS="-it"
+fi
+
+exec docker run --rm $TTY_FLAGS \
   -u "$(id -u)":"$(id -g)" \
   --network "$NETWORK" \
   --add-host=host.docker.internal:host-gateway \

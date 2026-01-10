@@ -66,3 +66,55 @@
 */
 @define-color background-80 rgba({{background | rgb}},0.8);
 @define-color background-50 rgba({{background | rgb}},0.5);
+
+/* ========================================= */
+/* MODERN MATTE PALETTE (Hardcoded)          */
+/* ========================================= */
+
+/* Success (16, 185, 129) */
+@define-color success rgba(16, 185, 129, 1);
+@define-color success-90 rgba(16, 185, 129, 0.9);
+@define-color success-80 rgba(16, 185, 129, 0.8);
+@define-color success-70 rgba(16, 185, 129, 0.7);
+@define-color success-60 rgba(16, 185, 129, 0.6);
+@define-color success-50 rgba(16, 185, 129, 0.5);
+@define-color success-40 rgba(16, 185, 129, 0.4);
+@define-color success-30 rgba(16, 185, 129, 0.3);
+@define-color success-20 rgba(16, 185, 129, 0.2);
+@define-color success-10 rgba(16, 185, 129, 0.1);
+
+/* Danger (244, 63, 94) */
+@define-color danger rgba(244, 63, 94, 1);
+@define-color danger-90 rgba(244, 63, 94, 0.9);
+@define-color danger-80 rgba(244, 63, 94, 0.8);
+@define-color danger-70 rgba(244, 63, 94, 0.7);
+@define-color danger-60 rgba(244, 63, 94, 0.6);
+@define-color danger-50 rgba(244, 63, 94, 0.5);
+@define-color danger-40 rgba(244, 63, 94, 0.4);
+@define-color danger-30 rgba(244, 63, 94, 0.3);
+@define-color danger-20 rgba(244, 63, 94, 0.2);
+@define-color danger-10 rgba(244, 63, 94, 0.1);
+
+/* Warning (245, 158, 11) */
+@define-color warning rgba(245, 158, 11, 1);
+@define-color warning-90 rgba(245, 158, 11, 0.9);
+@define-color warning-80 rgba(245, 158, 11, 0.8);
+@define-color warning-70 rgba(245, 158, 11, 0.7);
+@define-color warning-60 rgba(245, 158, 11, 0.6);
+@define-color warning-50 rgba(245, 158, 11, 0.5);
+@define-color warning-40 rgba(245, 158, 11, 0.4);
+@define-color warning-30 rgba(245, 158, 11, 0.3);
+@define-color warning-20 rgba(245, 158, 11, 0.2);
+@define-color warning-10 rgba(245, 158, 11, 0.1);
+
+/* Info (59, 130, 246) */
+@define-color info rgba(59, 130, 246, 1);
+@define-color info-90 rgba(59, 130, 246, 0.9);
+@define-color info-80 rgba(59, 130, 246, 0.8);
+@define-color info-70 rgba(59, 130, 246, 0.7);
+@define-color info-60 rgba(59, 130, 246, 0.6);
+@define-color info-50 rgba(59, 130, 246, 0.5);
+@define-color info-40 rgba(59, 130, 246, 0.4);
+@define-color info-30 rgba(59, 130, 246, 0.3);
+@define-color info-20 rgba(59, 130, 246, 0.2);
+@define-color info-10 rgba(59, 130, 246, 0.1);

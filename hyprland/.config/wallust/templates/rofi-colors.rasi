@@ -36,4 +36,49 @@
     foreground-70: rgba({{foreground | rgb}}, 0.7);
     foreground-80: rgba({{foreground | rgb}}, 0.8);
     foreground-90: rgba({{foreground | rgb}}, 0.9);
+
+    /* Modern Matte Palette */
+    success: #10B981;
+    success-90: #10B981E6;
+    success-80: #10B981CC;
+    success-70: #10B981B3;
+    success-60: #10B98199;
+    success-50: #10B98180;
+    success-40: #10B98166;
+    success-30: #10B9814D;
+    success-20: #10B98133;
+    success-10: #10B9811A;
+
+    danger: #F43F5E;
+    danger-90: #F43F5EE6;
+    danger-80: #F43F5ECC;
+    danger-70: #F43F5EB3;
+    danger-60: #F43F5E99;
+    danger-50: #F43F5E80;
+    danger-40: #F43F5E66;
+    danger-30: #F43F5E4D;
+    danger-20: #F43F5E33;
+    danger-10: #F43F5E1A;
+
+    warning: #F59E0B;
+    warning-90: #F59E0BE6;
+    warning-80: #F59E0BCC;
+    warning-70: #F59E0BB3;
+    warning-60: #F59E0B99;
+    warning-50: #F59E0B80;
+    warning-40: #F59E0B66;
+    warning-30: #F59E0B4D;
+    warning-20: #F59E0B33;
+    warning-10: #F59E0B1A;
+
+    info: #3B82F6;
+    info-90: #3B82F6E6;
+    info-80: #3B82F6CC;
+    info-70: #3B82F6B3;
+    info-60: #3B82F699;
+    info-50: #3B82F680;
+    info-40: #3B82F666;
+    info-30: #3B82F64D;
+    info-20: #3B82F633;
+    info-10: #3B82F61A;
 }

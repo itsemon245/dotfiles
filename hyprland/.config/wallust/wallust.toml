@@ -39,14 +39,19 @@ gtk4 = { template = "gtk.template", target = "~/.config/gtk-4.0/colors.css" }
 # GTK 3
 gtk3 = { template = "gtk.template", target = "~/.config/gtk-3.0/colors.css" }
 
+# wlogout
+wlogout = { template = "wlogout.template", target = "~/.config/wlogout/style.css" }
+
 # Qt (qt5ct/qt6ct)
 qt = { template = "qt-colors.conf", target = "~/.config/qt5ct/colors/wally.conf" }
 qt6 = { template = "qt-colors.conf", target = "~/.config/qt6ct/colors/wally.conf" }
 
 # Vencord / Discord Theme
 # If you use Vesktop, change path to: ~/.config/vesktop/themes/wally.theme.css
-discordplain = { template = "discord.template", target = "~/.config/Vencord/themes/wally.theme.css" }
-discord = { template = "midnight.template", target = "~/.config/Vencord/themes/midnight-wallust.theme.css" }
+discord = { template = "discord.template", target = "~/.config/Vencord/themes/midnight-wallust.theme.css" }
 
 # Tmux
 tmux = { template = "tmux-colors.conf", target = "~/.tmux-colors.conf" }
+
+# Sddm
+sddm = { template = "sddm.conf" , target = "~/dotfiles/sddm/themes/silent/configs/default.conf"}

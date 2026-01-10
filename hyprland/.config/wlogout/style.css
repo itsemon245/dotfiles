@@ -1,0 +1,87 @@
+/* Primary Opacity Variants */
+@define-color primary #AB6262;
+@define-color primary_10 rgba(171,98,98, 0.1);
+@define-color primary_20 rgba(171,98,98, 0.2);
+@define-color primary_30 rgba(171,98,98, 0.3);
+@define-color primary_40 rgba(171,98,98, 0.4);
+@define-color primary_50 rgba(171,98,98, 0.5);
+@define-color primary_60 rgba(171,98,98, 0.6);
+@define-color primary_70 rgba(171,98,98, 0.7);
+@define-color primary_80 rgba(171,98,98, 0.8);
+@define-color primary_90 rgba(171,98,98, 0.9);
+
+/* Background Opacity Variants */
+@define-color background #050000;
+@define-color background_10 rgba(5,0,0, 0.1);
+@define-color background_20 rgba(5,0,0, 0.2);
+@define-color background_30 rgba(5,0,0, 0.3);
+@define-color background_40 rgba(5,0,0, 0.4);
+@define-color background_50 rgba(5,0,0, 0.5);
+@define-color background_60 rgba(5,0,0, 0.6);
+@define-color background_70 rgba(5,0,0, 0.7);
+@define-color background_80 rgba(5,0,0, 0.8);
+@define-color background_90 rgba(5,0,0, 0.9);
+
+/* Foreground Opacity Variants */
+@define-color foreground #F0E9BC;
+@define-color foreground_10 rgba(240,233,188, 0.1);
+@define-color foreground_20 rgba(240,233,188, 0.2);
+@define-color foreground_30 rgba(240,233,188, 0.3);
+@define-color foreground_40 rgba(240,233,188, 0.4);
+@define-color foreground_50 rgba(240,233,188, 0.5);
+@define-color foreground_60 rgba(240,233,188, 0.6);
+@define-color foreground_70 rgba(240,233,188, 0.7);
+@define-color foreground_80 rgba(240,233,188, 0.8);
+@define-color foreground_90 rgba(240,233,188, 0.9);
+
+* {
+    background-image: none;
+    box-shadow: none;
+}
+
+window {
+    background-color: rgba(12, 12, 12, 0.2);
+}
+
+button {
+    border-radius: 30px;
+    text-decoration-color: @foreground_80;
+    color: @foreground_80;
+    background-color: @background_40;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100px;
+    margin: 30px;
+}
+
+button:focus,
+button:active,
+button:hover {
+    color: @foreground;
+    background-color: @primary_70;
+    outline-style: none;
+}
+
+#lock {
+    background-image: image(url("/usr/share/wlogout/icons/lock.png"), url("/usr/local/share/wlogout/icons/lock.png"));
+}
+
+#logout {
+    background-image: image(url("/usr/share/wlogout/icons/logout.png"), url("/usr/local/share/wlogout/icons/logout.png"));
+}
+
+#suspend {
+    background-image: image(url("/usr/share/wlogout/icons/suspend.png"), url("/usr/local/share/wlogout/icons/suspend.png"));
+}
+
+#hibernate {
+    background-image: image(url("/usr/share/wlogout/icons/hibernate.png"), url("/usr/local/share/wlogout/icons/hibernate.png"));
+}
+
+#shutdown {
+    background-image: image(url("/usr/share/wlogout/icons/shutdown.png"), url("/usr/local/share/wlogout/icons/shutdown.png"));
+}
+
+#reboot {
+    background-image: image(url("/usr/share/wlogout/icons/reboot.png"), url("/usr/local/share/wlogout/icons/reboot.png"));
+}

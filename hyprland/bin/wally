@@ -7,6 +7,9 @@
 # Directory containing your wallpapers
 WALLPAPER_DIR="$HOME/Wallpapers"
 
+#SDDM theme directory
+SDDM_THEME_DIR="/usr/share/sddm/themes/silent"
+
 # The specific file Hyprland/swww should always look at
 DEFAULT_WALLPAPER="$WALLPAPER_DIR/default.png"
 
@@ -108,6 +111,9 @@ FINAL_TRANSITION_FLAGS=""
 apply_wallpaper() {
     swww img "$DEFAULT_WALLPAPER" $FINAL_TRANSITION_FLAGS
     update_system_theme "$DEFAULT_WALLPAPER"
+
+    #Copy the wallpaper into sddm slient theme backgrounds
+    cp "$DEFAULT_WALLPAPER" "$SDDM_THEME_DIR/backgrounds/default.png"
 }
 
 # ==============================================================================

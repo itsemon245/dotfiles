@@ -1,4 +1,12 @@
 [desktop]
+sddm-silent-theme
+sddm
+wleave
+wleave-git
+audio-recorder
+gnome-sound-recorder
+noise-suppression-for-voice
+easyeffects
 fastfetch
 vencord-installer-bin
 adw-gtk-theme

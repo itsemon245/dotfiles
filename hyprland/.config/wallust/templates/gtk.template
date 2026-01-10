@@ -80,3 +80,55 @@
 
 @define-color popover_bg_color {{color0}};
 @define-color popover_fg_color {{foreground}};
+
+/* ========================================= */
+/* MODERN MATTE PALETTE (Hardcoded)          */
+/* ========================================= */
+
+/* Success (#10B981) */
+@define-color success #10B981;
+@define-color success-90 #10B981E6;
+@define-color success-80 #10B981CC;
+@define-color success-70 #10B981B3;
+@define-color success-60 #10B98199;
+@define-color success-50 #10B98180;
+@define-color success-40 #10B98166;
+@define-color success-30 #10B9814D;
+@define-color success-20 #10B98133;
+@define-color success-10 #10B9811A;
+
+/* Danger (#F43F5E) */
+@define-color danger #F43F5E;
+@define-color danger-90 #F43F5EE6;
+@define-color danger-80 #F43F5ECC;
+@define-color danger-70 #F43F5EB3;
+@define-color danger-60 #F43F5E99;
+@define-color danger-50 #F43F5E80;
+@define-color danger-40 #F43F5E66;
+@define-color danger-30 #F43F5E4D;
+@define-color danger-20 #F43F5E33;
+@define-color danger-10 #F43F5E1A;
+
+/* Warning (#F59E0B) */
+@define-color warning #F59E0B;
+@define-color warning-90 #F59E0BE6;
+@define-color warning-80 #F59E0BCC;
+@define-color warning-70 #F59E0BB3;
+@define-color warning-60 #F59E0B99;
+@define-color warning-50 #F59E0B80;
+@define-color warning-40 #F59E0B66;
+@define-color warning-30 #F59E0B4D;
+@define-color warning-20 #F59E0B33;
+@define-color warning-10 #F59E0B1A;
+
+/* Info (#3B82F6) */
+@define-color info #3B82F6;
+@define-color info-90 #3B82F6E6;
+@define-color info-80 #3B82F6CC;
+@define-color info-70 #3B82F6B3;
+@define-color info-60 #3B82F699;
+@define-color info-50 #3B82F680;
+@define-color info-40 #3B82F666;
+@define-color info-30 #3B82F64D;
+@define-color info-20 #3B82F633;
+@define-color info-10 #3B82F61A;

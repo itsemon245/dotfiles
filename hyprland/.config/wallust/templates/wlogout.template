@@ -1,0 +1,87 @@
+/* Primary Opacity Variants */
+@define-color primary {{color4}};
+@define-color primary_10 rgba({{color4 | rgb}}, 0.1);
+@define-color primary_20 rgba({{color4 | rgb}}, 0.2);
+@define-color primary_30 rgba({{color4 | rgb}}, 0.3);
+@define-color primary_40 rgba({{color4 | rgb}}, 0.4);
+@define-color primary_50 rgba({{color4 | rgb}}, 0.5);
+@define-color primary_60 rgba({{color4 | rgb}}, 0.6);
+@define-color primary_70 rgba({{color4 | rgb}}, 0.7);
+@define-color primary_80 rgba({{color4 | rgb}}, 0.8);
+@define-color primary_90 rgba({{color4 | rgb}}, 0.9);
+
+/* Background Opacity Variants */
+@define-color background {{background}};
+@define-color background_10 rgba({{background | rgb}}, 0.1);
+@define-color background_20 rgba({{background | rgb}}, 0.2);
+@define-color background_30 rgba({{background | rgb}}, 0.3);
+@define-color background_40 rgba({{background | rgb}}, 0.4);
+@define-color background_50 rgba({{background | rgb}}, 0.5);
+@define-color background_60 rgba({{background | rgb}}, 0.6);
+@define-color background_70 rgba({{background | rgb}}, 0.7);
+@define-color background_80 rgba({{background | rgb}}, 0.8);
+@define-color background_90 rgba({{background | rgb}}, 0.9);
+
+/* Foreground Opacity Variants */
+@define-color foreground {{foreground}};
+@define-color foreground_10 rgba({{foreground | rgb}}, 0.1);
+@define-color foreground_20 rgba({{foreground | rgb}}, 0.2);
+@define-color foreground_30 rgba({{foreground | rgb}}, 0.3);
+@define-color foreground_40 rgba({{foreground | rgb}}, 0.4);
+@define-color foreground_50 rgba({{foreground | rgb}}, 0.5);
+@define-color foreground_60 rgba({{foreground | rgb}}, 0.6);
+@define-color foreground_70 rgba({{foreground | rgb}}, 0.7);
+@define-color foreground_80 rgba({{foreground | rgb}}, 0.8);
+@define-color foreground_90 rgba({{foreground | rgb}}, 0.9);
+
+* {
+    background-image: none;
+    box-shadow: none;
+}
+
+window {
+    background-color: rgba(12, 12, 12, 0.2);
+}
+
+button {
+    border-radius: 30px;
+    text-decoration-color: @foreground_80;
+    color: @foreground_80;
+    background-color: @background_40;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100px;
+    margin: 30px;
+}
+
+button:focus,
+button:active,
+button:hover {
+    color: @foreground;
+    background-color: @primary_70;
+    outline-style: none;
+}
+
+#lock {
+    background-image: image(url("/usr/share/wlogout/icons/lock.png"), url("/usr/local/share/wlogout/icons/lock.png"));
+}
+
+#logout {
+    background-image: image(url("/usr/share/wlogout/icons/logout.png"), url("/usr/local/share/wlogout/icons/logout.png"));
+}
+
+#suspend {
+    background-image: image(url("/usr/share/wlogout/icons/suspend.png"), url("/usr/local/share/wlogout/icons/suspend.png"));
+}
+
+#hibernate {
+    background-image: image(url("/usr/share/wlogout/icons/hibernate.png"), url("/usr/local/share/wlogout/icons/hibernate.png"));
+}
+
+#shutdown {
+    background-image: image(url("/usr/share/wlogout/icons/shutdown.png"), url("/usr/local/share/wlogout/icons/shutdown.png"));
+}
+
+#reboot {
+    background-image: image(url("/usr/share/wlogout/icons/reboot.png"), url("/usr/local/share/wlogout/icons/reboot.png"));
+}
