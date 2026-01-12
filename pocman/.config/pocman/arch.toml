@@ -83,6 +83,7 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+slack-desktop
 localsend
 sddm-silent-theme
 wleave-git
@@ -105,6 +106,8 @@ openrgb-bin
 
 # Gaming packages
 [gaming:pacman]
+vulkan-tools
+goverlay
 obs-studio
 vulkan-icd-loader
 discord

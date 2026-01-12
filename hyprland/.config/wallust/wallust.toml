@@ -12,7 +12,7 @@
 
 # =========================================
 backend = "wal"
-color_space = "lch"
+color_space = "lab"
 palette = "dark16"
 check_contrast = true
 
@@ -55,3 +55,6 @@ tmux = { template = "tmux-colors.conf", target = "~/.tmux-colors.conf" }
 
 # Sddm
 sddm = { template = "sddm.conf" , target = "~/dotfiles/sddm/themes/silent/configs/default.conf"}
+
+# Mangohud
+mangohud = { template = "MangoHud.conf", target = "~/.config/MangoHud/MangoHud.conf" }

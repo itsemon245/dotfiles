@@ -54,8 +54,8 @@
     }
   },
   "tray": {
-    "icon-size": 21,
-    "spacing": 16
+    "icon-size": 16,
+    "spacing": 10
   },
   "custom/music": {
     "format": "{}",
