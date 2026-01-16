@@ -53,6 +53,37 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && rm -rf /var/lib/apt/lists/* \
     && npm install -g pnpm
 
+# Ensure Puppeteer installs Chrome into a predictable, persistent path
+ENV PUPPETEER_CACHE_DIR=/usr/local/share/puppeteer \
+    PUPPETEER_DOWNLOAD_PATH=/usr/local/share/puppeteer \
+    PUPPETEER_EXECUTABLE_PATH=/usr/local/bin/chrome
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxkbcommon0 \
+    libxrandr2 \
+    xdg-utils \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p "$PUPPETEER_CACHE_DIR" \
+    && npx puppeteer browsers install chrome \
+    && CHROME_PATH="$(find "$PUPPETEER_CACHE_DIR" -type f -name chrome -path "*chrome-linux64/chrome" | head -n 1)" \
+    && ln -sf "$CHROME_PATH" "$PUPPETEER_EXECUTABLE_PATH"
+
 # ffmpeg (installed at the end to preserve cached layers)
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
     && rm -rf /var/lib/apt/lists/*

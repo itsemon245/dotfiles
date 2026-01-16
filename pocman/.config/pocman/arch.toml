@@ -33,6 +33,15 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+xdg-user-dirs-gtk
+loupe
+file-roller
+evince
+gnome-text-editor
+gnome-calculator
+gnome-system-monitor
+gnome-tweaks
+gnome-control-center
 sddm
 gnome-sound-recorder
 fastfetch
@@ -65,7 +74,6 @@ python-pywal
 waybar
 network-manager-applet
 networkmanager
-proton-vpn-gtk-app
 wireguard-tools
 openvpn
 flatpak
@@ -120,8 +128,8 @@ wine-mono
 wine-staging
 
 [gaming:yay]
-heroic-games-launcher-bin
 protonup-qt
+heroic-games-launcher-bin
 
 [gaming:paru]
 

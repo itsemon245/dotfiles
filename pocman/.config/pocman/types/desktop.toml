@@ -1,4 +1,13 @@
 [desktop]
+xdg-user-dirs-gtk
+loupe
+file-roller
+evince
+gnome-text-editor
+gnome-calculator
+gnome-system-monitor
+gnome-tweaks
+gnome-control-center
 slack-desktop
 slack
 localsend
