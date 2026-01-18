@@ -3,3 +3,11 @@
 
 /* 2. Import Wallust generated colors */
 @import url("colors.css");
+
+/* Increase nemo sidebar padding to be a bit more relaxed */
+.nemo-window .sidebar .view {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px; /* Moves text slightly right */
+    font-weight: 500;
+}

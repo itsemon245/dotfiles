@@ -2,113 +2,168 @@
 
 # --- 1. SETUP & TRAP (Handle Ctrl+C) ---
 
-# We define variables early so the trap function can find them
 TARGET="$1"
+OPT_OUTPUT="$2"
 
 # Function to handle User Abort (Ctrl+C)
 handle_abort() {
     echo -e "\n\n🛑 ABORTED BY USER (Ctrl+C)"
     echo "Cleaning up..."
 
-    # Kill any running background jobs (just in case)
+    # Kill background jobs
     jobs -p | xargs -r kill
 
-    # Remove the partial archive if it exists
-    if [ -n "$ARCHIVE_NAME" ] && [ -f "$ARCHIVE_NAME" ]; then
-        rm -f "$ARCHIVE_NAME"
-        echo "Removed partial file: $ARCHIVE_NAME"
+    # Remove the partial archive using the global variable
+    if [ -n "$ARCHIVE_FULL_PATH" ] && [ -f "$ARCHIVE_FULL_PATH" ]; then
+        rm -f "$ARCHIVE_FULL_PATH"
+        echo "Removed partial file: $ARCHIVE_FULL_PATH"
     fi
 
-    # Send Notification
     notify-send "Compression Cancelled" "Operation aborted by user." -u normal -i dialog-warning
-
-    # Exit immediately
     exit 130
 }
 
-# Activate the trap for SIGINT (Ctrl+C)
 trap handle_abort SIGINT
 
-# --- 2. INPUT CHECKS ---
+# --- 2. INPUT CHECKS & PATH RESOLUTION ---
 
 if [ -z "$TARGET" ]; then
-    echo "Error: No input file."
+    echo "Usage: $0 <target_file_or_folder> [optional_output_name]"
     read -n 1 -s -r -p "Press any key to exit..."
     exit 1
 fi
 
-# Resolve paths
+# 1. Resolve Input Paths
+if [ ! -e "$TARGET" ]; then
+    echo "Error: Target not found: $TARGET"
+    read -n 1 -s -r -p "Press any key to exit..."
+    exit 1
+fi
 TARGET_PATH=$(realpath "$TARGET")
 PARENT_DIR=$(dirname "$TARGET_PATH")
 ITEM_NAME=$(basename "$TARGET_PATH")
-ARCHIVE_NAME="${ITEM_NAME}.tar.zst"
 
-# Check existence
-if [ ! -e "$TARGET_PATH" ]; then
-    echo "Error: Target not found: $TARGET_PATH"
+# 2. Resolve Output Path (The logic you requested)
+if [ -n "$OPT_OUTPUT" ]; then
+    # Check if user added extension, if not, append it
+    if [[ "$OPT_OUTPUT" != *.tar.zst ]]; then
+        OPT_OUTPUT="${OPT_OUTPUT}.tar.zst"
+    fi
+    # Resolve absolute path (realpath -m allows non-existent files)
+    ARCHIVE_FULL_PATH=$(realpath -m "$OPT_OUTPUT")
+else
+    # Default: Same folder as input, name = foldername.tar.zst
+    ARCHIVE_FULL_PATH="${PARENT_DIR}/${ITEM_NAME}.tar.zst"
+fi
+
+# Ensure output directory exists
+OUTPUT_DIR=$(dirname "$ARCHIVE_FULL_PATH")
+if [ ! -d "$OUTPUT_DIR" ]; then
+    echo "Error: Output directory does not exist: $OUTPUT_DIR"
     read -n 1 -s -r -p "Press any key to exit..."
     exit 1
 fi
 
-cd "$PARENT_DIR" || exit 1
-
-# Calculate Size (for PV progress bar)
+# Calculate Size (for PV)
 echo "Calculating size of: $ITEM_NAME"
-if [ -d "$ITEM_NAME" ]; then
-    TOTAL_SIZE=$(du -sb "$ITEM_NAME" | awk '{print $1}')
+# We pause to calc size before changing dir
+if [ -d "$TARGET_PATH" ]; then
+    TOTAL_SIZE=$(du -sb "$TARGET_PATH" | awk '{print $1}')
 else
-    TOTAL_SIZE=$(stat -c%s "$ITEM_NAME")
+    TOTAL_SIZE=$(stat -c%s "$TARGET_PATH")
 fi
 
-# --- 3. DISPLAY INFO ---
+# Change to source directory so tar stores relative paths correctly
+cd "$PARENT_DIR" || exit 1
+
+# --- 3. DETECT DISK & SET COMPRESSION ---
+
+# We check the Destination Drive (OUTPUT_DIR) because that's the write bottleneck
+DEVICE=$(findmnt -n -o SOURCE --target "$OUTPUT_DIR")
+
+# Check if rotational (1=HDD, 0=SSD)
+IS_ROTATIONAL=$(lsblk -d -n -o ROTA "$DEVICE" 2>/dev/null | head -n 1)
+
+if [ "$IS_ROTATIONAL" == "1" ]; then
+    # HDD DETECTED (Destination): Write speed is limited (~120MB/s).
+    DISK_TYPE="HDD (Rotational)"
+    ZSTD_LEVEL="-8"
+    STRATEGY="Max Density for HDD"
+else
+    # SSD DETECTED (Destination): Write speed is fast.
+    DISK_TYPE="SSD (Flash/Fast)"
+    ZSTD_LEVEL="-4"
+    STRATEGY="Max Speed/Efficiency"
+fi
+
+ZSTD_ARGS="-T0 $ZSTD_LEVEL --long"
+
+# --- 4. DISPLAY INFO ---
 
 clear
 echo "==================================================="
-echo "           ZSTD HIGH COMPRESSION (PRO)             "
+echo "           SMART ZSTD ARCHIVER                     "
 echo "==================================================="
 echo " Input:      $ITEM_NAME"
-echo " Archive:    $ARCHIVE_NAME"
-echo " Size:       $(numfmt --to=iec --suffix=B $TOTAL_SIZE)"
-echo " Settings:   Level 15 | Long Distance | Threads: Auto"
+echo " Output:     $(basename "$ARCHIVE_FULL_PATH")"
+echo " Location:   $OUTPUT_DIR"
+echo " Size:       $(numfmt --to=si --suffix=B $TOTAL_SIZE)"
+echo "---------------------------------------------------"
+echo " Target Disk:$DISK_TYPE"
+echo " Strategy:   $STRATEGY"
+echo " Settings:   Level $ZSTD_LEVEL | Long Distance | Threads: All"
 echo "---------------------------------------------------"
 echo " 💡 TIP: Press 'Ctrl + C' to Abort at any time."
 echo "==================================================="
 echo ""
 
-# --- 4. RUN COMPRESSION ---
+# --- 5. RUN COMPRESSION ---
 
-# We use pipefail so if tar fails, the whole status fails
 set -o pipefail
 
+# Note: We write to "$ARCHIVE_FULL_PATH" which is the absolute resolved path
 tar -cf - "$ITEM_NAME" 2>/dev/null | \
 pv -p -t -e -r -b --si -s "$TOTAL_SIZE" | \
-zstd -T0 --long -15 > "$ARCHIVE_NAME"
+zstd $ZSTD_ARGS > "$ARCHIVE_FULL_PATH"
 
 STATUS=$?
 
 echo ""
 echo "==================================================="
 
-# --- 5. FINISH HANDLING ---
+# --- 6. FINISH HANDLING ---
 
 if [ $STATUS -eq 0 ]; then
-    echo "✅ SUCCESS! Archive created successfully."
-    notify-send "Compression Finished" "$ARCHIVE_NAME Ready" -i archive-insert
+    # --- CALCULATE STATS ---
+    ARCHIVE_SIZE=$(stat -c%s "$ARCHIVE_FULL_PATH")
+    SAVED_BYTES=$((TOTAL_SIZE - ARCHIVE_SIZE))
 
-    # Wait for any key
+    # Calculate percentage using awk for floating point math
+    PERCENT=$(awk -v t="$TOTAL_SIZE" -v a="$ARCHIVE_SIZE" 'BEGIN { printf "%.2f", ((t-a)/t)*100 }')
+
+    # Format for display
+    H_ARCHIVE=$(numfmt --to=si --suffix=B "$ARCHIVE_SIZE")
+    H_SAVED=$(numfmt --to=si --suffix=B "$SAVED_BYTES")
+
+    echo "✅ SUCCESS! Archive created successfully."
+    echo ""
+    echo "📊 COMPRESSION RESULTS:"
+    echo "   Original Size:   $(numfmt --to=si --suffix=B $TOTAL_SIZE)"
+    echo "   Final Size:      $H_ARCHIVE"
+    echo "   Space Saved:     $H_SAVED ($PERCENT%)"
+
+    # Updated Icon to generic package icon
+    notify-send "Compression Success" "Saved $H_SAVED ($PERCENT%)\nArchive: $(basename "$ARCHIVE_FULL_PATH")" -i package-x-generic
+
     echo ""
     read -n 1 -s -r -p "Press ANY key to close window..."
 else
-    # This block runs if the command failed (not aborted via Ctrl+C)
-    # e.g. Disk full, Permission denied
     echo "❌ FAILED. Error code: $STATUS"
 
-    # Delete partial file
-    [ -f "$ARCHIVE_NAME" ] && rm -f "$ARCHIVE_NAME"
+    [ -f "$ARCHIVE_FULL_PATH" ] && rm -f "$ARCHIVE_FULL_PATH"
 
     notify-send "Compression Failed" "Check terminal for error details" -u critical -i dialog-error
 
-    # Wait for any key
     echo ""
     read -n 1 -s -r -p "Press ANY key to close window..."
 fi
