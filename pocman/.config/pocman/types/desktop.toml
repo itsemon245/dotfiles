@@ -1,4 +1,9 @@
 [desktop]
+thunar
+nemo-fileroller
+nemo
+zenity
+pv
 xdg-user-dirs-gtk
 loupe
 file-roller

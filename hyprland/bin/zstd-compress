@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+# ==============================================================================
+# ZSTD COMPRESSION (FIFO Architecture)
+# ==============================================================================
+
+ZSTD_ARGS="-T0 --long -15"
+LOG_FILE="/tmp/zstd-compress-last.log"
+FIFO="/tmp/zstd_progress_$$"
+
+# --- Setup Logging & Cleanup ---
+echo "Starting Job: $(date)" > "$LOG_FILE"
+
+cleanup() {
+    # Remove the named pipe
+    [ -p "$FIFO" ] && rm "$FIFO"
+
+    # Kill the background compression process if it's still running
+    if [ -n "$COMPRESS_PID" ]; then
+        if ps -p $COMPRESS_PID > /dev/null; then
+            echo "Killing process $COMPRESS_PID" >> "$LOG_FILE"
+            kill $COMPRESS_PID 2>/dev/null
+            wait $COMPRESS_PID 2>/dev/null
+            # If we killed it, it means it was incomplete, so delete archive
+            [ -f "$ARCHIVE_NAME" ] && rm -f "$ARCHIVE_NAME"
+        fi
+    fi
+}
+trap cleanup EXIT
+
+# --- Input Validation ---
+TARGET="$1"
+MODE="$2"
+
+if [ -z "$TARGET" ]; then
+    notify-send "Error" "No input provided" -u critical
+    exit 1
+fi
+
+TARGET_PATH=$(realpath "$TARGET")
+PARENT_DIR=$(dirname "$TARGET_PATH")
+ITEM_NAME=$(basename "$TARGET_PATH")
+ARCHIVE_NAME="${ITEM_NAME}.tar.zst"
+
+echo "Input: $TARGET_PATH" >> "$LOG_FILE"
+
+if [ ! -e "$TARGET_PATH" ]; then
+    notify-send "Error" "Path not found: $TARGET_PATH" -u critical
+    exit 1
+fi
+
+cd "$PARENT_DIR" || exit 1
+
+# Calculate Size
+if [ -d "$ITEM_NAME" ]; then
+    TOTAL_SIZE=$(du -sb "$ITEM_NAME" | awk '{print $1}')
+else
+    TOTAL_SIZE=$(stat -c%s "$ITEM_NAME")
+fi
+echo "Total Bytes: $TOTAL_SIZE" >> "$LOG_FILE"
+
+# --- GUI Execution Logic ---
+
+run_gui() {
+    # 1. Create a Named Pipe (FIFO)
+    mkfifo "$FIFO"
+
+    # 2. Start Compression in BACKGROUND
+    #    We direct pv's progress (stderr) into the FIFO
+    #    We direct pv's data (stdout) into zstd
+    (
+        set -o pipefail
+        tar -cf - "$ITEM_NAME" 2>/dev/null | \
+        pv --force --numeric --si --interval 1 \
+           --format "%p:%t:%e:%r:%b" \
+           -s "$TOTAL_SIZE" 2> "$FIFO" | \
+        zstd $ZSTD_ARGS > "$ARCHIVE_NAME"
+    ) &
+
+    # Save the Process ID (PID) so we can kill it later
+    COMPRESS_PID=$!
+    echo "Compression PID: $COMPRESS_PID" >> "$LOG_FILE"
+
+    # 3. Start Zenity in FOREGROUND (Reading from FIFO)
+    #    This blocks until the background job starts writing to the pipe.
+    awk -F: -v archive="$ARCHIVE_NAME" '
+        BEGIN { ORS="\n" }
+        {
+            # Format: Pct:Time:ETA:Rate:Bytes
+            print $1; # Update Progress Bar
+
+            # Update Text
+            print "# Archiving: " archive;
+            print "Progress: " $1 "%";
+            print "Speed:    " $4;
+            print "Elapsed:  " $2;
+            print "ETA:      " $3;
+            fflush();
+        }' "$FIFO" | \
+    zenity --progress \
+        --title="Compressing $ITEM_NAME" \
+        --text="Initializing..." \
+        --percentage=0 \
+        --auto-close \
+        --width=450
+
+    # 4. Handle Exit
+    # If we are here, Zenity has closed.
+    # It either finished successfully (Auto-close) OR user hit Cancel.
+
+    # Check if the compression process is still running
+    if ps -p $COMPRESS_PID > /dev/null; then
+        # PROCESS IS ALIVE = USER HIT CANCEL
+        echo "User cancelled via GUI." >> "$LOG_FILE"
+        kill $COMPRESS_PID 2>/dev/null
+        rm -f "$ARCHIVE_NAME"
+        notify-send "Cancelled" "Compression aborted." -i dialog-warning
+    else
+        # PROCESS IS DEAD = COMPRESSION FINISHED (or crashed)
+        wait $COMPRESS_PID
+        EXIT_STATUS=$?
+
+        if [ $EXIT_STATUS -eq 0 ]; then
+             notify-send "Success" "$ARCHIVE_NAME Created." -i archive-insert
+        else
+             notify-send "Error" "Compression failed. Check log." -u critical
+        fi
+    fi
+}
+
+run_cli() {
+    echo "Compressing $ITEM_NAME..."
+    tar -cf - "$ITEM_NAME" | pv --si -s "$TOTAL_SIZE" | zstd $ZSTD_ARGS > "$ARCHIVE_NAME"
+}
+
+if [ "$MODE" == "--gui" ]; then
+    run_gui
+else
+    run_cli
+fi

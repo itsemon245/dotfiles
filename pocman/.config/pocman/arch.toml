@@ -33,6 +33,10 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+nemo-fileroller
+nemo
+zenity
+pv
 xdg-user-dirs-gtk
 loupe
 file-roller
@@ -66,7 +70,6 @@ tela-circle-icon-theme-nord
 python-pip
 uv
 gnome-disk-utility
-gparted
 cliphist
 xdg-utils
 wl-clipboard
