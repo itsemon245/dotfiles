@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-# ZSTD COMPRESSION (FIFO Architecture)
+# ZSTD COMPRESSION (Raw PV Output + PID Tracking)
 # ==============================================================================
 
 ZSTD_ARGS="-T0 --long -15"
@@ -62,52 +62,48 @@ echo "Total Bytes: $TOTAL_SIZE" >> "$LOG_FILE"
 # --- GUI Execution Logic ---
 
 run_gui() {
-    # 1. Create a Named Pipe (FIFO)
+    # 1. Create a Named Pipe
     mkfifo "$FIFO"
 
     # 2. Start Compression in BACKGROUND
-    #    We direct pv's progress (stderr) into the FIFO
-    #    We direct pv's data (stdout) into zstd
+    #    We use standard 'pv -f' (force) which outputs the human text (ETA, Speed).
+    #    We redirect stderr (2>) to the FIFO.
     (
         set -o pipefail
         tar -cf - "$ITEM_NAME" 2>/dev/null | \
-        pv --force --numeric --si --interval 1 \
-           --format "%p:%t:%e:%r:%b" \
-           -s "$TOTAL_SIZE" 2> "$FIFO" | \
+        pv --force --si --interval 0.5 -s "$TOTAL_SIZE" 2> "$FIFO" | \
         zstd $ZSTD_ARGS > "$ARCHIVE_NAME"
     ) &
 
-    # Save the Process ID (PID) so we can kill it later
+    # Save the Process ID (PID) to control the Cancel button
     COMPRESS_PID=$!
     echo "Compression PID: $COMPRESS_PID" >> "$LOG_FILE"
 
-    # 3. Start Zenity in FOREGROUND (Reading from FIFO)
-    #    This blocks until the background job starts writing to the pipe.
-    awk -F: -v archive="$ARCHIVE_NAME" '
-        BEGIN { ORS="\n" }
+    # 3. Start Zenity in FOREGROUND
+    #    We read raw pv text from the FIFO.
+    #    We use RS="\r" because pv uses carriage returns to update the line.
+    cat "$FIFO" | \
+    awk '
+        BEGIN { RS="\r"; ORS="\n" }
         {
-            # Format: Pct:Time:ETA:Rate:Bytes
-            print $1; # Update Progress Bar
+            # 1. Update the Text Label (Show exactly what PV shows)
+            print "# " $0;
 
-            # Update Text
-            print "# Archiving: " archive;
-            print "Progress: " $1 "%";
-            print "Speed:    " $4;
-            print "Elapsed:  " $2;
-            print "ETA:      " $3;
+            # 2. Extract the percentage number for the Zenity Bar
+            if (match($0, /[0-9]+%/)) {
+                print substr($0, RSTART, RLENGTH-1)
+            }
+
             fflush();
-        }' "$FIFO" | \
+        }' | \
     zenity --progress \
         --title="Compressing $ITEM_NAME" \
         --text="Initializing..." \
         --percentage=0 \
         --auto-close \
-        --width=450
+        --width=500
 
     # 4. Handle Exit
-    # If we are here, Zenity has closed.
-    # It either finished successfully (Auto-close) OR user hit Cancel.
-
     # Check if the compression process is still running
     if ps -p $COMPRESS_PID > /dev/null; then
         # PROCESS IS ALIVE = USER HIT CANCEL

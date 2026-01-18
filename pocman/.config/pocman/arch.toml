@@ -33,6 +33,7 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+yad
 nemo-fileroller
 nemo
 zenity
