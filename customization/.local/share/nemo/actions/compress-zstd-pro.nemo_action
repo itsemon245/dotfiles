@@ -12,4 +12,4 @@ Extensions=any;
 Terminal=false
 
 # We call our new script and pass the --gui flag
-Exec=/home/emon/bin/zstd-compress %F --gui
+Exec=kitty --class floating-large --title "Compressing Files" /home/emon/bin/zstd-compress %F

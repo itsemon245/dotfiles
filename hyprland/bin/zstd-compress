@@ -1,136 +1,114 @@
 #!/usr/bin/env bash
 
-# ==============================================================================
-# ZSTD COMPRESSION (Raw PV Output + PID Tracking)
-# ==============================================================================
+# --- 1. SETUP & TRAP (Handle Ctrl+C) ---
 
-ZSTD_ARGS="-T0 --long -15"
-LOG_FILE="/tmp/zstd-compress-last.log"
-FIFO="/tmp/zstd_progress_$$"
-
-# --- Setup Logging & Cleanup ---
-echo "Starting Job: $(date)" > "$LOG_FILE"
-
-cleanup() {
-    # Remove the named pipe
-    [ -p "$FIFO" ] && rm "$FIFO"
-
-    # Kill the background compression process if it's still running
-    if [ -n "$COMPRESS_PID" ]; then
-        if ps -p $COMPRESS_PID > /dev/null; then
-            echo "Killing process $COMPRESS_PID" >> "$LOG_FILE"
-            kill $COMPRESS_PID 2>/dev/null
-            wait $COMPRESS_PID 2>/dev/null
-            # If we killed it, it means it was incomplete, so delete archive
-            [ -f "$ARCHIVE_NAME" ] && rm -f "$ARCHIVE_NAME"
-        fi
-    fi
-}
-trap cleanup EXIT
-
-# --- Input Validation ---
+# We define variables early so the trap function can find them
 TARGET="$1"
-MODE="$2"
+
+# Function to handle User Abort (Ctrl+C)
+handle_abort() {
+    echo -e "\n\n🛑 ABORTED BY USER (Ctrl+C)"
+    echo "Cleaning up..."
+
+    # Kill any running background jobs (just in case)
+    jobs -p | xargs -r kill
+
+    # Remove the partial archive if it exists
+    if [ -n "$ARCHIVE_NAME" ] && [ -f "$ARCHIVE_NAME" ]; then
+        rm -f "$ARCHIVE_NAME"
+        echo "Removed partial file: $ARCHIVE_NAME"
+    fi
+
+    # Send Notification
+    notify-send "Compression Cancelled" "Operation aborted by user." -u normal -i dialog-warning
+
+    # Exit immediately
+    exit 130
+}
+
+# Activate the trap for SIGINT (Ctrl+C)
+trap handle_abort SIGINT
+
+# --- 2. INPUT CHECKS ---
 
 if [ -z "$TARGET" ]; then
-    notify-send "Error" "No input provided" -u critical
+    echo "Error: No input file."
+    read -n 1 -s -r -p "Press any key to exit..."
     exit 1
 fi
 
+# Resolve paths
 TARGET_PATH=$(realpath "$TARGET")
 PARENT_DIR=$(dirname "$TARGET_PATH")
 ITEM_NAME=$(basename "$TARGET_PATH")
 ARCHIVE_NAME="${ITEM_NAME}.tar.zst"
 
-echo "Input: $TARGET_PATH" >> "$LOG_FILE"
-
+# Check existence
 if [ ! -e "$TARGET_PATH" ]; then
-    notify-send "Error" "Path not found: $TARGET_PATH" -u critical
+    echo "Error: Target not found: $TARGET_PATH"
+    read -n 1 -s -r -p "Press any key to exit..."
     exit 1
 fi
 
 cd "$PARENT_DIR" || exit 1
 
-# Calculate Size
+# Calculate Size (for PV progress bar)
+echo "Calculating size of: $ITEM_NAME"
 if [ -d "$ITEM_NAME" ]; then
     TOTAL_SIZE=$(du -sb "$ITEM_NAME" | awk '{print $1}')
 else
     TOTAL_SIZE=$(stat -c%s "$ITEM_NAME")
 fi
-echo "Total Bytes: $TOTAL_SIZE" >> "$LOG_FILE"
 
-# --- GUI Execution Logic ---
+# --- 3. DISPLAY INFO ---
 
-run_gui() {
-    # 1. Create a Named Pipe
-    mkfifo "$FIFO"
+clear
+echo "==================================================="
+echo "           ZSTD HIGH COMPRESSION (PRO)             "
+echo "==================================================="
+echo " Input:      $ITEM_NAME"
+echo " Archive:    $ARCHIVE_NAME"
+echo " Size:       $(numfmt --to=iec --suffix=B $TOTAL_SIZE)"
+echo " Settings:   Level 15 | Long Distance | Threads: Auto"
+echo "---------------------------------------------------"
+echo " 💡 TIP: Press 'Ctrl + C' to Abort at any time."
+echo "==================================================="
+echo ""
 
-    # 2. Start Compression in BACKGROUND
-    #    We use standard 'pv -f' (force) which outputs the human text (ETA, Speed).
-    #    We redirect stderr (2>) to the FIFO.
-    (
-        set -o pipefail
-        tar -cf - "$ITEM_NAME" 2>/dev/null | \
-        pv --force --si --interval 0.5 -s "$TOTAL_SIZE" 2> "$FIFO" | \
-        zstd $ZSTD_ARGS > "$ARCHIVE_NAME"
-    ) &
+# --- 4. RUN COMPRESSION ---
 
-    # Save the Process ID (PID) to control the Cancel button
-    COMPRESS_PID=$!
-    echo "Compression PID: $COMPRESS_PID" >> "$LOG_FILE"
+# We use pipefail so if tar fails, the whole status fails
+set -o pipefail
 
-    # 3. Start Zenity in FOREGROUND
-    #    We read raw pv text from the FIFO.
-    #    We use RS="\r" because pv uses carriage returns to update the line.
-    cat "$FIFO" | \
-    awk '
-        BEGIN { RS="\r"; ORS="\n" }
-        {
-            # 1. Update the Text Label (Show exactly what PV shows)
-            print "# " $0;
+tar -cf - "$ITEM_NAME" 2>/dev/null | \
+pv -p -t -e -r -b --si -s "$TOTAL_SIZE" | \
+zstd -T0 --long -15 > "$ARCHIVE_NAME"
 
-            # 2. Extract the percentage number for the Zenity Bar
-            if (match($0, /[0-9]+%/)) {
-                print substr($0, RSTART, RLENGTH-1)
-            }
+STATUS=$?
 
-            fflush();
-        }' | \
-    zenity --progress \
-        --title="Compressing $ITEM_NAME" \
-        --text="Initializing..." \
-        --percentage=0 \
-        --auto-close \
-        --width=500
+echo ""
+echo "==================================================="
 
-    # 4. Handle Exit
-    # Check if the compression process is still running
-    if ps -p $COMPRESS_PID > /dev/null; then
-        # PROCESS IS ALIVE = USER HIT CANCEL
-        echo "User cancelled via GUI." >> "$LOG_FILE"
-        kill $COMPRESS_PID 2>/dev/null
-        rm -f "$ARCHIVE_NAME"
-        notify-send "Cancelled" "Compression aborted." -i dialog-warning
-    else
-        # PROCESS IS DEAD = COMPRESSION FINISHED (or crashed)
-        wait $COMPRESS_PID
-        EXIT_STATUS=$?
+# --- 5. FINISH HANDLING ---
 
-        if [ $EXIT_STATUS -eq 0 ]; then
-             notify-send "Success" "$ARCHIVE_NAME Created." -i archive-insert
-        else
-             notify-send "Error" "Compression failed. Check log." -u critical
-        fi
-    fi
-}
+if [ $STATUS -eq 0 ]; then
+    echo "✅ SUCCESS! Archive created successfully."
+    notify-send "Compression Finished" "$ARCHIVE_NAME Ready" -i archive-insert
 
-run_cli() {
-    echo "Compressing $ITEM_NAME..."
-    tar -cf - "$ITEM_NAME" | pv --si -s "$TOTAL_SIZE" | zstd $ZSTD_ARGS > "$ARCHIVE_NAME"
-}
-
-if [ "$MODE" == "--gui" ]; then
-    run_gui
+    # Wait for any key
+    echo ""
+    read -n 1 -s -r -p "Press ANY key to close window..."
 else
-    run_cli
+    # This block runs if the command failed (not aborted via Ctrl+C)
+    # e.g. Disk full, Permission denied
+    echo "❌ FAILED. Error code: $STATUS"
+
+    # Delete partial file
+    [ -f "$ARCHIVE_NAME" ] && rm -f "$ARCHIVE_NAME"
+
+    notify-send "Compression Failed" "Check terminal for error details" -u critical -i dialog-error
+
+    # Wait for any key
+    echo ""
+    read -n 1 -s -r -p "Press ANY key to close window..."
 fi
