@@ -1,0 +1,16 @@
+[Nemo Action]
+Active=true
+Name=Compress to tar.zst to...
+Comment=Pick a destination for the archive
+Icon-Name=document-save-as
+Selection=notnone
+Extensions=any;
+Terminal=false
+
+# THE LOGIC:
+# 1. dest=$(zenity ...) -> Opens directory picker.
+# 2. [[ -n "$dest" ]]   -> Checks if you actually picked something (didn't hit cancel).
+# 3. kitty ...          -> Runs script with "%F" (Source) and "$dest" (Target).
+
+Exec=bash -c 'target="%F"; default_name="$(basename "$target").tar.zst"; dest=$(zenity --file-selection --save --confirm-overwrite --title="Save Archive As..." --filename="$default_name"); [[ -n "$dest" ]] && kitty --class floating-large --title "Compressing..." /home/emon/bin/zstd-compress "$target" "$dest"'
+

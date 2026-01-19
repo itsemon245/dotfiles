@@ -1,0 +1,12 @@
+[Nemo Action]
+Active=true
+Name=Compress to tar.zst
+Comment=Aggressive compression using zstd-compress script
+Icon-Name=archive-insert
+Selection=notnone
+Extensions=any;
+
+# We use the kitty command directly
+Terminal=false
+
+Exec=kitty --class floating-large --title "Compressing Files" /home/emon/bin/zstd-compress %F

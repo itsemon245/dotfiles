@@ -7,6 +7,8 @@
 # Directory containing your wallpapers
 WALLPAPER_DIR="$HOME/Wallpapers"
 
+OPENRGB_SCRIPT="$HOME/.config/OpenRGB/scripts/wallust-colors.sh"
+
 #SDDM theme directory
 SDDM_THEME_DIR="/usr/share/sddm/themes/silent"
 
@@ -99,7 +101,7 @@ update_system_theme() {
     current_theme=$(gsettings get org.gnome.desktop.interface gtk-theme)
     # Strip single quotes
     current_theme=${current_theme//\'/}
-    
+
     # Switch to Default and back to current to trigger repaint
     gsettings set org.gnome.desktop.interface gtk-theme "Default"
     sleep 0.1
@@ -112,8 +114,16 @@ apply_wallpaper() {
     swww img "$DEFAULT_WALLPAPER" $FINAL_TRANSITION_FLAGS
     update_system_theme "$DEFAULT_WALLPAPER"
 
+    #OpenRGB colors
+    if [ -f "$OPENRGB_SCRIPT" ] && command -v openrgb &> /dev/null; then
+        chmod +x "$OPENRGB_SCRIPT"
+        "$OPENRGB_SCRIPT"
+    fi
+
+
     #Copy the wallpaper into sddm slient theme backgrounds
-    cp "$DEFAULT_WALLPAPER" "$SDDM_THEME_DIR/backgrounds/default.png"
+    #cp "$DEFAULT_WALLPAPER" "$SDDM_THEME_DIR/backgrounds/default.png"
+
 }
 
 # ==============================================================================

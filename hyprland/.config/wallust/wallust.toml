@@ -58,3 +58,6 @@ sddm = { template = "sddm.conf" , target = "~/dotfiles/sddm/themes/silent/config
 
 # Mangohud
 mangohud = { template = "MangoHud.conf", target = "~/.config/MangoHud/MangoHud.conf" }
+
+# OpenRGB
+openrgb = { template = "openrgb-colors.sh", target = "~/.config/OpenRGB/scripts/wallust-colors.sh" }
