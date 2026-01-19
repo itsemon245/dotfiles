@@ -12,7 +12,7 @@
 
 # =========================================
 backend = "wal"
-color_space = "lab"
+color_space = "lch"
 palette = "dark16"
 check_contrast = true
 
