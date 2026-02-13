@@ -4,6 +4,64 @@
 # CONFIGURATION
 # ==============================================================================
 
+# Script version
+VERSION="2.0"
+
+# Help message
+show_help() {
+    cat << EOF
+VPN Manager - WireGuard Connection Manager
+
+USAGE:
+    rofi-vpn [CONNECTION_NAME] [OPTIONS]
+
+ARGUMENTS:
+    CONNECTION_NAME    Optional. Name of VPN connection to connect/toggle.
+                      If provided, skips Rofi menu and directly connects/toggles.
+
+OPTIONS:
+    -h, --help        Show this help message and exit
+    -v, --version     Show version information and exit
+
+EXAMPLES:
+    rofi-vpn                    # Open Rofi menu to select VPN
+    rofi-vpn US-VPN             # Connect/toggle US-VPN directly
+    rofi-vpn --help             # Show help message
+
+NOTES:
+    - If CONNECTION_NAME matches the active VPN, it will disconnect
+    - If CONNECTION_NAME is different, it will connect (disconnecting active VPN first)
+    - Notifications are sent for all actions (if dunstify is available)
+EOF
+}
+
+# Parse command line arguments
+DIRECT_CONNECTION=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -v|--version)
+            echo "rofi-vpn version $VERSION"
+            exit 0
+            ;;
+        -*)
+            echo "Unknown option: $1" >&2
+            echo "Use --help for usage information." >&2
+            exit 1
+            ;;
+        *)
+            # First non-flag argument is treated as connection name
+            if [ -z "$DIRECT_CONNECTION" ]; then
+                DIRECT_CONNECTION="$1"
+            fi
+            shift
+            ;;
+    esac
+done
+
 # Rofi Theme Path (Matches your wallpaper script)
 ROFI_THEME="$HOME/.config/rofi/launchers/type-2/style-1.rasi"
 
@@ -12,7 +70,7 @@ ICON_CONNECTED="security-high"     # Or "network-vpn-acquired"
 ICON_DISCONNECTED="network-vpn"    # Or "network-vpn"
 
 # Status emojis/icons
-CHECKMARK_EMOJI=" 󰗠 "                # Checkmark for connected VPNs
+CHECKMARK_EMOJI="󰗠"                # Checkmark for connected VPNs
 LOCK_EMOJI="🔒"                     # Lock icon for disconnected VPNs
 
 # Flag icon options (choose one method):
@@ -33,7 +91,7 @@ FLAG_DIR=""
 #   - Set FLAG_URL_BASE to enable (e.g., "https://flagcdn.com/w40/" or "https://raw.githubusercontent.com/lipis/flag-icons/main/flags/1x1/")
 #   - Flags will be cached in ~/.cache/rofi-vpn/flags/
 #   - Example: FLAG_URL_BASE="https://flagcdn.com/w40/" (40px width flags)
-FLAG_URL_BASE="https://flagcdn.com/w40/"
+FLAG_URL_BASE="https://flagcdn.com/w80/"
 FLAG_CACHE_DIR="$HOME/.cache/rofi-vpn/flags"
 
 # Fixed Notification ID (Different from wallpaper script to avoid conflict)
@@ -204,6 +262,11 @@ notify_load() {
     local vpn_name="${2:-}"
     local icon="network-vpn-acquiring"
     
+    # Check if dunstify is available
+    if ! command -v dunstify >/dev/null 2>&1; then
+        return 0
+    fi
+    
     # Try to get flag icon if VPN name is provided (only use image files, not emojis)
     if [ -n "$vpn_name" ]; then
         local flag_icon=$(get_flag_icon "$vpn_name" "false")
@@ -217,13 +280,18 @@ notify_load() {
         -r "$NOTIF_ID" \
         -u "normal" \
         -i "$icon" \
-        -t 0
+        -t 0 2>/dev/null || true
 }
 
 notify_success() {
     local message="$1"
     local vpn_name="${2:-}"
     local icon="security-high"
+    
+    # Check if dunstify is available
+    if ! command -v dunstify >/dev/null 2>&1; then
+        return 0
+    fi
     
     # Try to get flag icon if VPN name is provided (only use image files, not emojis)
     if [ -n "$vpn_name" ]; then
@@ -238,13 +306,19 @@ notify_success() {
         -r "$NOTIF_ID" \
         -u "low" \
         -i "$icon" \
-        -t 5000
+        -t 5000 2>/dev/null || true
 }
 
 notify_error() {
     local message="$1"
     local vpn_name="${2:-}"
     local icon="dialog-error"
+    
+    # Check if dunstify is available
+    if ! command -v dunstify >/dev/null 2>&1; then
+        echo "Error: $message" >&2
+        return 0
+    fi
     
     # Try to get flag icon if VPN name is provided (only use image files, not emojis)
     if [ -n "$vpn_name" ]; then
@@ -259,12 +333,17 @@ notify_error() {
         -r "$NOTIF_ID" \
         -u "critical" \
         -i "$icon" \
-        -t 5000
+        -t 5000 2>/dev/null || true
 }
 
 notify_off() {
     local vpn_name="${1:-}"
     local icon="network-vpn-no-route"
+    
+    # Check if dunstify is available
+    if ! command -v dunstify >/dev/null 2>&1; then
+        return 0
+    fi
     
     # Try to get flag icon if VPN name is provided (only use image files, not emojis)
     if [ -n "$vpn_name" ]; then
@@ -279,7 +358,7 @@ notify_off() {
         -r "$NOTIF_ID" \
         -u "low" \
         -i "$icon" \
-        -t 3000
+        -t 3000 2>/dev/null || true
 }
 
 # ==============================================================================
@@ -298,94 +377,121 @@ if [ -z "$ALL_VPNS" ]; then
     exit 1
 fi
 
-# 3. Build the Rofi Menu List
-ROFI_LIST=""
-
-# Helper function to build menu entry with format: [FLAG_ICON] VPN_NAME [STATUS_EMOJI]
-build_menu_entry() {
-    local vpn_name="$1"
-    local is_connected="$2"
-    local flag_icon="$3"
+# 3. Handle direct connection mode (skip Rofi menu)
+if [ -n "$DIRECT_CONNECTION" ]; then
+    TARGET="$DIRECT_CONNECTION"
     
-    # Build status indicator with Pango markup for styling
-    local status_indicator
-    if [ "$is_connected" = "true" ]; then
-        # Green checkmark, bigger size using Pango markup
-        status_indicator="<span foreground='#00ff00' size='large' weight='bold'>$CHECKMARK_EMOJI</span>"
-    else
-        status_indicator="$LOCK_EMOJI"
+    # Verify the connection exists
+    if ! echo "$ALL_VPNS" | grep -q "^${TARGET}$"; then
+        notify_error "VPN connection '$TARGET' not found."
+        exit 1
     fi
     
-    # Build display text: VPN_NAME [STATUS_INDICATOR]
-    local display_text="$vpn_name $status_indicator"
-    
-    # Check if flag_icon is a file path (image file)
-    if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
-        # It's a file path - use as icon (big on left), display text as-is
-        echo "$display_text\0icon\x1f$flag_icon"
+    # Determine action: if selected VPN is the active one, disconnect; otherwise connect
+    if [ -n "$ACTIVE_VPN" ] && [ "$TARGET" = "$ACTIVE_VPN" ]; then
+        ACTION="disconnect"
     else
-        # Check if it's an emoji flag (not a fallback icon name)
-        if [[ "$flag_icon" != "$ICON_CONNECTED" ]] && [[ "$flag_icon" != "$ICON_DISCONNECTED" ]]; then
-            # It's an emoji flag - use in icon field for size (may not render in all themes)
-            # Also include in text as fallback/backup visibility
-            echo "$flag_icon $display_text\0icon\x1f$flag_icon"
-        else
-            # It's a fallback icon name - use that as icon
-            echo "$display_text\0icon\x1f$flag_icon"
-        fi
+        ACTION="connect"
     fi
-}
-
-# If there is an active connection, add it to the TOP with a special indicator
-if [ -n "$ACTIVE_VPN" ]; then
-    # Get flag icon/emoji for active VPN
-    flag_icon=$(get_flag_icon "$ACTIVE_VPN" "true")
     
-    # Build entry: flag icon (big on left), VPN name, checkmark emoji
-    ROFI_LIST+="$(build_menu_entry "$ACTIVE_VPN" "true" "$flag_icon")\n"
+    # Jump to action handler (skip Rofi menu)
+    # This will be handled below in the ACTION HANDLER section
+else
+    # Normal mode: show Rofi menu
+    ACTION="menu"
 fi
 
-# Add the rest of the available connections (skipping the active one to avoid duplicates)
-while IFS= read -r vpn_name; do
-    if [ "$vpn_name" != "$ACTIVE_VPN" ]; then
-        # Get flag icon/emoji for this VPN
-        flag_icon=$(get_flag_icon "$vpn_name" "false")
+# 4. Show Rofi menu (only if not in direct connection mode)
+if [ "$ACTION" = "menu" ]; then
+    # Build the Rofi Menu List
+    ROFI_LIST=""
+    
+    # Helper function to build menu entry with format: [FLAG_ICON] VPN_NAME [STATUS_EMOJI]
+    build_menu_entry() {
+        local vpn_name="$1"
+        local is_connected="$2"
+        local flag_icon="$3"
         
-        # Build entry: flag icon (big on left), VPN name, lock emoji
-        ROFI_LIST+="$(build_menu_entry "$vpn_name" "false" "$flag_icon")\n"
+        # Build status indicator with Pango markup for styling
+        local status_indicator
+        if [ "$is_connected" = "true" ]; then
+            # Green checkmark, bigger size using Pango markup
+            status_indicator="<span foreground='#00ff00' size='large' weight='bold'>$CHECKMARK_EMOJI</span>"
+        else
+            status_indicator="$LOCK_EMOJI"
+        fi
+        
+        # Build display text: VPN_NAME [STATUS_INDICATOR]
+        local display_text="$vpn_name $status_indicator"
+        
+        # Check if flag_icon is a file path (image file)
+        if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
+            # It's a file path - use as icon (big on left), display text as-is
+            echo "$display_text\0icon\x1f$flag_icon"
+        else
+            # Check if it's an emoji flag (not a fallback icon name)
+            if [[ "$flag_icon" != "$ICON_CONNECTED" ]] && [[ "$flag_icon" != "$ICON_DISCONNECTED" ]]; then
+                # It's an emoji flag - use in icon field for size (may not render in all themes)
+                # Also include in text as fallback/backup visibility
+                echo "$flag_icon $display_text\0icon\x1f$flag_icon"
+            else
+                # It's a fallback icon name - use that as icon
+                echo "$display_text\0icon\x1f$flag_icon"
+            fi
+        fi
+    }
+    
+    # If there is an active connection, add it to the TOP with a special indicator
+    if [ -n "$ACTIVE_VPN" ]; then
+        # Get flag icon/emoji for active VPN
+        flag_icon=$(get_flag_icon "$ACTIVE_VPN" "true")
+        
+        # Build entry: flag icon (big on left), VPN name, checkmark emoji
+        ROFI_LIST+="$(build_menu_entry "$ACTIVE_VPN" "true" "$flag_icon")\n"
     fi
-done <<< "$ALL_VPNS"
-
-# 4. Open Rofi
-# -mesg shows current status at the bottom of the prompt
-CURRENT_STATUS_MSG="Status:  Unsecured"
-[ -n "$ACTIVE_VPN" ] && CURRENT_STATUS_MSG="Status:  Connected to $ACTIVE_VPN"
-
-# Enable markup for Pango styling (needed for colored/bigger checkmark)
-SELECTED=$(echo -en "$ROFI_LIST" | rofi -dmenu -i -p "VPN " -mesg "$CURRENT_STATUS_MSG" -theme "$ROFI_THEME" -markup-rows)
-
-# Exit if user cancelled
-[ -z "$SELECTED" ] && exit 0
+    
+    # Add the rest of the available connections (skipping the active one to avoid duplicates)
+    while IFS= read -r vpn_name; do
+        if [ "$vpn_name" != "$ACTIVE_VPN" ]; then
+            # Get flag icon/emoji for this VPN
+            flag_icon=$(get_flag_icon "$vpn_name" "false")
+            
+            # Build entry: flag icon (big on left), VPN name, lock emoji
+            ROFI_LIST+="$(build_menu_entry "$vpn_name" "false" "$flag_icon")\n"
+        fi
+    done <<< "$ALL_VPNS"
+    
+    # Open Rofi
+    # -mesg shows current status at the bottom of the prompt
+    CURRENT_STATUS_MSG="Status:  Unsecured"
+    [ -n "$ACTIVE_VPN" ] && CURRENT_STATUS_MSG="Status:  Connected to $ACTIVE_VPN"
+    
+    # Enable markup for Pango styling (needed for colored/bigger checkmark)
+    SELECTED=$(echo -en "$ROFI_LIST" | rofi -dmenu -i -p "VPN " -mesg "$CURRENT_STATUS_MSG" -theme "$ROFI_THEME" -markup-rows)
+    
+    # Exit if user cancelled
+    [ -z "$SELECTED" ] && exit 0
+    
+    # Parse selection: Format is "[FLAG_EMOJI] VPN_NAME [STATUS_INDICATOR]"
+    # Remove flag emoji prefix, status indicator (with Pango markup), and any trailing whitespace
+    # First remove Pango markup tags, then remove emojis and trailing spaces
+    TARGET=$(echo "$SELECTED" | \
+        sed 's/<[^>]*>//g' | \
+        sed 's/^[^[:alnum:]]*//' | \
+        sed 's/[[:space:]]\+[^[:space:]]*$//' | \
+        sed 's/[[:space:]]*$//')
+    
+    # Determine action: if selected VPN is the active one, disconnect; otherwise connect
+    if [ -n "$ACTIVE_VPN" ] && [ "$TARGET" = "$ACTIVE_VPN" ]; then
+        ACTION="disconnect"
+    else
+        ACTION="connect"
+    fi
+fi
 
 # ==============================================================================
 # ACTION HANDLER
 # ==============================================================================
-
-# Parse selection: Format is "[FLAG_EMOJI] VPN_NAME [STATUS_INDICATOR]"
-# Remove flag emoji prefix, status indicator (with Pango markup), and any trailing whitespace
-# First remove Pango markup tags, then remove emojis and trailing spaces
-TARGET=$(echo "$SELECTED" | \
-    sed 's/<[^>]*>//g' | \
-    sed 's/^[^[:alnum:]]*//' | \
-    sed 's/[[:space:]]\+[^[:space:]]*$//' | \
-    sed 's/[[:space:]]*$//')
-
-# Determine action: if selected VPN is the active one, disconnect; otherwise connect
-if [ -n "$ACTIVE_VPN" ] && [ "$TARGET" = "$ACTIVE_VPN" ]; then
-    ACTION="disconnect"
-else
-    ACTION="connect"
-fi
 
 # PERFORM ACTIONS
 if [ "$ACTION" == "disconnect" ]; then
