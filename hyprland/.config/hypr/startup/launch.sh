@@ -9,9 +9,19 @@ nm-applet --indicator &
 ibus exit || true
 ibus-daemon -d --replace &
 ibus restart &
-openrgb -p static.orp &
 dunst &
 waybar &
+
+
+# -----------------------------------------------------
+# RGB Stuffs
+# -----------------------------------------------------
+OPENRGB_SCRIPT="~/.config/OpenRGB/scripts/wallust-colors.sh"
+
+if [ -f "$OPENRGB_SCRIPT" ] && command -v openrgb &> /dev/null; then
+    bash "$OPENRGB_SCRIPT"
+fi
+
 
 # -----------------------------------------------------
 # Silent Applications
@@ -22,3 +32,6 @@ slack -u
 
 # Silently start localsend
 localsend --hidden
+
+
+

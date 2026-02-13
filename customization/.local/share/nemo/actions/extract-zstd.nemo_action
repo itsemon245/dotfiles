@@ -1,0 +1,11 @@
+[Nemo Action]
+Active=true
+Name=Extract to Folder (Fast)
+Comment=Extract using zstd-extract script
+Icon-Name=folder-open
+Selection=notnone
+Extensions=tar.zst;tar.gz;tar.xz;
+Terminal=false
+
+# Reuses your "floating-large" Kitty class for consistency
+Exec=kitty --class floating-large --title "Extracting..." /home/emon/bin/zstd-extract %F

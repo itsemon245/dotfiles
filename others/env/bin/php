@@ -6,7 +6,7 @@ PHP_VERSION="${PHP_VERSION:-8.4}"
 
 # Docker image tag (override via PHP_IMAGE env var)
 IMAGE="${PHP_IMAGE:-my/php:${PHP_VERSION}-dev}"
-PORT_RANGE="${PHP_PORT_RANGE:-8000-8009}"
+PORT_RANGE="${PHP_PORT_RANGE:-8000-8007}"
 
 # Prefer the user's env var, else prefer env_system if present, else bridge
 if [[ -n "${PHP_NETWORK:-}" ]]; then
@@ -60,6 +60,10 @@ if [[ $# -gt 0 ]]; then
           if [[ "$2" =~ ^(octane|roadrunner) ]]; then
             NEEDS_PORTS=true
           fi
+          # Reverb server needs port exposure (e.g., reverb:start)
+          if [[ "$2" =~ ^reverb ]]; then
+            NEEDS_PORTS=true
+          fi
         fi
         ;;
     esac
@@ -91,7 +95,42 @@ fi
 
 # Only add port mapping for server commands
 if [[ "$NEEDS_PORTS" == "true" ]]; then
-  DOCKER_ARGS+=(-p "${PORT_RANGE}:${PORT_RANGE}")
+  # Default to configured range; allow overriding via PHP_PORT_RANGE
+  PORT_SPEC="${PORT_RANGE:-8000-8007}"
+
+  # If running a simple serve command, map only the requested port (default 8000)
+  if [[ "$1" == "serve" || ( "$1" == "artisan" && $# -gt 1 && "$2" == "serve" ) ]]; then
+    SERVE_PORT="8000"
+    ARGS=("$@")
+    for ((i=0; i<${#ARGS[@]}; i++)); do
+      case "${ARGS[$i]}" in
+        --port=*)
+          SERVE_PORT="${ARGS[$i]#*=}"
+          ;;
+        --port)
+          if (( i + 1 < ${#ARGS[@]} )); then SERVE_PORT="${ARGS[$i+1]}"; fi
+          ;;
+        -p)
+          if (( i + 1 < ${#ARGS[@]} )); then SERVE_PORT="${ARGS[$i+1]}"; fi
+          ;;
+      esac
+    done
+    PORT_SPEC="${SERVE_PORT}:${SERVE_PORT}"
+  fi
+
+  # Narrow to a single port for Reverb to avoid colliding with an existing serve container
+  if [[ "$1" == "artisan" && $# -gt 1 && "$2" =~ ^reverb ]]; then
+    SERVER_PORT="${REVERB_SERVER_PORT:-8008}"
+    HOST_PORT="${REVERB_HOST_PORT:-$SERVER_PORT}"
+    PORT_SPEC="${HOST_PORT}:${SERVER_PORT}"
+  fi
+
+  # If PORT_SPEC already includes host:container, use as-is; otherwise map same range both sides
+  if [[ "$PORT_SPEC" == *:* ]]; then
+    DOCKER_ARGS+=(-p "$PORT_SPEC")
+  else
+    DOCKER_ARGS+=(-p "${PORT_SPEC}:${PORT_SPEC}")
+  fi
 fi
 
 # Convert absolute paths to relative paths for Docker container

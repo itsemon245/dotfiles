@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+
+# ==============================================================================
+# SMART ZSTD EXTRACTOR
+# ==============================================================================
+
+ARCHIVE="$1"
+DEST_DIR="$2" # Optional destination
+
+# --- 1. TRAP & CLEANUP ---
+handle_abort() {
+    echo -e "\n\n🛑 ABORTED BY USER"
+    # We don't delete the output folder to be safe (might contain other files),
+    # but we notify the user.
+    notify-send "Extraction Cancelled" "Operation aborted." -u normal -i dialog-warning
+    exit 130
+}
+trap handle_abort SIGINT
+
+# --- 2. VALIDATION ---
+if [ -z "$ARCHIVE" ]; then
+    echo "Error: No archive provided."
+    read -n 1 -s -r -p "Press any key to exit..."
+    exit 1
+fi
+
+if [ ! -f "$ARCHIVE" ]; then
+    echo "Error: File not found: $ARCHIVE"
+    read -n 1 -s -r -p "Press any key to exit..."
+    exit 1
+fi
+
+# Resolve Paths
+ARCHIVE_PATH=$(realpath "$ARCHIVE")
+ARCHIVE_NAME=$(basename "$ARCHIVE_PATH")
+PARENT_DIR=$(dirname "$ARCHIVE_PATH")
+
+# Determine Output Folder Name
+# Removes .tar.zst, .tar.gz, .tar, .zst extensions to get the base name
+BASE_NAME=$(echo "$ARCHIVE_NAME" | sed 's/\.tar\.zst$//;s/\.tar\.gz$//;s/\.tar$//;s/\.zst$//')
+
+# Set Destination
+if [ -n "$DEST_DIR" ]; then
+    # If user provided a path (e.g. from "Extract To...")
+    OUT_PATH="$DEST_DIR"
+else
+    # Default: Create a folder in the current directory with the Game's name
+    OUT_PATH="$PARENT_DIR/$BASE_NAME"
+fi
+
+# Create Directory
+mkdir -p "$OUT_PATH"
+
+# Get Archive Size for PV
+TOTAL_SIZE=$(stat -c%s "$ARCHIVE_PATH")
+
+# --- 3. DISPLAY INFO ---
+clear
+echo "==================================================="
+echo "           ZSTD EXTRACTOR                          "
+echo "==================================================="
+echo " Archive:    $ARCHIVE_NAME"
+echo " Extract To: $OUT_PATH"
+echo " Size:       $(numfmt --to=iec --suffix=B $TOTAL_SIZE)"
+echo "---------------------------------------------------"
+
+# --- 4. EXECUTE ---
+set -o pipefail
+
+# Command Explanation:
+# pv: reads file with progress bar
+# zstd -d: decompresses (auto-detects memory needs)
+# tar -x: extracts
+# -C: ensures files go into the specific folder we created
+
+pv -p -t -e -r -b --si -s "$TOTAL_SIZE" "$ARCHIVE_PATH" | \
+zstd -d | \
+tar -x -C "$OUT_PATH"
+
+STATUS=$?
+
+echo ""
+echo "==================================================="
+
+if [ $STATUS -eq 0 ]; then
+    echo "✅ SUCCESS! Extracted successfully."
+    notify-send "Extraction Finished" "Folder: $BASE_NAME" -i folder-open
+
+    # Optional: Open the folder immediately?
+    # nemo "$OUT_PATH" &
+
+    echo ""
+    read -n 1 -s -r -p "Press ANY key to close..."
+else
+    echo "❌ FAILED. Error code: $STATUS"
+    # If folder is empty, maybe remove it? (Risky, skipped for safety)
+    notify-send "Extraction Failed" "Check terminal for details" -u critical -i dialog-error
+    echo ""
+    read -n 1 -s -r -p "Press ANY key to close..."
+fi

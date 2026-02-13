@@ -1,127 +1,128 @@
 services:
-  redis:
-    image: redis:8.0.2-alpine
-    container_name: redis
-    restart: always
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    env_file:
-      - .env
-    networks:
-      - system
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 2h          # every 2 hours
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-  redisinsight:
-    image: redis/redisinsight:2.70
-    container_name: redisinsight
-    restart: always
-    ports:
-      - "${REDISINSIGHT_PORT:-5540}:5540"
-    env_file:
-      - .env
-    networks:
-      - system
+    redis:
+        image: redis:8.0.2-alpine
+        container_name: redis
+        restart: always
+        ports:
+            - "${REDIS_PORT:-6379}:6379"
+        volumes:
+            - redis_data:/data
+        env_file:
+            - .env
+        networks:
+            - system
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 2h # every 2 hours
+            timeout: 10s
+            retries: 3
+            start_period: 30s
+    redisinsight:
+        image: redis/redisinsight:2.70
+        container_name: redisinsight
+        restart: always
+        ports:
+            - "${REDISINSIGHT_PORT:-5540}:5540"
+        env_file:
+            - .env
+        networks:
+            - system
 
-  postgres:
-    image: postgres:17-alpine
-    container_name: postgres
-    restart: always
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./postgres-init:/docker-entrypoint-initdb.d
-      - ./dumps:/dumps
-    env_file:
-      - .env
-    networks:
-      - system
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 2h          # every 2 hours
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+    postgres:
+        image: postgres:17-alpine
+        container_name: postgres
+        restart: always
+        ports:
+            - "${POSTGRES_PORT:-5432}:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+            - ./postgres-init:/docker-entrypoint-initdb.d
+            - ./dumps:/dumps
+        env_file:
+            - .env
+        networks:
+            - system
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+            interval: 2h # every 2 hours
+            timeout: 10s
+            retries: 5
+            start_period: 30s
 
-  mysql:
-    image: mariadb:11.8
-    container_name: mysql
-    restart: always
-    ports:
-      - "${MYSQL_PORT:-3306}:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    env_file:
-      - .env
-    networks:
-      - system
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}"]
-      interval: 2h          # every 2 hours
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+    mysql:
+        image: mariadb:11.8
+        container_name: mysql
+        restart: always
+        ports:
+            - "${MYSQL_PORT:-3306}:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        env_file:
+            - .env
+        networks:
+            - system
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}"]
+            interval: 2h # every 2 hours
+            timeout: 10s
+            retries: 3
+            start_period: 30s
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:5.2.2
-    container_name: phpmyadmin
-    restart: always
-    ports:
-      - "${PHPMYADMIN_PORT:-8080}:80"
-    environment:
-      PMA_HOST: ${PMA_HOST:-mysql}
-      PMA_PORT: ${PMA_PORT:-3306}
-      UPLOAD_LIMIT: ${UPLOAD_LIMIT:-300M}
-    env_file:
-      - .env
-    depends_on:
-      - mysql
-    networks:
-      - system
-    volumes:
-      - /sessions
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:5.2.2
+        container_name: phpmyadmin
+        restart: always
+        ports:
+            - "${PHPMYADMIN_PORT:-8080}:80"
+        environment:
+            PMA_HOST: ${PMA_HOST:-mysql}
+            PMA_PORT: ${PMA_PORT:-3306}
+            UPLOAD_LIMIT: ${UPLOAD_LIMIT:-300M}
+        env_file:
+            - .env
+        depends_on:
+            - mysql
+        networks:
+            - system
+        volumes:
+            - /sessions
 
-  pgadmin:
-    image: dpage/pgadmin4:9
-    container_name: pgadmin
-    restart: always
-    ports:
-      - "${PGADMIN_PORT:-8081}:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@mail.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-12345678}
-      PGADMIN_LISTEN_PORT: 80
-      UPLOAD_LIMIT: ${UPLOAD_LIMIT:-300M}
-    env_file:
-      - .env
-    networks:
-      - system
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-  dbgate:
-    image: dbgate/dbgate:latest
-    container_name: dbgate
-    restart: always
-    ports:
-      - "4000:3000"
-    volumes:
-      - dbgate_data:/root/.dbgate
-    networks:
-      - system
+    pgadmin:
+        image: dpage/pgadmin4:9
+        container_name: pgadmin
+        restart: always
+        ports:
+            - "${PGADMIN_PORT:-8081}:80"
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@mail.com}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-12345678}
+            PGADMIN_LISTEN_PORT: 80
+            UPLOAD_LIMIT: ${UPLOAD_LIMIT:-300M}
+        env_file:
+            - .env
+        networks:
+            - system
+        volumes:
+            - pgadmin_data:/var/lib/pgadmin
+    dbgate:
+        image: dbgate/dbgate:latest
+        container_name: dbgate
+        restart: always
+        ports:
+            - "4000:3000"
+        volumes:
+            - dbgate_data:/root/.dbgate
+            - ~/.ssh/default:/root/.ssh/default
+        networks:
+            - system
 
 volumes:
-  redis_data:
-  postgres_data:
-  mysql_data:
-  pgadmin_data:
-  dbgate_data:
+    redis_data:
+    postgres_data:
+    mysql_data:
+    pgadmin_data:
+    dbgate_data:
 
 networks:
-  system:
-    driver: bridge
+    system:
+        driver: bridge

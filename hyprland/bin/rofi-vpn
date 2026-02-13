@@ -1,0 +1,289 @@
+#!/usr/bin/env bash
+
+# ==============================================================================
+# CONFIGURATION
+# ==============================================================================
+
+# Rofi Theme Path (Matches your wallpaper script)
+ROFI_THEME="$HOME/.config/rofi/launchers/type-3/style-2-big-thumb.rasi"
+
+# Fallback icons (used when country code cannot be extracted)
+ICON_CONNECTED="security-high"     # Or "network-vpn-acquired"
+ICON_DISCONNECTED="network-vpn"    # Or "network-vpn"
+
+# Optional: Custom flag image directory (if you want to use image files instead of emoji)
+# Leave empty to use emoji flags
+FLAG_DIR=""
+
+# Fixed Notification ID (Different from wallpaper script to avoid conflict)
+NOTIF_ID=992022
+
+# ==============================================================================
+# FUNCTIONS
+# ==============================================================================
+
+# Extract country code from VPN name
+# Handles formats like: "US-VPN", "VPN-US", "US", "us-vpn", "US_Server", etc.
+extract_country_code() {
+    local vpn_name="$1"
+    
+    # Try patterns in order of likelihood:
+    # 1. Two uppercase letters at start: "US-VPN", "US_Server", "US"
+    if [[ "$vpn_name" =~ ^([A-Z]{2})([-_]|$) ]]; then
+        echo "${BASH_REMATCH[1]}"
+        return 0
+    fi
+    
+    # 2. Two uppercase letters after dash/underscore: "VPN-US", "Server-US"
+    if [[ "$vpn_name" =~ [-_]([A-Z]{2})([-_]|$) ]]; then
+        echo "${BASH_REMATCH[1]}"
+        return 0
+    fi
+    
+    # 3. Two uppercase letters anywhere (less reliable but catches edge cases)
+    if [[ "$vpn_name" =~ ([A-Z]{2}) ]]; then
+        echo "${BASH_REMATCH[1]}"
+        return 0
+    fi
+    
+    # 4. Try lowercase versions and convert to uppercase
+    if [[ "$vpn_name" =~ ^([a-z]{2})([-_]|$) ]]; then
+        echo "${BASH_REMATCH[1]^^}"
+        return 0
+    fi
+    
+    if [[ "$vpn_name" =~ [-_]([a-z]{2})([-_]|$) ]]; then
+        echo "${BASH_REMATCH[1]^^}"
+        return 0
+    fi
+    
+    if [[ "$vpn_name" =~ ([a-z]{2}) ]]; then
+        echo "${BASH_REMATCH[1]^^}"
+        return 0
+    fi
+    
+    return 1
+}
+
+# Convert 2-letter country code to Unicode emoji flag
+# Example: "US" -> 🇺🇸
+country_code_to_flag_emoji() {
+    local code="$1"
+    
+    if [ ${#code} -ne 2 ]; then
+        return 1
+    fi
+    
+    # Convert each letter to regional indicator symbol
+    # A = U+1F1E6, B = U+1F1E7, ..., Z = U+1F1FF
+    local first="${code:0:1}"
+    local second="${code:1:1}"
+    
+    # Get ASCII value and convert to Unicode codepoint
+    local first_ascii=$(printf '%d' "'$first")
+    local second_ascii=$(printf '%d' "'$second")
+    
+    # Ensure uppercase (A=65, Z=90)
+    if [ "$first_ascii" -ge 97 ] && [ "$first_ascii" -le 122 ]; then
+        first_ascii=$((first_ascii - 32))
+    fi
+    if [ "$second_ascii" -ge 97 ] && [ "$second_ascii" -le 122 ]; then
+        second_ascii=$((second_ascii - 32))
+    fi
+    
+    # Convert to regional indicator codepoints (A=65 -> U+1F1E6)
+    local first_cp=$((0x1F1E6 + first_ascii - 65))
+    local second_cp=$((0x1F1E6 + second_ascii - 65))
+    
+    # Output as emoji (using printf to create Unicode characters)
+    printf "\\U%08X\\U%08X" "$first_cp" "$second_cp"
+}
+
+# Get flag icon for VPN name
+# Returns emoji flag if country code found, otherwise returns fallback icon
+get_flag_icon() {
+    local vpn_name="$1"
+    local is_connected="${2:-false}"
+    local fallback_icon="$ICON_DISCONNECTED"
+    
+    [ "$is_connected" = "true" ] && fallback_icon="$ICON_CONNECTED"
+    
+    # Try to extract country code
+    local country_code=$(extract_country_code "$vpn_name")
+    
+    if [ -n "$country_code" ]; then
+        # If custom flag directory is set, try to use image file
+        if [ -n "$FLAG_DIR" ] && [ -f "$FLAG_DIR/${country_code,,}.png" ]; then
+            echo "$FLAG_DIR/${country_code,,}.png"
+            return 0
+        fi
+        
+        # Otherwise use emoji flag
+        local flag_emoji=$(country_code_to_flag_emoji "$country_code")
+        if [ -n "$flag_emoji" ]; then
+            # For rofi, we can use emoji directly in the icon field
+            # Some rofi themes support emoji, but if not, we'll use it as text prefix
+            echo "$flag_emoji"
+            return 0
+        fi
+    fi
+    
+    # Fallback to default icon
+    echo "$fallback_icon"
+}
+
+notify_load() {
+    dunstify "   VPN Manager" "$1" \
+        -r "$NOTIF_ID" \
+        -u "normal" \
+        -i "network-vpn-acquiring" \
+        -t 0
+}
+
+notify_success() {
+    dunstify "   VPN Manager" "$1" \
+        -r "$NOTIF_ID" \
+        -u "low" \
+        -i "security-high" \
+        -t 5000
+}
+
+notify_error() {
+    dunstify "   VPN Error" "$1" \
+        -r "$NOTIF_ID" \
+        -u "critical" \
+        -i "dialog-error" \
+        -t 5000
+}
+
+notify_off() {
+    dunstify "   VPN Manager" "VPN Disconnected" \
+        -r "$NOTIF_ID" \
+        -u "low" \
+        -i "network-vpn-no-route" \
+        -t 3000
+}
+
+# ==============================================================================
+# LOGIC
+# ==============================================================================
+
+# 1. Get the currently active WireGuard connection (if any)
+ACTIVE_VPN=$(nmcli -t -f NAME,TYPE connection show --active | grep ":wireguard" | cut -d: -f1 | head -n1)
+
+# 2. Get a list of ALL available WireGuard connections
+# We use `nmcli` to list name and type, filter for wireguard, and just get the names
+ALL_VPNS=$(nmcli -t -f NAME,TYPE connection show | grep ":wireguard" | cut -d: -f1 | sort)
+
+if [ -z "$ALL_VPNS" ]; then
+    notify_error "No WireGuard configurations found."
+    exit 1
+fi
+
+# 3. Build the Rofi Menu List
+ROFI_LIST=""
+
+# If there is an active connection, add it to the TOP with a special indicator
+if [ -n "$ACTIVE_VPN" ]; then
+    # Get flag icon/emoji for active VPN
+    flag_icon=$(get_flag_icon "$ACTIVE_VPN" "true")
+    
+    # Check if it's a file path (contains / or ends with image extension)
+    if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
+        # It's a file path - use as icon
+        ROFI_LIST+="Disconnect: $ACTIVE_VPN\0icon\x1f$flag_icon\n"
+    else
+        # It's an emoji or icon name - use emoji as text prefix, icon name as icon
+        if [[ "$flag_icon" != "$ICON_CONNECTED" ]] && [[ "$flag_icon" != "$ICON_DISCONNECTED" ]]; then
+            # It's an emoji flag - use as text prefix
+            ROFI_LIST+="$flag_icon Disconnect: $ACTIVE_VPN\0icon\x1f$ICON_CONNECTED\n"
+        else
+            # It's the fallback icon
+            ROFI_LIST+="Disconnect: $ACTIVE_VPN\0icon\x1f$flag_icon\n"
+        fi
+    fi
+fi
+
+# Add the rest of the available connections (skipping the active one to avoid duplicates)
+while IFS= read -r vpn_name; do
+    if [ "$vpn_name" != "$ACTIVE_VPN" ]; then
+        # Get flag icon/emoji for this VPN
+        flag_icon=$(get_flag_icon "$vpn_name" "false")
+        
+        # Check if it's a file path (contains / or ends with image extension)
+        if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
+            # It's a file path - use as icon
+            ROFI_LIST+="$vpn_name\0icon\x1f$flag_icon\n"
+        else
+            # It's an emoji or icon name - use emoji as text prefix, icon name as icon
+            if [[ "$flag_icon" != "$ICON_CONNECTED" ]] && [[ "$flag_icon" != "$ICON_DISCONNECTED" ]]; then
+                # It's an emoji flag - use as text prefix
+                ROFI_LIST+="$flag_icon $vpn_name\0icon\x1f$ICON_DISCONNECTED\n"
+            else
+                # It's the fallback icon
+                ROFI_LIST+="$vpn_name\0icon\x1f$flag_icon\n"
+            fi
+        fi
+    fi
+done <<< "$ALL_VPNS"
+
+# 4. Open Rofi
+# -mesg shows current status at the bottom of the prompt
+CURRENT_STATUS_MSG="Status:  Unsecured"
+[ -n "$ACTIVE_VPN" ] && CURRENT_STATUS_MSG="Status:  Connected to $ACTIVE_VPN"
+
+SELECTED=$(echo -en "$ROFI_LIST" | rofi -dmenu -i -p "VPN " -mesg "$CURRENT_STATUS_MSG" -theme "$ROFI_THEME")
+
+# Exit if user cancelled
+[ -z "$SELECTED" ] && exit 0
+
+# ==============================================================================
+# ACTION HANDLER
+# ==============================================================================
+
+# Check if user selected the "Disconnect: ..." option
+if [[ "$SELECTED" =~ ^.*Disconnect:[[:space:]]+(.*) ]]; then
+    TARGET="$ACTIVE_VPN"
+    ACTION="disconnect"
+else
+    # Remove emoji flag prefix if present (emoji flags are non-ASCII characters)
+    # Strip leading non-alphanumeric characters (which includes emoji)
+    TARGET=$(echo "$SELECTED" | sed 's/^[^[:alnum:]]*//')
+    ACTION="connect"
+fi
+
+# PERFORM ACTIONS
+if [ "$ACTION" == "disconnect" ]; then
+    notify_load "Disconnecting..."
+    nmcli connection down "$TARGET"
+    
+    if [ $? -eq 0 ]; then
+        notify_off
+    else
+        notify_error "Failed to disconnect."
+    fi
+
+elif [ "$ACTION" == "connect" ]; then
+    notify_load "Securing Connection..."
+
+    # A. If another VPN is active, kill it first (Clean Switch)
+    if [ -n "$ACTIVE_VPN" ]; then
+        nmcli connection down "$ACTIVE_VPN"
+    fi
+
+    # B. Connect to the new one
+    OUTPUT=$(nmcli connection up "$TARGET" 2>&1)
+
+    if [ $? -eq 0 ]; then
+        notify_success "Connected to $TARGET"
+    else
+        # If it failed, check why. 
+        # Sometimes nmcli fails but it's just a timeout, check if active
+        IS_UP=$(nmcli -t -f NAME,TYPE connection show --active | grep "$TARGET")
+        if [ -n "$IS_UP" ]; then
+            notify_success "Connected to $TARGET"
+        else
+            notify_error "Connection Failed: $OUTPUT"
+        fi
+    fi
+fi

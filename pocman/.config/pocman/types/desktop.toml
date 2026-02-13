@@ -1,4 +1,17 @@
 [desktop]
+networkmanager-dmenu-git
+anydesk-bin
+aria2
+waydroid
+kodi
+chromium
+gnome-terminal
+cloudflared
+epiphany
+lib32-gamemode
+protonplus
+ncdu
+bleachbit
 yad
 thunar
 nemo-fileroller

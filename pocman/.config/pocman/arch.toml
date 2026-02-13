@@ -10,6 +10,8 @@
 
 # CLI packages
 [cli:pacman]
+unzip
+bind
 go
 btop
 less
@@ -33,6 +35,14 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+aria2
+waydroid
+chromium
+gnome-terminal
+cloudflared
+epiphany
+lib32-gamemode
+ncdu
 yad
 nemo-fileroller
 nemo
@@ -89,18 +99,18 @@ rofi
 swww
 hyprshot
 qt5ct
-chromium
 brightnessctl
 
 [cli:yay]
 
 [desktop:yay]
-slack-desktop
+networkmanager-dmenu-git
+protonplus
+vencord-installer-bin
 localsend
 sddm-silent-theme
 wleave-git
 audio-recorder
-vencord-installer-bin
 wallust
 realesrgan-ncnn-vulkan-bin
 upscaler
@@ -118,6 +128,8 @@ openrgb-bin
 
 # Gaming packages
 [gaming:pacman]
+nvidia-container-toolkit
+gamemode
 vulkan-tools
 goverlay
 obs-studio

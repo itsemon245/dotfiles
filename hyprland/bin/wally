@@ -126,6 +126,42 @@ apply_wallpaper() {
 
 }
 
+build_rofi_list() {
+    local rofi_list=" Random\0icon\x1fmedia-playlist-shuffle"
+
+    while IFS= read -r -d '' file; do
+        local fname=$(basename "$file")
+        rofi_list+="\n$fname\0icon\x1f$file"
+    done < <(find "$WALLPAPER_DIR" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -print0 | sort -z)
+
+    echo -n "$rofi_list"
+}
+
+show_rofi_menu() {
+    local rofi_list="$1"
+    
+    if [ "$rofi_list" == " Random\0icon\x1fmedia-playlist-shuffle" ]; then
+        dunstify "   Wally Error" "No images found in $WALLPAPER_DIR" -u critical
+        exit 1
+    fi
+
+    echo -en "$rofi_list" | rofi -dmenu -i -p "󰋵 " -theme "$ROFI_THEME"
+}
+
+handle_rofi_selection() {
+    local selected="$1"
+    
+    [ -z "$selected" ] && exit 0
+
+    if [ "$selected" == " Random" ]; then
+        FULL_PATH=$(find "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) | shuf -n 1)
+        FILENAME=$(basename "$FULL_PATH")
+    else
+        FULL_PATH="$WALLPAPER_DIR/$selected"
+        FILENAME="$selected"
+    fi
+}
+
 # ==============================================================================
 # ARGUMENT PARSING
 # ==============================================================================
@@ -203,29 +239,9 @@ if [ -n "$DIRECT_INPUT" ]; then
 
 # CASE B: Rofi Interactive Menu
 else
-    rofi_list=" Random\0icon\x1fmedia-playlist-shuffle"
-
-    while IFS= read -r -d '' file; do
-        fname=$(basename "$file")
-        rofi_list+="\n$fname\0icon\x1f$file"
-    done < <(find "$WALLPAPER_DIR" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -print0 | sort -z)
-
-    if [ "$rofi_list" == " Random\0icon\x1fmedia-playlist-shuffle" ]; then
-         dunstify "   Wally Error" "No images found in $WALLPAPER_DIR" -u critical
-         exit 1
-    fi
-
-    selected=$(echo -en "$rofi_list" | rofi -dmenu -i -p "󰋵 " -theme "$ROFI_THEME")
-
-    [ -z "$selected" ] && exit 0
-
-    if [ "$selected" == " Random" ]; then
-        FULL_PATH=$(find "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) | shuf -n 1)
-        FILENAME=$(basename "$FULL_PATH")
-    else
-        FULL_PATH="$WALLPAPER_DIR/$selected"
-        FILENAME="$selected"
-    fi
+    rofi_list=$(build_rofi_list)
+    selected=$(show_rofi_menu "$rofi_list")
+    handle_rofi_selection "$selected"
 fi
 
 [ ! -f "$FULL_PATH" ] && { dunstify "   Wally Error" "File not found." -u critical; exit 1; }
