@@ -101,10 +101,13 @@ NOTIF_ID=992022
 # FUNCTIONS
 # ==============================================================================
 
-# Extract country code from VPN name
+# Extract country code from VPN name (optimized, no errors)
 # Handles formats like: "US-VPN", "VPN-US", "US", "us-vpn", "US_Server", etc.
 extract_country_code() {
     local vpn_name="$1"
+    
+    # Return early if empty
+    [ -z "$vpn_name" ] && return 1
     
     # Try patterns in order of likelihood:
     # 1. Two uppercase letters at start: "US-VPN", "US_Server", "US"
@@ -149,36 +152,95 @@ extract_country_code() {
 country_code_to_flag_emoji() {
     local code="$1"
     
-    if [ ${#code} -ne 2 ]; then
+    # Validate input: must be exactly 2 characters and only letters
+    if [ ${#code} -ne 2 ] || [[ ! "$code" =~ ^[A-Za-z]{2}$ ]]; then
         return 1
     fi
     
-    # Convert each letter to regional indicator symbol
-    # A = U+1F1E6, B = U+1F1E7, ..., Z = U+1F1FF
+    # Convert to uppercase
+    code="${code^^}"
+    
     local first="${code:0:1}"
     local second="${code:1:1}"
     
     # Get ASCII value and convert to Unicode codepoint
-    local first_ascii=$(printf '%d' "'$first")
-    local second_ascii=$(printf '%d' "'$second")
+    local first_ascii=$(printf '%d' "'$first" 2>/dev/null)
+    local second_ascii=$(printf '%d' "'$second" 2>/dev/null)
     
-    # Ensure uppercase (A=65, Z=90)
-    if [ "$first_ascii" -ge 97 ] && [ "$first_ascii" -le 122 ]; then
-        first_ascii=$((first_ascii - 32))
-    fi
-    if [ "$second_ascii" -ge 97 ] && [ "$second_ascii" -le 122 ]; then
-        second_ascii=$((second_ascii - 32))
+    # Validate ASCII values (A=65, Z=90)
+    if [ -z "$first_ascii" ] || [ -z "$second_ascii" ] || \
+       [ "$first_ascii" -lt 65 ] || [ "$first_ascii" -gt 90 ] || \
+       [ "$second_ascii" -lt 65 ] || [ "$second_ascii" -gt 90 ]; then
+        return 1
     fi
     
     # Convert to regional indicator codepoints (A=65 -> U+1F1E6)
     local first_cp=$((0x1F1E6 + first_ascii - 65))
     local second_cp=$((0x1F1E6 + second_ascii - 65))
     
-    # Output as emoji (using printf to create Unicode characters)
-    printf "\\U%08X\\U%08X" "$first_cp" "$second_cp"
+    # Output as emoji using printf with proper format
+    # Use %08X to ensure 8-digit hex format required by \U
+    printf "\\U%08X\\U%08X" "$first_cp" "$second_cp" 2>/dev/null || return 1
 }
 
-# Download flag image from remote URL if enabled
+# Check if flag image is cached (non-blocking, instant)
+check_flag_cache() {
+    local country_code="$1"
+    local country_lower="${country_code,,}"
+    
+    if [ -z "$FLAG_URL_BASE" ] || [ -z "$country_code" ]; then
+        return 1
+    fi
+    
+    local cache_file="$FLAG_CACHE_DIR/${country_lower}.png"
+    
+    # If already cached, return the path (fast file check)
+    if [ -f "$cache_file" ]; then
+        echo "$cache_file"
+        return 0
+    fi
+    
+    return 1
+}
+
+# Download flag image in background (non-blocking)
+download_flag_image_async() {
+    local country_code="$1"
+    local country_lower="${country_code,,}"
+    
+    if [ -z "$FLAG_URL_BASE" ]; then
+        return 1
+    fi
+    
+    # Create cache directory if it doesn't exist
+    mkdir -p "$FLAG_CACHE_DIR"
+    
+    local cache_file="$FLAG_CACHE_DIR/${country_lower}.png"
+    
+    # Skip if already cached or currently downloading
+    if [ -f "$cache_file" ] || [ -f "${cache_file}.downloading" ]; then
+        return 0
+    fi
+    
+    # Create a lock file to prevent duplicate downloads
+    touch "${cache_file}.downloading"
+    
+    # Download in background
+    local url="${FLAG_URL_BASE}${country_lower}.png"
+    (
+        if command -v curl >/dev/null 2>&1; then
+            curl -s -f -o "$cache_file" "$url" 2>/dev/null || rm -f "$cache_file"
+        elif command -v wget >/dev/null 2>&1; then
+            wget -q -O "$cache_file" "$url" 2>/dev/null || rm -f "$cache_file"
+        fi
+        # Remove lock file
+        rm -f "${cache_file}.downloading"
+    ) &
+    
+    return 0
+}
+
+# Download flag image synchronously (kept for backward compatibility, but not used in menu)
 download_flag_image() {
     local country_code="$1"
     local country_lower="${country_code,,}"
@@ -198,7 +260,7 @@ download_flag_image() {
         return 0
     fi
     
-    # Try to download
+    # Try to download synchronously
     local url="${FLAG_URL_BASE}${country_lower}.png"
     if command -v curl >/dev/null 2>&1; then
         if curl -s -f -o "$cache_file" "$url" 2>/dev/null; then
@@ -215,17 +277,19 @@ download_flag_image() {
     return 1
 }
 
-# Get flag icon for VPN name
+# Get flag icon for VPN name (optimized: checks cache first, no blocking downloads)
 # Returns flag emoji, image path, or fallback icon name
+# Set third parameter to "true" to trigger async download (default: false, for menu building)
 get_flag_icon() {
     local vpn_name="$1"
     local is_connected="${2:-false}"
+    local trigger_download="${3:-false}"
     local fallback_icon="$ICON_DISCONNECTED"
     
     [ "$is_connected" = "true" ] && fallback_icon="$ICON_CONNECTED"
     
     # Try to extract country code
-    local country_code=$(extract_country_code "$vpn_name")
+    local country_code=$(extract_country_code "$vpn_name" 2>/dev/null)
     
     if [ -n "$country_code" ]; then
         # Priority 1: Local flag directory
@@ -234,18 +298,24 @@ get_flag_icon() {
             return 0
         fi
         
-        # Priority 2: Download from remote URL (if enabled)
+        # Priority 2: Check cache first (non-blocking, instant)
         if [ -n "$FLAG_URL_BASE" ]; then
-            local cached_flag=$(download_flag_image "$country_code")
+            local cached_flag=$(check_flag_cache "$country_code" 2>/dev/null)
             if [ -n "$cached_flag" ]; then
                 echo "$cached_flag"
                 return 0
             fi
+            
+            # Only trigger download if explicitly requested (not during menu building)
+            if [ "$trigger_download" = "true" ]; then
+                download_flag_image_async "$country_code" >/dev/null 2>&1 &
+            fi
         fi
         
-        # Priority 3: Use emoji flag (if enabled)
+        # Priority 3: Use emoji flag as fallback (if enabled)
+        # This ensures Rofi opens immediately even if images aren't cached yet
         if [ "$USE_EMOJI_FLAGS" = "true" ]; then
-            local flag_emoji=$(country_code_to_flag_emoji "$country_code")
+            local flag_emoji=$(country_code_to_flag_emoji "$country_code" 2>/dev/null)
             if [ -n "$flag_emoji" ]; then
                 echo "$flag_emoji"
                 return 0
@@ -361,6 +431,26 @@ notify_off() {
         -t 3000 2>/dev/null || true
 }
 
+# Pre-download missing flags in background for all VPNs
+prefetch_missing_flags() {
+    # Only run if remote URL is enabled
+    if [ -z "$FLAG_URL_BASE" ]; then
+        return 0
+    fi
+    
+    # Create cache directory if it doesn't exist
+    mkdir -p "$FLAG_CACHE_DIR"
+    
+    # Extract country codes from all VPNs and download missing flags
+    while IFS= read -r vpn_name; do
+        local country_code=$(extract_country_code "$vpn_name")
+        if [ -n "$country_code" ]; then
+            # Trigger background download (function handles duplicates)
+            download_flag_image_async "$country_code" >/dev/null 2>&1
+        fi
+    done <<< "$ALL_VPNS"
+}
+
 # ==============================================================================
 # LOGIC
 # ==============================================================================
@@ -376,6 +466,17 @@ if [ -z "$ALL_VPNS" ]; then
     notify_error "No WireGuard configurations found."
     exit 1
 fi
+
+# 2.5. Create cache directory early (if using remote flags)
+# This prevents any delays during menu building
+if [ -n "$FLAG_URL_BASE" ]; then
+    mkdir -p "$FLAG_CACHE_DIR" 2>/dev/null
+fi
+
+# 2.6. Pre-fetch missing flags in background (completely non-blocking)
+# This ensures flags are downloaded for next time, even for VPNs not shown in menu
+# Run in subshell to detach completely
+(prefetch_missing_flags >/dev/null 2>&1) &
 
 # 3. Handle direct connection mode (skip Rofi menu)
 if [ -n "$DIRECT_CONNECTION" ]; then
