@@ -59,6 +59,7 @@
 
     ### Text ###
     # CaskaydiaCove Nerd Font, Size 11 is readable and clean
+    # Emoji fallback is handled by fontconfig (see fonts/.config/fontconfig/fonts.conf)
     font = CaskaydiaCove NF 11
 
     line_height = 0

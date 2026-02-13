@@ -5,15 +5,36 @@
 # ==============================================================================
 
 # Rofi Theme Path (Matches your wallpaper script)
-ROFI_THEME="$HOME/.config/rofi/launchers/type-3/style-2-big-thumb.rasi"
+ROFI_THEME="$HOME/.config/rofi/launchers/type-2/style-1.rasi"
 
 # Fallback icons (used when country code cannot be extracted)
 ICON_CONNECTED="security-high"     # Or "network-vpn-acquired"
 ICON_DISCONNECTED="network-vpn"    # Or "network-vpn"
 
-# Optional: Custom flag image directory (if you want to use image files instead of emoji)
-# Leave empty to use emoji flags
+# Status emojis/icons
+CHECKMARK_EMOJI=" 󰗠 "                # Checkmark for connected VPNs
+LOCK_EMOJI="🔒"                     # Lock icon for disconnected VPNs
+
+# Flag icon options (choose one method):
+# 
+# Option 1: Use emoji flags (default, no setup needed)
+#   - Works out of the box, but may not render in all Rofi themes
+#   - Set USE_EMOJI_FLAGS=true
+USE_EMOJI_FLAGS=true
+
+# Option 2: Use local flag image files
+#   - Most reliable display, requires manual setup
+#   - Set FLAG_DIR to a directory containing flag PNG files named as country codes (e.g., us.png, nl.png)
+#   - You can download flags from: https://flagcdn.com/ or https://github.com/lipis/flag-icons
 FLAG_DIR=""
+
+# Option 3: Download flag images from remote URL and cache locally (RECOMMENDED)
+#   - Automatic setup, reliable display, flags cached locally after first download
+#   - Set FLAG_URL_BASE to enable (e.g., "https://flagcdn.com/w40/" or "https://raw.githubusercontent.com/lipis/flag-icons/main/flags/1x1/")
+#   - Flags will be cached in ~/.cache/rofi-vpn/flags/
+#   - Example: FLAG_URL_BASE="https://flagcdn.com/w40/" (40px width flags)
+FLAG_URL_BASE="https://flagcdn.com/w40/"
+FLAG_CACHE_DIR="$HOME/.cache/rofi-vpn/flags"
 
 # Fixed Notification ID (Different from wallpaper script to avoid conflict)
 NOTIF_ID=992022
@@ -99,8 +120,45 @@ country_code_to_flag_emoji() {
     printf "\\U%08X\\U%08X" "$first_cp" "$second_cp"
 }
 
+# Download flag image from remote URL if enabled
+download_flag_image() {
+    local country_code="$1"
+    local country_lower="${country_code,,}"
+    
+    if [ -z "$FLAG_URL_BASE" ]; then
+        return 1
+    fi
+    
+    # Create cache directory if it doesn't exist
+    mkdir -p "$FLAG_CACHE_DIR"
+    
+    local cache_file="$FLAG_CACHE_DIR/${country_lower}.png"
+    
+    # If already cached, return the path
+    if [ -f "$cache_file" ]; then
+        echo "$cache_file"
+        return 0
+    fi
+    
+    # Try to download
+    local url="${FLAG_URL_BASE}${country_lower}.png"
+    if command -v curl >/dev/null 2>&1; then
+        if curl -s -f -o "$cache_file" "$url" 2>/dev/null; then
+            echo "$cache_file"
+            return 0
+        fi
+    elif command -v wget >/dev/null 2>&1; then
+        if wget -q -O "$cache_file" "$url" 2>/dev/null; then
+            echo "$cache_file"
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
 # Get flag icon for VPN name
-# Returns emoji flag if country code found, otherwise returns fallback icon
+# Returns flag emoji, image path, or fallback icon name
 get_flag_icon() {
     local vpn_name="$1"
     local is_connected="${2:-false}"
@@ -112,19 +170,28 @@ get_flag_icon() {
     local country_code=$(extract_country_code "$vpn_name")
     
     if [ -n "$country_code" ]; then
-        # If custom flag directory is set, try to use image file
+        # Priority 1: Local flag directory
         if [ -n "$FLAG_DIR" ] && [ -f "$FLAG_DIR/${country_code,,}.png" ]; then
             echo "$FLAG_DIR/${country_code,,}.png"
             return 0
         fi
         
-        # Otherwise use emoji flag
-        local flag_emoji=$(country_code_to_flag_emoji "$country_code")
-        if [ -n "$flag_emoji" ]; then
-            # For rofi, we can use emoji directly in the icon field
-            # Some rofi themes support emoji, but if not, we'll use it as text prefix
-            echo "$flag_emoji"
-            return 0
+        # Priority 2: Download from remote URL (if enabled)
+        if [ -n "$FLAG_URL_BASE" ]; then
+            local cached_flag=$(download_flag_image "$country_code")
+            if [ -n "$cached_flag" ]; then
+                echo "$cached_flag"
+                return 0
+            fi
+        fi
+        
+        # Priority 3: Use emoji flag (if enabled)
+        if [ "$USE_EMOJI_FLAGS" = "true" ]; then
+            local flag_emoji=$(country_code_to_flag_emoji "$country_code")
+            if [ -n "$flag_emoji" ]; then
+                echo "$flag_emoji"
+                return 0
+            fi
         fi
     fi
     
@@ -133,34 +200,85 @@ get_flag_icon() {
 }
 
 notify_load() {
-    dunstify "   VPN Manager" "$1" \
+    local message="$1"
+    local vpn_name="${2:-}"
+    local icon="network-vpn-acquiring"
+    
+    # Try to get flag icon if VPN name is provided (only use image files, not emojis)
+    if [ -n "$vpn_name" ]; then
+        local flag_icon=$(get_flag_icon "$vpn_name" "false")
+        # Use flag icon only if it's a file path (skip emojis)
+        if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
+            icon="$flag_icon"
+        fi
+    fi
+    
+    dunstify "   VPN Manager" "$message" \
         -r "$NOTIF_ID" \
         -u "normal" \
-        -i "network-vpn-acquiring" \
+        -i "$icon" \
         -t 0
 }
 
 notify_success() {
-    dunstify "   VPN Manager" "$1" \
+    local message="$1"
+    local vpn_name="${2:-}"
+    local icon="security-high"
+    
+    # Try to get flag icon if VPN name is provided (only use image files, not emojis)
+    if [ -n "$vpn_name" ]; then
+        local flag_icon=$(get_flag_icon "$vpn_name" "true")
+        # Use flag icon only if it's a file path (skip emojis)
+        if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
+            icon="$flag_icon"
+        fi
+    fi
+    
+    dunstify "   VPN Manager" "$message" \
         -r "$NOTIF_ID" \
         -u "low" \
-        -i "security-high" \
+        -i "$icon" \
         -t 5000
 }
 
 notify_error() {
-    dunstify "   VPN Error" "$1" \
+    local message="$1"
+    local vpn_name="${2:-}"
+    local icon="dialog-error"
+    
+    # Try to get flag icon if VPN name is provided (only use image files, not emojis)
+    if [ -n "$vpn_name" ]; then
+        local flag_icon=$(get_flag_icon "$vpn_name" "false")
+        # Use flag icon only if it's a file path (skip emojis)
+        if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
+            icon="$flag_icon"
+        fi
+    fi
+    
+    dunstify "   VPN Error" "$message" \
         -r "$NOTIF_ID" \
         -u "critical" \
-        -i "dialog-error" \
+        -i "$icon" \
         -t 5000
 }
 
 notify_off() {
+    local vpn_name="${1:-}"
+    local icon="network-vpn-no-route"
+    
+    # Try to get flag icon if VPN name is provided (only use image files, not emojis)
+    if [ -n "$vpn_name" ]; then
+        local flag_icon=$(get_flag_icon "$vpn_name" "false")
+        # Use flag icon only if it's a file path (skip emojis)
+        if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
+            icon="$flag_icon"
+        fi
+    fi
+    
     dunstify "   VPN Manager" "VPN Disconnected" \
         -r "$NOTIF_ID" \
         -u "low" \
-        -i "network-vpn-no-route" \
+        -i "$icon" \
         -t 3000
 }
 
@@ -183,25 +301,48 @@ fi
 # 3. Build the Rofi Menu List
 ROFI_LIST=""
 
+# Helper function to build menu entry with format: [FLAG_ICON] VPN_NAME [STATUS_EMOJI]
+build_menu_entry() {
+    local vpn_name="$1"
+    local is_connected="$2"
+    local flag_icon="$3"
+    
+    # Build status indicator with Pango markup for styling
+    local status_indicator
+    if [ "$is_connected" = "true" ]; then
+        # Green checkmark, bigger size using Pango markup
+        status_indicator="<span foreground='#00ff00' size='large' weight='bold'>$CHECKMARK_EMOJI</span>"
+    else
+        status_indicator="$LOCK_EMOJI"
+    fi
+    
+    # Build display text: VPN_NAME [STATUS_INDICATOR]
+    local display_text="$vpn_name $status_indicator"
+    
+    # Check if flag_icon is a file path (image file)
+    if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
+        # It's a file path - use as icon (big on left), display text as-is
+        echo "$display_text\0icon\x1f$flag_icon"
+    else
+        # Check if it's an emoji flag (not a fallback icon name)
+        if [[ "$flag_icon" != "$ICON_CONNECTED" ]] && [[ "$flag_icon" != "$ICON_DISCONNECTED" ]]; then
+            # It's an emoji flag - use in icon field for size (may not render in all themes)
+            # Also include in text as fallback/backup visibility
+            echo "$flag_icon $display_text\0icon\x1f$flag_icon"
+        else
+            # It's a fallback icon name - use that as icon
+            echo "$display_text\0icon\x1f$flag_icon"
+        fi
+    fi
+}
+
 # If there is an active connection, add it to the TOP with a special indicator
 if [ -n "$ACTIVE_VPN" ]; then
     # Get flag icon/emoji for active VPN
     flag_icon=$(get_flag_icon "$ACTIVE_VPN" "true")
     
-    # Check if it's a file path (contains / or ends with image extension)
-    if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
-        # It's a file path - use as icon
-        ROFI_LIST+="Disconnect: $ACTIVE_VPN\0icon\x1f$flag_icon\n"
-    else
-        # It's an emoji or icon name - use emoji as text prefix, icon name as icon
-        if [[ "$flag_icon" != "$ICON_CONNECTED" ]] && [[ "$flag_icon" != "$ICON_DISCONNECTED" ]]; then
-            # It's an emoji flag - use as text prefix
-            ROFI_LIST+="$flag_icon Disconnect: $ACTIVE_VPN\0icon\x1f$ICON_CONNECTED\n"
-        else
-            # It's the fallback icon
-            ROFI_LIST+="Disconnect: $ACTIVE_VPN\0icon\x1f$flag_icon\n"
-        fi
-    fi
+    # Build entry: flag icon (big on left), VPN name, checkmark emoji
+    ROFI_LIST+="$(build_menu_entry "$ACTIVE_VPN" "true" "$flag_icon")\n"
 fi
 
 # Add the rest of the available connections (skipping the active one to avoid duplicates)
@@ -210,20 +351,8 @@ while IFS= read -r vpn_name; do
         # Get flag icon/emoji for this VPN
         flag_icon=$(get_flag_icon "$vpn_name" "false")
         
-        # Check if it's a file path (contains / or ends with image extension)
-        if [[ "$flag_icon" =~ ^/ ]] || [[ "$flag_icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
-            # It's a file path - use as icon
-            ROFI_LIST+="$vpn_name\0icon\x1f$flag_icon\n"
-        else
-            # It's an emoji or icon name - use emoji as text prefix, icon name as icon
-            if [[ "$flag_icon" != "$ICON_CONNECTED" ]] && [[ "$flag_icon" != "$ICON_DISCONNECTED" ]]; then
-                # It's an emoji flag - use as text prefix
-                ROFI_LIST+="$flag_icon $vpn_name\0icon\x1f$ICON_DISCONNECTED\n"
-            else
-                # It's the fallback icon
-                ROFI_LIST+="$vpn_name\0icon\x1f$flag_icon\n"
-            fi
-        fi
+        # Build entry: flag icon (big on left), VPN name, lock emoji
+        ROFI_LIST+="$(build_menu_entry "$vpn_name" "false" "$flag_icon")\n"
     fi
 done <<< "$ALL_VPNS"
 
@@ -232,7 +361,8 @@ done <<< "$ALL_VPNS"
 CURRENT_STATUS_MSG="Status:  Unsecured"
 [ -n "$ACTIVE_VPN" ] && CURRENT_STATUS_MSG="Status:  Connected to $ACTIVE_VPN"
 
-SELECTED=$(echo -en "$ROFI_LIST" | rofi -dmenu -i -p "VPN " -mesg "$CURRENT_STATUS_MSG" -theme "$ROFI_THEME")
+# Enable markup for Pango styling (needed for colored/bigger checkmark)
+SELECTED=$(echo -en "$ROFI_LIST" | rofi -dmenu -i -p "VPN " -mesg "$CURRENT_STATUS_MSG" -theme "$ROFI_THEME" -markup-rows)
 
 # Exit if user cancelled
 [ -z "$SELECTED" ] && exit 0
@@ -241,30 +371,35 @@ SELECTED=$(echo -en "$ROFI_LIST" | rofi -dmenu -i -p "VPN " -mesg "$CURRENT_STAT
 # ACTION HANDLER
 # ==============================================================================
 
-# Check if user selected the "Disconnect: ..." option
-if [[ "$SELECTED" =~ ^.*Disconnect:[[:space:]]+(.*) ]]; then
-    TARGET="$ACTIVE_VPN"
+# Parse selection: Format is "[FLAG_EMOJI] VPN_NAME [STATUS_INDICATOR]"
+# Remove flag emoji prefix, status indicator (with Pango markup), and any trailing whitespace
+# First remove Pango markup tags, then remove emojis and trailing spaces
+TARGET=$(echo "$SELECTED" | \
+    sed 's/<[^>]*>//g' | \
+    sed 's/^[^[:alnum:]]*//' | \
+    sed 's/[[:space:]]\+[^[:space:]]*$//' | \
+    sed 's/[[:space:]]*$//')
+
+# Determine action: if selected VPN is the active one, disconnect; otherwise connect
+if [ -n "$ACTIVE_VPN" ] && [ "$TARGET" = "$ACTIVE_VPN" ]; then
     ACTION="disconnect"
 else
-    # Remove emoji flag prefix if present (emoji flags are non-ASCII characters)
-    # Strip leading non-alphanumeric characters (which includes emoji)
-    TARGET=$(echo "$SELECTED" | sed 's/^[^[:alnum:]]*//')
     ACTION="connect"
 fi
 
 # PERFORM ACTIONS
 if [ "$ACTION" == "disconnect" ]; then
-    notify_load "Disconnecting..."
+    notify_load "Disconnecting..." "$TARGET"
     nmcli connection down "$TARGET"
     
     if [ $? -eq 0 ]; then
-        notify_off
+        notify_off "$TARGET"
     else
-        notify_error "Failed to disconnect."
+        notify_error "Failed to disconnect." "$TARGET"
     fi
 
 elif [ "$ACTION" == "connect" ]; then
-    notify_load "Securing Connection..."
+    notify_load "Securing Connection..." "$TARGET"
 
     # A. If another VPN is active, kill it first (Clean Switch)
     if [ -n "$ACTIVE_VPN" ]; then
@@ -275,15 +410,15 @@ elif [ "$ACTION" == "connect" ]; then
     OUTPUT=$(nmcli connection up "$TARGET" 2>&1)
 
     if [ $? -eq 0 ]; then
-        notify_success "Connected to $TARGET"
+        notify_success "Connected to $TARGET" "$TARGET"
     else
         # If it failed, check why. 
         # Sometimes nmcli fails but it's just a timeout, check if active
         IS_UP=$(nmcli -t -f NAME,TYPE connection show --active | grep "$TARGET")
         if [ -n "$IS_UP" ]; then
-            notify_success "Connected to $TARGET"
+            notify_success "Connected to $TARGET" "$TARGET"
         else
-            notify_error "Connection Failed: $OUTPUT"
+            notify_error "Connection Failed: $OUTPUT" "$TARGET"
         fi
     fi
 fi
