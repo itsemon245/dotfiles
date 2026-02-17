@@ -16,7 +16,7 @@ waybar &
 # -----------------------------------------------------
 # RGB Stuffs
 # -----------------------------------------------------
-OPENRGB_SCRIPT="~/.config/OpenRGB/scripts/wallust-colors.sh"
+export OPENRGB_SCRIPT="$HOME/.config/OpenRGB/scripts/wallust-colors.sh"
 
 if [ -f "$OPENRGB_SCRIPT" ] && command -v openrgb &> /dev/null; then
     bash "$OPENRGB_SCRIPT"

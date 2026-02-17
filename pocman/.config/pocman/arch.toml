@@ -35,6 +35,8 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+fuse2
+firefox
 aria2
 waydroid
 chromium
@@ -104,6 +106,8 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+handy
+woeusb-ng
 networkmanager-dmenu-git
 protonplus
 vencord-installer-bin
