@@ -4,62 +4,74 @@
 # CONFIGURATION
 # ==============================================================================
 
-VERSION="2.0"
-
-show_help() {
-    cat << EOF
-VPN Manager - WireGuard Connection Manager
-
-USAGE:
-    rofi-vpn [CONNECTION_NAME] [OPTIONS]
-
-ARGUMENTS:
-    CONNECTION_NAME    Optional. Name of VPN connection to connect/toggle.
-                      If provided, skips Rofi menu and directly connects/toggles.
-
-OPTIONS:
-    -h, --help        Show this help message and exit
-    -v, --version     Show version information and exit
-
-EXAMPLES:
-    rofi-vpn                    # Open Rofi menu to select VPN
-    rofi-vpn US-VPN             # Connect/toggle US-VPN directly
-    rofi-vpn --help             # Show help message
-
-NOTES:
-    - If CONNECTION_NAME matches the active VPN, it will disconnect
-    - If CONNECTION_NAME is different, it will connect (disconnecting active VPN first)
-    - Notifications are sent for all actions (if dunstify is available)
-EOF
-}
-
-# Parse CLI arguments
-DIRECT_CONNECTION=""
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        -h|--help)    show_help; exit 0 ;;
-        -v|--version) echo "rofi-vpn version $VERSION"; exit 0 ;;
-        -*)           echo "Unknown option: $1" >&2; echo "Use --help for usage information." >&2; exit 1 ;;
-        *)            [ -z "$DIRECT_CONNECTION" ] && DIRECT_CONNECTION="$1"; shift ;;
-    esac
-done
+VERSION="3.1"
 
 ROFI_THEME="$HOME/.config/rofi/launchers/type-2/style-1.rasi"
 ICON_CONNECTED="security-high"
 ICON_DISCONNECTED="network-vpn"
-VPN_CONNECTED_ICON=""
-VPN_DISCONNECTED_ICON=""
+VPN_CONNECTED_ICON="󰞑"
+VPN_DISCONNECTED_ICON=""
 USE_EMOJI_FLAGS=true
 FLAG_DIR=""
 FLAG_URL_BASE="https://flagcdn.com/w80/"
 FLAG_CACHE_DIR="$HOME/.cache/rofi-vpn/flags"
 NOTIF_ID=992022
 
+# Prefix to strip when aliasing imported configs (e.g. "wg-" turns "wg-NL-FREE-124" → "NL-FREE-124")
+# Set to empty string to disable prefix stripping.
+IMPORT_STRIP_PREFIX="wg-"
+
 # ==============================================================================
-# FUNCTIONS
+# HELP
 # ==============================================================================
 
-# Extract 2-letter country code from a VPN name
+show_help() {
+    cat << EOF
+VPN Manager - WireGuard Connection Manager v$VERSION
+
+USAGE:
+    rofi-vpn [SUBCOMMAND] [ARGS...] [OPTIONS]
+
+SUBCOMMANDS:
+    (none)                          Open Rofi menu to connect/toggle a VPN
+    remove [CONNECTION_NAME]        Remove a VPN from NetworkManager
+                                      Omit name to pick via Rofi
+
+    import <PATH...>                Import one or more .conf files or directories.
+                                      Skips already-imported configs by default.
+                                      PATH can be any mix of files and directories.
+
+      --replace                     Re-import configs that already exist
+                                      (disconnects active VPN if it is being replaced)
+      --fresh                       Remove ALL existing WireGuard configs first,
+                                      then import the given paths as a clean slate
+                                      (disconnects active VPN before purging)
+
+OPTIONS:
+    -h, --help                      Show this help message and exit
+    -v, --version                   Show version information and exit
+
+EXAMPLES:
+    rofi-vpn                              Open Rofi menu to toggle VPN
+    rofi-vpn US-VPN                       Connect/toggle US-VPN directly
+    rofi-vpn remove                       Open Rofi menu to pick a VPN to remove
+    rofi-vpn remove US-VPN                Remove US-VPN directly
+    rofi-vpn import ~/wg/*.conf           Import all configs in a glob
+    rofi-vpn import ~/wg/configs/         Import all .conf files in a directory
+    rofi-vpn import a.conf b.conf dir/    Mix of files and directories
+    rofi-vpn import ~/wg/ --replace       Re-import (overwrite) existing configs
+    rofi-vpn import ~/wg/ --fresh         Wipe all configs and import fresh
+
+NOTES:
+    - Imported configs are aliased: prefix "$IMPORT_STRIP_PREFIX" is stripped and autoconnect is disabled
+    - Set IMPORT_STRIP_PREFIX="" in the script config to disable prefix stripping
+EOF
+}
+
+# ==============================================================================
+# FLAG / ICON HELPERS
+# ==============================================================================
+
 extract_country_code() {
     local name="$1"
     [ -z "$name" ] && return 1
@@ -80,7 +92,6 @@ extract_country_code() {
     return 1
 }
 
-# Convert 2-letter country code to Unicode emoji flag
 country_code_to_flag_emoji() {
     local code="${1^^}"
     [[ ${#code} -ne 2 || ! "$code" =~ ^[A-Z]{2}$ ]] && return 1
@@ -89,17 +100,11 @@ country_code_to_flag_emoji() {
     printf "\\U%08X\\U%08X" $((0x1F1E6 + a - 65)) $((0x1F1E6 + b - 65)) 2>/dev/null
 }
 
-# Get cached flag path, optionally trigger async download if missing
-# Usage: get_cached_flag COUNTRY_CODE [trigger_async=false]
 get_cached_flag() {
     local code="${1,,}" trigger="${2:-false}"
     [ -z "$FLAG_URL_BASE" ] && return 1
-
     local cache_file="$FLAG_CACHE_DIR/${code}.png"
-    if [ -f "$cache_file" ]; then
-        echo "$cache_file"; return 0
-    fi
-
+    if [ -f "$cache_file" ]; then echo "$cache_file"; return 0; fi
     if [ "$trigger" = "true" ] && [ ! -f "${cache_file}.downloading" ]; then
         mkdir -p "$FLAG_CACHE_DIR"
         touch "${cache_file}.downloading"
@@ -116,29 +121,18 @@ get_cached_flag() {
     return 1
 }
 
-# Get best available flag icon for a VPN name.
-# Returns: file path, emoji, or fallback icon name.
-# Usage: get_flag_icon VPN_NAME [is_connected=false] [trigger_download=false]
 get_flag_icon() {
     local vpn_name="$1" is_connected="${2:-false}" trigger_dl="${3:-false}"
     local fallback=$( [ "$is_connected" = "true" ] && echo "$ICON_CONNECTED" || echo "$ICON_DISCONNECTED" )
     local code; code=$(extract_country_code "$vpn_name") || { echo "$fallback"; return; }
-
-    # 1. Local flag dir
     [ -n "$FLAG_DIR" ] && [ -f "$FLAG_DIR/${code,,}.png" ] && { echo "$FLAG_DIR/${code,,}.png"; return; }
-
-    # 2. Cached remote flag (+ optional async download trigger)
     local cached; cached=$(get_cached_flag "$code" "$trigger_dl") && { echo "$cached"; return; }
-
-    # 3. Emoji flag
     if [ "$USE_EMOJI_FLAGS" = "true" ]; then
         local emoji; emoji=$(country_code_to_flag_emoji "$code") && { echo "$emoji"; return; }
     fi
-
     echo "$fallback"
 }
 
-# Pre-fetch missing flags for all VPNs in the background
 prefetch_missing_flags() {
     [ -z "$FLAG_URL_BASE" ] && return
     mkdir -p "$FLAG_CACHE_DIR"
@@ -147,114 +141,324 @@ prefetch_missing_flags() {
     done <<< "$ALL_VPNS"
 }
 
-# Send a dunstify notification.
-# Usage: notify TITLE MESSAGE URGENCY ICON TIMEOUT [VPN_NAME]
+# ==============================================================================
+# NOTIFICATIONS
+# ==============================================================================
+
 notify() {
     command -v dunstify >/dev/null 2>&1 || return 0
     local title="$1" msg="$2" urgency="$3" icon="$4" timeout="$5" vpn="${6:-}"
-
     if [ -n "$vpn" ]; then
         local flag; flag=$(get_flag_icon "$vpn" "false")
-        # Use flag only if it's a file path, not an emoji or icon name
         [[ "$flag" =~ ^/ || "$flag" =~ \.(png|svg|jpg|jpeg)$ ]] && icon="$flag"
     fi
-
     dunstify "$title" "$msg" -r "$NOTIF_ID" -u "$urgency" -i "$icon" -t "$timeout" 2>/dev/null || true
 }
 
-notify_load()    { notify "VPN Manager" "$1" "normal"   "network-vpn-acquiring" 0     "${2:-}"; }
-notify_success() { notify "VPN Manager" "$1" "low"      "security-high"         5000  "${2:-}"; }
-notify_error()   { notify "VPN Error"   "$1" "critical" "dialog-error"          5000  "${2:-}"; command -v dunstify >/dev/null 2>&1 || echo "Error: $1" >&2; }
+notify_load()    { notify "VPN Manager" "$1" "normal"   "network-vpn-acquiring" 0    "${2:-}"; }
+notify_success() { notify "VPN Manager" "$1" "low"      "security-high"         5000 "${2:-}"; }
+notify_error()   { notify "VPN Error"   "$1" "critical" "dialog-error"          5000 "${2:-}"; command -v dunstify >/dev/null 2>&1 || echo "Error: $1" >&2; }
 notify_off()     { notify "VPN Manager" "<span foreground='#FF0000'>$VPN_DISCONNECTED_ICON</span>  VPN Disconnected" "low" "network-vpn-no-route" 3000 "${1:-}"; }
 
 # ==============================================================================
-# LOGIC
+# ROFI HELPERS
 # ==============================================================================
 
-ACTIVE_VPN=$(nmcli -t -f NAME,TYPE connection show --active | grep ":wireguard" | cut -d: -f1 | head -n1)
-ALL_VPNS=$(nmcli -t -f NAME,TYPE connection show | grep ":wireguard" | cut -d: -f1 | sort)
+# Emit one Rofi entry directly to stdout using printf so null bytes survive.
+# NEVER capture this into a variable — $() strips null bytes.
+# Usage: emit_menu_entry VPN_NAME IS_CONNECTED ICON
+emit_menu_entry() {
+    local vpn="$1" connected="$2" icon="$3" status=""
+    [ "$connected" = "true" ] && status=" <span foreground='#00ff00' weight='bold'>$VPN_CONNECTED_ICON</span>"
+    # \0 separates display text from metadata; \x1f separates key from value
+    printf '%s%s\0icon\x1f%s\n' "$vpn" "$status" "$icon"
+}
 
-if [ -z "$ALL_VPNS" ]; then
-    notify_error "No WireGuard configurations found."
-    exit 1
-fi
+# Stream the full VPN list to stdout (for piping directly into rofi).
+# Usage: stream_vpn_list [EXCLUDE_VPN]
+stream_vpn_list() {
+    local exclude="${1:-}"
+    if [ -n "$ACTIVE_VPN" ] && [ "$ACTIVE_VPN" != "$exclude" ]; then
+        emit_menu_entry "$ACTIVE_VPN" "true" "$(get_flag_icon "$ACTIVE_VPN" "true")"
+    fi
+    while IFS= read -r vpn; do
+        [ "$vpn" = "$ACTIVE_VPN" ] && continue
+        [ "$vpn" = "$exclude"    ] && continue
+        emit_menu_entry "$vpn" "false" "$(get_flag_icon "$vpn" "false")"
+    done <<< "$ALL_VPNS"
+}
 
-# Pre-fetch flags in background
+# Build and show a Rofi picker from ALL_VPNS.
+# Usage: rofi_pick_vpn PROMPT MESSAGE [EXCLUDE_VPN]
+# Prints selected VPN name; returns 1 if cancelled.
+rofi_pick_vpn() {
+    local prompt="$1" mesg="$2" exclude="${3:-}"
+
+    # Pipe stream directly into rofi — no variable, no null-byte loss
+    local selected
+    selected=$(stream_vpn_list "$exclude" | rofi -dmenu -i -p "$prompt" -mesg "$mesg" -theme "$ROFI_THEME" -markup-rows)
+    [ -z "$selected" ] && return 1
+
+    # Text is always "VPN_NAME[ <span markup>]" — strip markup, grab first word
+    echo "$selected" | sed 's/<[^>]*>//g; s/[[:space:]]*$//' | awk '{print $1}'
+}
+
+# Validate that a VPN name exists in ALL_VPNS.
+# Usage: require_valid_vpn VPN_NAME
+require_valid_vpn() {
+    local name="$1"
+    if ! echo "$ALL_VPNS" | grep -qx "$name"; then
+        notify_error "VPN '$name' not found."
+        exit 1
+    fi
+}
+
+# Disconnect the active VPN if one is running.
+disconnect_active() {
+    [ -z "$ACTIVE_VPN" ] && return 0
+    notify_load "Disconnecting '$ACTIVE_VPN'..." "$ACTIVE_VPN"
+    nmcli connection down "$ACTIVE_VPN" 2>/dev/null
+    ACTIVE_VPN=""
+}
+
+# ==============================================================================
+# SUBCOMMAND: toggle (default)
+# ==============================================================================
+
+cmd_toggle() {
+    local target="${1:-}"
+
+    if [ -n "$target" ]; then
+        require_valid_vpn "$target"
+    else
+        local status_msg="Status:  Unsecured"
+        [ -n "$ACTIVE_VPN" ] && status_msg="Status:  Connected to $ACTIVE_VPN"
+        target=$(rofi_pick_vpn "VPN " "$status_msg") || exit 0
+    fi
+
+    if [ -n "$ACTIVE_VPN" ] && [ "$target" = "$ACTIVE_VPN" ]; then
+        notify_load "Disconnecting..." "$target"
+        if nmcli connection down "$target"; then
+            notify_off "$target"
+        else
+            notify_error "Failed to disconnect." "$target"
+        fi
+    else
+        notify_load "Securing Connection..." "$target"
+        [ -n "$ACTIVE_VPN" ] && nmcli connection down "$ACTIVE_VPN"
+        local output; output=$(nmcli connection up "$target" 2>&1)
+        if [ $? -eq 0 ] || nmcli -t -f NAME,TYPE connection show --active | grep -q "$target"; then
+            notify_success "<span foreground='#00FF00'>$VPN_CONNECTED_ICON</span> Connected to $target" "$target"
+        else
+            notify_error "Connection Failed: $output" "$target"
+        fi
+    fi
+}
+
+# ==============================================================================
+# SUBCOMMAND: remove
+# ==============================================================================
+
+cmd_remove() {
+    local target="${1:-}"
+
+    if [ -n "$target" ]; then
+        require_valid_vpn "$target"
+    else
+        target=$(rofi_pick_vpn "Remove VPN " "Select a VPN to remove") || exit 0
+    fi
+
+    [ "$target" = "$ACTIVE_VPN" ] && disconnect_active
+
+    notify_load "Removing '$target'..." "$target"
+    local output; output=$(nmcli connection delete "$target" 2>&1)
+    if [ $? -eq 0 ]; then
+        notify_success "Removed: $target" "$target"
+    else
+        notify_error "Failed to remove '$target': $output" "$target"
+    fi
+}
+
+# ==============================================================================
+# SUBCOMMAND: import
+# ==============================================================================
+
+# Derive the alias name for a config: strip configured prefix, drop .conf extension.
+# Usage: derive_alias BASENAME
+# Example: "wg-NL-FREE-124.conf" → "NL-FREE-124"
+derive_alias() {
+    local base="${1%.conf}"
+    [ -n "$IMPORT_STRIP_PREFIX" ] && base="${base#"$IMPORT_STRIP_PREFIX"}"
+    echo "$base"
+}
+
+# Check if a connection name already exists in NetworkManager (any type).
+nm_connection_exists() {
+    nmcli -t -f NAME connection show 2>/dev/null | grep -qx "$1"
+}
+
+# Import a single .conf file.
+# Usage: import_one FILE MODE        MODE: "skip" | "replace"
+# Prints a one-line status; returns 0 on success/skip, 1 on hard error.
+import_one() {
+    local file="$1" mode="$2"
+    local base; base=$(basename "$file")
+    local alias; alias=$(derive_alias "$base")
+
+    if nm_connection_exists "$alias"; then
+        if [ "$mode" = "skip" ]; then
+            echo "  SKIP     $alias  (already exists)"
+            return 0
+        fi
+        # replace: disconnect if this is the active one, then delete
+        [ "$alias" = "$ACTIVE_VPN" ] && disconnect_active
+        nmcli connection delete "$alias" >/dev/null 2>&1
+    fi
+
+    local import_out
+    import_out=$(nmcli connection import type wireguard file "$file" 2>&1)
+    if [ $? -ne 0 ]; then
+        echo "  ERROR    $alias  ← $base: $import_out"
+        return 1
+    fi
+
+    # nmcli prints: Connection 'RAW_NAME' (uuid) successfully added.
+    # Rename to alias and disable autoconnect.
+    local raw_name; raw_name=$(echo "$import_out" | grep -oP "Connection '\K[^']+")
+    local modify_target="${raw_name:-$alias}"
+
+    # nmcli may auto-connect the imported profile immediately — bring it down.
+    nmcli connection down "$modify_target" >/dev/null 2>&1
+
+    # Rename to alias and disable autoconnect.
+    nmcli connection modify "$modify_target" connection.id "$alias" connection.autoconnect no >/dev/null 2>&1
+
+    echo "  IMPORTED $alias  ← $base"
+    return 0
+}
+
+cmd_import() {
+    local mode="skip"
+    local paths=()
+
+    for arg in "$@"; do
+        case "$arg" in
+            --replace) mode="replace" ;;
+            --fresh)   mode="fresh"   ;;
+            -*)        echo "Unknown import option: $arg" >&2; exit 1 ;;
+            *)         paths+=("$arg") ;;
+        esac
+    done
+
+    if [ ${#paths[@]} -eq 0 ]; then
+        echo "Usage: rofi-vpn import <file|dir> [<file|dir>...] [--replace|--fresh]" >&2
+        exit 1
+    fi
+
+    # Collect all .conf files from the given paths (files + directories, sorted)
+    local configs=()
+    for path in "${paths[@]}"; do
+        if [ -f "$path" ]; then
+            [[ "$path" == *.conf ]] \
+                && configs+=("$path") \
+                || echo "WARN: '$path' is not a .conf file, skipping." >&2
+        elif [ -d "$path" ]; then
+            while IFS= read -r -d '' f; do
+                configs+=("$f")
+            done < <(find "$path" -maxdepth 1 -name "*.conf" -print0 | sort -z)
+        else
+            echo "WARN: '$path' not found, skipping." >&2
+        fi
+    done
+
+    if [ ${#configs[@]} -eq 0 ]; then
+        notify_error "No .conf files found in the given paths."
+        exit 1
+    fi
+
+    # --fresh: disconnect and purge all existing WireGuard configs before importing
+    if [ "$mode" = "fresh" ]; then
+        disconnect_active
+        if [ -n "$ALL_VPNS" ]; then
+            notify_load "Purging all existing WireGuard configs..."
+            while IFS= read -r vpn; do
+                nmcli connection delete "$vpn" >/dev/null 2>&1 && echo "  PURGED   $vpn"
+            done <<< "$ALL_VPNS"
+        fi
+        mode="skip"  # after purge nothing remains; treat remaining imports as fresh
+    fi
+
+    local count=${#configs[@]}
+    notify_load "Importing $count config(s)..."
+    echo "Importing $count config(s) [mode: $mode]:"
+
+    local ok=0 skipped=0 errors=0
+    for file in "${configs[@]}"; do
+        local line; line=$(import_one "$file" "$mode")
+        echo "$line"
+        case "$line" in
+            *SKIP*)     (( skipped++ )) ;;
+            *IMPORTED*) (( ok++ ))      ;;
+            *ERROR*)    (( errors++ ))  ;;
+        esac
+    done
+
+    local summary="Imported: $ok  Skipped: $skipped  Errors: $errors"
+    echo "$summary"
+    if [ "$errors" -gt 0 ]; then
+        notify_error "Import finished with errors. $summary"
+    else
+        notify_success "$summary"
+    fi
+}
+
+# ==============================================================================
+# SUBCOMMAND DISPATCH TABLE
+# To add a new subcommand: write cmd_yourname(), register it here.
+# ==============================================================================
+
+declare -A SUBCOMMANDS=(
+    [remove]=cmd_remove
+    [import]=cmd_import
+)
+
+# ==============================================================================
+# INIT: collect VPN state
+# (import may run before any VPNs exist, so we don't exit on empty ALL_VPNS here)
+# ==============================================================================
+
+ACTIVE_VPN=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | awk -F: '$2=="wireguard"{print $1; exit}')
+ALL_VPNS=$(nmcli -t -f NAME,TYPE connection show 2>/dev/null | awk -F: '$2=="wireguard"{print $1}' | sort)
+
 [ -n "$FLAG_URL_BASE" ] && mkdir -p "$FLAG_CACHE_DIR"
 (prefetch_missing_flags >/dev/null 2>&1) &
 
-# Determine mode: direct connection or Rofi menu
-if [ -n "$DIRECT_CONNECTION" ]; then
-    if ! echo "$ALL_VPNS" | grep -q "^${DIRECT_CONNECTION}$"; then
-        notify_error "VPN connection '$DIRECT_CONNECTION' not found."
+# ==============================================================================
+# ARGUMENT PARSING & DISPATCH
+# ==============================================================================
+
+# Handle global flags before any subcommand
+case "${1:-}" in
+    -h|--help)    show_help; exit 0 ;;
+    -v|--version) echo "rofi-vpn version $VERSION"; exit 0 ;;
+esac
+
+SUBCOMMAND="${1:-}"
+
+if [ -n "$SUBCOMMAND" ] && [ -n "${SUBCOMMANDS[$SUBCOMMAND]+_}" ]; then
+    shift
+    # Non-import subcommands require at least one VPN to exist
+    if [ "$SUBCOMMAND" != "import" ] && [ -z "$ALL_VPNS" ]; then
+        notify_error "No WireGuard configurations found."
         exit 1
     fi
-    TARGET="$DIRECT_CONNECTION"
+    "${SUBCOMMANDS[$SUBCOMMAND]}" "$@"
 else
-    # Build Rofi menu
-    build_menu_entry() {
-        local vpn="$1" connected="$2" icon="$3"
-        local status
-        if [ "$connected" = "true" ]; then
-            status="<span foreground='#00ff00' size='large' weight='bold'>$VPN_CONNECTED_ICON</span>"
-        else
-            status="" #dont use anything if not connected
-            # status="$VPN_DISCONNECTED_ICON"
-        fi
-        local text="$vpn $status"
-        if [[ "$icon" =~ ^/ || "$icon" =~ \.(png|svg|jpg|jpeg)$ ]]; then
-            echo "$text\0icon\x1f$icon"
-        elif [[ "$icon" != "$ICON_CONNECTED" && "$icon" != "$ICON_DISCONNECTED" ]]; then
-            echo "$icon $text\0icon\x1f$icon"
-        else
-            echo "$text\0icon\x1f$icon"
-        fi
-    }
-
-    ROFI_LIST=""
-    [ -n "$ACTIVE_VPN" ] && ROFI_LIST+="$(build_menu_entry "$ACTIVE_VPN" "true" "$(get_flag_icon "$ACTIVE_VPN" "true")")\n"
-    while IFS= read -r vpn; do
-        [ "$vpn" = "$ACTIVE_VPN" ] && continue
-        ROFI_LIST+="$(build_menu_entry "$vpn" "false" "$(get_flag_icon "$vpn" "false")")\n"
-    done <<< "$ALL_VPNS"
-
-    local status_msg="Status:  Unsecured"
-    [ -n "$ACTIVE_VPN" ] && status_msg="Status:  Connected to $ACTIVE_VPN"
-
-    SELECTED=$(echo -en "$ROFI_LIST" | rofi -dmenu -i -p "VPN " -mesg "$status_msg" -theme "$ROFI_THEME" -markup-rows)
-    [ -z "$SELECTED" ] && exit 0
-
-    # Strip Pango markup, emojis, icons, leading non-alphanumeric chars, and trailing status indicator
-    # First remove markup, then remove the connected icon, then clean up whitespace and extract the VPN name
-    TARGET=$(echo "$SELECTED" | sed 's/<[^>]*>//g' | sed 's/'"$VPN_CONNECTED_ICON"'//g' | sed 's/^[^[:alnum:]]*//; s/[[:space:]]*$//' | awk '{print $1}')
-fi
-
-# Determine action
-if [ -n "$ACTIVE_VPN" ] && [ "$TARGET" = "$ACTIVE_VPN" ]; then
-    ACTION="disconnect"
-else
-    ACTION="connect"
-fi
-
-# ==============================================================================
-# ACTION HANDLER
-# ==============================================================================
-
-if [ "$ACTION" = "disconnect" ]; then
-    notify_load "Disconnecting..." "$TARGET"
-    if nmcli connection down "$TARGET"; then
-        notify_off "$TARGET"
-    else
-        notify_error "Failed to disconnect." "$TARGET"
+    # Default: toggle. Reject unknown flags.
+    [[ "${SUBCOMMAND:-}" == -* ]] && { echo "Unknown option: $SUBCOMMAND" >&2; echo "Use --help for usage." >&2; exit 1; }
+    if [ -z "$ALL_VPNS" ]; then
+        notify_error "No WireGuard configurations found."
+        exit 1
     fi
-
-elif [ "$ACTION" = "connect" ]; then
-    notify_load "Securing Connection..." "$TARGET"
-    [ -n "$ACTIVE_VPN" ] && nmcli connection down "$ACTIVE_VPN"
-    OUTPUT=$(nmcli connection up "$TARGET" 2>&1)
-    if [ $? -eq 0 ] || nmcli -t -f NAME,TYPE connection show --active | grep -q "$TARGET"; then
-        notify_success "<span foreground='#00FF00'>$VPN_CONNECTED_ICON</span> Connected to $TARGET" "$TARGET"
-    else
-        notify_error "Connection Failed: $OUTPUT" "$TARGET"
-    fi
+    cmd_toggle "${SUBCOMMAND:-}"
 fi

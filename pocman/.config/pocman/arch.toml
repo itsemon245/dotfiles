@@ -10,6 +10,7 @@
 
 # CLI packages
 [cli:pacman]
+ripgrep
 unzip
 bind
 go
@@ -35,6 +36,10 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+innoextract
+perl-image-exiftool
+dosfstools
+wimlib
 fuse2
 firefox
 aria2
@@ -42,7 +47,6 @@ waydroid
 chromium
 gnome-terminal
 cloudflared
-epiphany
 lib32-gamemode
 ncdu
 yad
@@ -60,7 +64,6 @@ gnome-system-monitor
 gnome-tweaks
 gnome-control-center
 sddm
-gnome-sound-recorder
 fastfetch
 adw-gtk-theme
 libnotify
@@ -106,18 +109,15 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
-handy
+sddm-silent-theme
+handy-bin
 woeusb-ng
 networkmanager-dmenu-git
-protonplus
 vencord-installer-bin
 localsend
-sddm-silent-theme
 wleave-git
-audio-recorder
 wallust
 realesrgan-ncnn-vulkan-bin
-upscaler
 ironbar-bin
 xdman-beta-bin
 cloudflare-warp-bin
@@ -132,6 +132,7 @@ openrgb-bin
 
 # Gaming packages
 [gaming:pacman]
+wine-mono
 nvidia-container-toolkit
 gamemode
 vulkan-tools
@@ -144,12 +145,11 @@ lib32-vulkan-icd-loader
 lutris
 steam
 winetricks
-wine-mono
 wine-staging
 
 [gaming:yay]
-protonup-qt
 heroic-games-launcher-bin
+protonup-qt
 
 [gaming:paru]
 

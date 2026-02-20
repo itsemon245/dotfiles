@@ -1,4 +1,9 @@
 [desktop]
+innoextract
+perl-image-exiftool
+dosfstools
+wimlib
+handy-bin
 handy
 woeusb-ng
 fuse2
