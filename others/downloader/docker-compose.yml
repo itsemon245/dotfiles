@@ -15,11 +15,9 @@ services:
             - WIREGUARD_ENDPOINT_PORT=${WIREGUARD_ENDPOINT_PORT}
             - WIREGUARD_PUBLIC_KEY=${WIREGUARD_PUBLIC_KEY}
             - DOT=off
-            - DNS_ADDRESS=1.1.1.1
+            - DNS_ADDRESS=${DNS_ADDRESS:-10.2.0.1}
         ports:
             - ${QB_PORT:-2080}:8080
-            - ${JD_PORT:-2580}:5800
-            - ${JD_CNL_PORT:-2666}:9666
             - 6881:6881
             - 6881:6881/udp
         restart: always
@@ -40,9 +38,3 @@ services:
             gluetun:
                 condition: service_healthy
         restart: always
-        healthcheck:
-            test: ["CMD", "curl", "-f", "https://google.com"]
-            interval: 1m
-            timeout: 10s
-            retries: 3
-            start_period: 30s
