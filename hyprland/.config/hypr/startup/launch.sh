@@ -3,8 +3,8 @@
 # -----------------------------------------------------
 # System Services (Standard Launch)
 # -----------------------------------------------------
-swww-daemon &
-swww img ~/Wallpapers/default.png &
+awww-daemon &
+awww img ~/Wallpapers/default.png &
 nm-applet --indicator &
 ibus exit || true
 ibus-daemon -d --replace &

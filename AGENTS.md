@@ -154,7 +154,7 @@ The repository uses `pocman` (`pocman/bin/pocman`) to manage system packages via
 
 *   `[cli:pacman]` - Core tools (git, stow, neovim).
 *   `[desktop:pacman]` - GUI apps (hyprland, waybar, kitty).
-*   `[desktop:yay]` - AUR packages (realesrgan-ncnn-vulkan-bin, wallust, swww).
+*   `[desktop:yay]` - AUR packages (realesrgan-ncnn-vulkan-bin, wallust, awww).
 
 ## Integration Workflows
 

@@ -1,4 +1,16 @@
 [desktop]
+libwebp
+ydotool
+gtk4-layer-shell
+hyprwhspr
+claude-code
+vlc-plugin-ffmpeg
+vlc
+stripe-cli
+just
+gnome-boxes
+bridge-utils
+virt-manager
 innoextract
 perl-image-exiftool
 dosfstools

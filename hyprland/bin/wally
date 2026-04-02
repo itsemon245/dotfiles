@@ -12,7 +12,7 @@ OPENRGB_SCRIPT="$HOME/.config/OpenRGB/scripts/wallust-colors.sh"
 #SDDM theme directory
 SDDM_THEME_DIR="/usr/share/sddm/themes/silent"
 
-# The specific file Hyprland/swww should always look at
+# The specific file Hyprland/awww should always look at
 DEFAULT_WALLPAPER="$WALLPAPER_DIR/default.png"
 
 # Directory to cache upscaled images
@@ -35,7 +35,7 @@ TRANSITION_FPS=60
 TRANSITION_DURATION=2
 
 # Dependencies
-DEPENDENCIES=("rofi" "swww" "identify" "convert" "$UPSCALER_BIN" "dunstify" "wallust")
+DEPENDENCIES=("rofi" "awww" "identify" "convert" "$UPSCALER_BIN" "dunstify" "wallust")
 
 # Fixed Notification ID
 NOTIF_ID=991011
@@ -111,7 +111,7 @@ update_system_theme() {
 FINAL_TRANSITION_FLAGS=""
 
 apply_wallpaper() {
-    swww img "$DEFAULT_WALLPAPER" $FINAL_TRANSITION_FLAGS
+    awww img "$DEFAULT_WALLPAPER" $FINAL_TRANSITION_FLAGS
     update_system_theme "$DEFAULT_WALLPAPER"
 
     #OpenRGB colors
@@ -139,7 +139,7 @@ build_rofi_list() {
 
 show_rofi_menu() {
     local rofi_list="$1"
-    
+
     if [ "$rofi_list" == " Random\0icon\x1fmedia-playlist-shuffle" ]; then
         dunstify "   Wally Error" "No images found in $WALLPAPER_DIR" -u critical
         exit 1
@@ -150,7 +150,7 @@ show_rofi_menu() {
 
 handle_rofi_selection() {
     local selected="$1"
-    
+
     [ -z "$selected" ] && exit 0
 
     if [ "$selected" == " Random" ]; then

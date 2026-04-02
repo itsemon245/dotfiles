@@ -36,6 +36,13 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+libwebp
+ydotool
+gtk4-layer-shell
+vlc-plugin-ffmpeg
+vlc
+just
+gnome-boxes
 innoextract
 perl-image-exiftool
 dosfstools
@@ -109,6 +116,9 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+hyprwhspr
+claude-code
+stripe-cli
 sddm-silent-theme
 handy-bin
 woeusb-ng
@@ -132,8 +142,8 @@ openrgb-bin
 
 # Gaming packages
 [gaming:pacman]
-wine-mono
 nvidia-container-toolkit
+wine-mono
 gamemode
 vulkan-tools
 goverlay
@@ -169,4 +179,4 @@ ttf-liberation
 ttf-dejavu
 
 [ml:yay]
-lmstudio
+lmstudio-bin

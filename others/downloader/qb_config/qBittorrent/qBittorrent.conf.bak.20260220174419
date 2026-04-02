@@ -17,6 +17,9 @@ Session\AddTorrentStopped=false
 Session\DefaultSavePath=/downloads/
 Session\DisableAutoTMMByDefault=false
 Session\ExcludedFileNames=*-arabic*, *-brazilian*, *-chinese*, *-czech*, *-french*, *-german*, *-hungarian*, *-italian*, *-japanese*, *-korean*, *-mexican*, *-polish*, *-portuguese*, *-russian*, *-spanish*, *-taiwan*, *-turkish*, *-oriental-languages*, *-european-languages*, *-credits*, *-4k-videos*, *-ultra-hd*, *-high-res*, *-videos-original*, *-multiplayer*
+Session\Interface=NL-FREE-226
+Session\InterfaceAddress=0.0.0.0
+Session\InterfaceName=NL-FREE-226
 Session\Port=6881
 Session\QueueingSystemEnabled=true
 Session\SSL\Port=19823
@@ -39,9 +42,9 @@ MigrationVersion=8
 Cookies=@Invalid()
 PortForwardingEnabled=false
 Proxy\HostnameLookupEnabled=false
-Proxy\Profiles\BitTorrent=false
-Proxy\Profiles\Misc=false
-Proxy\Profiles\RSS=false
+Proxy\Profiles\BitTorrent=true
+Proxy\Profiles\Misc=true
+Proxy\Profiles\RSS=true
 
 [Preferences]
 Connection\PortRangeMin=6881
