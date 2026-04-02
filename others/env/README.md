@@ -10,7 +10,7 @@ It is optimized for Laravel + Vite workflows.
 - One shared PHP image (no per-project Dockerfiles)
 - Works with `pnpm run dev` and Vite watchers
 - No host PHP version management
-- Clean access to Dockerized MySQL/Redis
+- Clean access to Dockerized MySQL/Redis/Postgres
 - Explicit escape hatch for system PHP
 
 ---
@@ -22,6 +22,27 @@ It is optimized for Laravel + Vite workflows.
 | `php` | Dockerized PHP (version configurable) |
 | `composer` | Dockerized Composer |
 | `sysphp` | Host PHP (bypass Docker) |
+
+---
+
+## Networking
+
+The PHP and Composer wrappers use `--network host` by default. This means the container shares the host's network stack directly — no bridge DNS, no port mapping needed. Your Laravel `.env` should use `localhost` for service hosts:
+
+```env
+DB_HOST=localhost
+REDIS_HOST=localhost
+```
+
+This works because the Docker Compose services (Postgres, Redis, MySQL, etc.) expose their ports to the host.
+
+> **Why not bridge networking?** Bridge networks rely on Docker's internal DNS and iptables NAT rules, which can break when other containers manipulate iptables (e.g., VPN containers like Gluetun). Host networking avoids this entirely and is simpler for a portable PHP setup where the goal is just to run PHP in a container, not to isolate it.
+
+To override the network (e.g., for testing bridge mode), set `PHP_NETWORK`:
+
+```bash
+PHP_NETWORK=env_system php artisan serve
+```
 
 ---
 
@@ -46,8 +67,6 @@ Create a `.env` file in this directory to configure:
 - Database credentials (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `MYSQL_ROOT_PASSWORD`, etc.)
 - Port mappings (`REDIS_PORT`, `POSTGRES_PORT`, `MYSQL_PORT`, etc.)
 - Service-specific settings (PgAdmin email/password, upload limits, etc.)
-
-All services use the `env_system` network for DNS resolution.
 
 ---
 
@@ -111,21 +130,21 @@ PHPV=8.4 && docker build --build-arg PHP_VERSION=$PHPV -t my/php:$PHPV-dev ~/dot
 ```bash
 composer install
 php artisan migrate
-php artisan serve --host=0.0.0.0 --port=8000
+php artisan serve
 ```
 
-Ports `8000–8009` are pre-mapped.
+With host networking, ports are shared directly — no mapping needed.
 
 ---
 
 ## Database config (.env)
 
 ```env
-DB_HOST=mysql
+DB_HOST=localhost
 DB_PORT=3306
 ```
 
-Services are resolved via Docker DNS on the `env_system` network.
+With host networking, use `localhost` — services are reached via their host-mapped ports.
 
 ---
 

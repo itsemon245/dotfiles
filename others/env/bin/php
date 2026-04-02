@@ -8,14 +8,9 @@ PHP_VERSION="${PHP_VERSION:-8.4}"
 IMAGE="${PHP_IMAGE:-my/php:${PHP_VERSION}-dev}"
 PORT_RANGE="${PHP_PORT_RANGE:-8000-8007}"
 
-# Prefer the user's env var, else prefer env_system if present, else bridge
-if [[ -n "${PHP_NETWORK:-}" ]]; then
-  NETWORK="$PHP_NETWORK"
-elif docker network inspect env_system >/dev/null 2>&1; then
-  NETWORK="env_system"
-else
-  NETWORK="bridge"
-fi
+# Prefer the user's env var, else default to host networking
+# (host networking shares the host's network stack — no bridge DNS issues)
+NETWORK="${PHP_NETWORK:-host}"
 
 CACHE_DIR_HOST="${XDG_CACHE_HOME:-$HOME/.cache}/composer"
 mkdir -p "$CACHE_DIR_HOST"
@@ -75,9 +70,6 @@ DOCKER_ARGS=(
   --rm
   -u "$(id -u)":"$(id -g)"
   --network "$NETWORK"
-  --dns 8.8.8.8
-  --dns 1.1.1.1
-  --add-host=host.docker.internal:host-gateway
   -v "$PWD":/app -w /app
   -v "$CACHE_DIR_HOST":/tmp/composer-cache
   -v "$CONFIG_DIR_HOST":/tmp/.config
@@ -86,6 +78,15 @@ DOCKER_ARGS=(
   -e XDG_CONFIG_HOME=/tmp/.config
 )
 
+# Only add bridge-specific flags when not using host networking
+if [[ "$NETWORK" != "host" ]]; then
+  DOCKER_ARGS+=(
+    --dns 8.8.8.8
+    --dns 1.1.1.1
+    --add-host=host.docker.internal:host-gateway
+  )
+fi
+
 # Check if TTY is available (for git hooks and non-interactive contexts)
 # Only add TTY flags when a TTY is actually available
 # For git hooks and non-interactive contexts, don't use any TTY flags
@@ -93,8 +94,8 @@ if [ -t 0 ] && [ -t 1 ]; then
   DOCKER_ARGS+=(-it)
 fi
 
-# Only add port mapping for server commands
-if [[ "$NEEDS_PORTS" == "true" ]]; then
+# Only add port mapping for server commands (not needed with host networking)
+if [[ "$NEEDS_PORTS" == "true" && "$NETWORK" != "host" ]]; then
   # Default to configured range; allow overriding via PHP_PORT_RANGE
   PORT_SPEC="${PORT_RANGE:-8000-8007}"
 
