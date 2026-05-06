@@ -36,6 +36,22 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+nss-mdns
+avahi
+android-tools
+scrcpy
+tailscale
+android-file-transfer
+wtype
+obsidian
+libmtp
+gvfs-gphoto2
+gvfs-mtp
+gparted
+virt-manager
+hidapi
+python-click
+python-pillow
 libwebp
 ydotool
 gtk4-layer-shell
@@ -77,7 +93,6 @@ libnotify
 gnome-software
 ffmpeg
 gvfs-smb
-gvfs-mtp
 gvfs
 polkit-gnome
 exfatprogs
@@ -142,6 +157,7 @@ openrgb-bin
 
 # Gaming packages
 [gaming:pacman]
+discord
 nvidia-container-toolkit
 wine-mono
 gamemode
@@ -149,7 +165,6 @@ vulkan-tools
 goverlay
 obs-studio
 vulkan-icd-loader
-discord
 mangohud
 lib32-vulkan-icd-loader
 lutris

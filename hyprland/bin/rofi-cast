@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+
+# ╔══════════════════════════════════════════════════╗
+# ║  rofi-cast - Android Screen Cast via scrcpy      ║
+# ╚══════════════════════════════════════════════════╝
+#
+# Auto-detects ADB wireless debugging port via avahi mDNS,
+# connects, and launches scrcpy with user-selected flags.
+
+# ── Configuration ──────────────────────────────────
+PHONE_IP="192.168.0.222"
+PHONE_NAME="Pocophone F1"
+ROFI_THEME="$HOME/.config/rofi/applets/type-1/style-1.rasi"
+NOTIF_ID=992033
+
+# ── Performance Defaults ───────────────────────────
+# Applied to all modes. Edit these to tune for your WiFi.
+PERF_FLAGS="--video-bit-rate=6M --max-fps=30 --video-buffer=150 --video-codec=h265 --max-size=1600 --shortcut-mod=lctrl"
+
+# ── Cast Modes ─────────────────────────────────────
+# Format: "Label|extra scrcpy flags"
+# PERF_FLAGS are always prepended. Edit/extend as needed.
+MODES=(
+    "Cast|--no-audio"
+    "Cast + PC Audio|--audio-buffer=200 --audio-bit-rate=256K"
+    "Cast + Screen Off|--no-audio --stay-awake --turn-screen-off"
+    "Cast + Screen Off + PC Audio|--stay-awake --turn-screen-off --audio-buffer=200 --audio-bit-rate=256K"
+)
+
+# ── Helpers ────────────────────────────────────────
+
+notify() {
+    notify-send -r "$NOTIF_ID" "scrcpy" "$1" ${2:+--urgency="$2"}
+}
+
+die() {
+    notify "$1" critical
+    exit 1
+}
+
+# ── ADB Connection ─────────────────────────────────
+
+detect_port() {
+    # avahi-browse outputs lines like:
+    #   = wlan0 IPv4 adb-1a332f67-P1AaG0 _adb-tls-connect._tcp local
+    #     hostname = [...]
+    #     address = [192.168.0.222]
+    #     port = [43567]
+    #     txt = [...]
+    # We filter for our phone's IP and grab the port.
+    timeout 5 avahi-browse -rpt _adb-tls-connect._tcp 2>/dev/null \
+        | awk -F';' -v ip="$PHONE_IP" '$0 ~ /^=/ && $8 == ip { print $9; exit }'
+}
+
+adb_connect() {
+    local port="$1"
+
+    # Kill any existing server to clear stale/offline connections
+    adb kill-server 2>/dev/null
+    sleep 0.3
+
+    # Disconnect any lingering connections to this phone
+    adb disconnect "$PHONE_IP" 2>/dev/null
+
+    local result
+    result=$(adb connect "$PHONE_IP:$port" 2>&1)
+
+    # adb connect always exits 0 — check the output string
+    if ! echo "$result" | grep -q "connected to"; then
+        return 1
+    fi
+
+    # Verify device shows up and is not offline
+    local state
+    state=$(adb -s "$PHONE_IP:$port" get-state 2>&1)
+    [[ "$state" == "device" ]]
+}
+
+ensure_connection() {
+    notify "Detecting ADB port..."
+
+    local port
+    port=$(detect_port)
+
+    if [[ -z "$port" ]]; then
+        # Fallback: ask via rofi
+        port=$(echo "" | rofi -dmenu -p "ADB port (check phone):" -theme "$ROFI_THEME")
+        [[ -z "$port" ]] && exit 0
+    fi
+
+    notify "Connecting to $PHONE_IP:$port..."
+
+    if ! adb_connect "$port"; then
+        # One retry: sometimes the first attempt after kill-server needs a moment
+        sleep 1
+        adb_connect "$port" || die "ADB connect failed ($PHONE_IP:$port)"
+    fi
+
+    echo "$port"
+}
+
+# ── Rofi Menu ──────────────────────────────────────
+
+build_menu() {
+    for entry in "${MODES[@]}"; do
+        echo "${entry%%|*}"
+    done
+}
+
+get_flags() {
+    local chosen="$1"
+    for entry in "${MODES[@]}"; do
+        if [[ "${entry%%|*}" == "$chosen" ]]; then
+            echo "${entry#*|}"
+            return
+        fi
+    done
+}
+
+# ── Cleanup ────────────────────────────────────────
+
+cleanup() {
+    adb disconnect "$PHONE_IP" 2>/dev/null
+    notify "Cast ended."
+}
+
+trap cleanup EXIT INT TERM HUP
+
+# ── Main ───────────────────────────────────────────
+
+chosen=$(build_menu | rofi \
+    -theme "$ROFI_THEME" \
+    -theme-str 'textbox-prompt-colon {str: "󰄀";}' \
+    -dmenu \
+    -p "Cast" \
+    -mesg "$PHONE_NAME · $PHONE_IP" \
+    -selected-row 0)
+
+[[ -z "$chosen" ]] && exit 0
+
+flags=$(get_flags "$chosen")
+port=$(ensure_connection) || exit 1
+
+notify "Casting $PHONE_NAME..."
+# shellcheck disable=SC2086
+scrcpy --window-title "$PHONE_NAME" $PERF_FLAGS $flags
