@@ -87,11 +87,13 @@ if [[ "$NETWORK" != "host" ]]; then
   )
 fi
 
-# Check if TTY is available (for git hooks and non-interactive contexts)
-# Only add TTY flags when a TTY is actually available
-# For git hooks and non-interactive contexts, don't use any TTY flags
+# Always use -i (interactive) so stdin is forwarded to the container
+# (needed for MCP stdio transport and piped input).
+# Only add -t (tty) when a real TTY is available on both stdin and stdout.
 if [ -t 0 ] && [ -t 1 ]; then
   DOCKER_ARGS+=(-it)
+else
+  DOCKER_ARGS+=(-i)
 fi
 
 # Only add port mapping for server commands (not needed with host networking)

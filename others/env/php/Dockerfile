@@ -3,9 +3,12 @@ ARG PHP_VERSION=8.4
 
 FROM php:${PHP_VERSION}-cli
 
+# uv is provided as static binaries by Astral's official image.
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+
 # System deps + build deps for common PHP extensions
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git unzip zip curl ca-certificates \
+    git unzip zip curl ca-certificates python3 python3-venv \
     libzip-dev \
     libicu-dev \
     libpng-dev libjpeg-dev libfreetype6-dev \
@@ -92,4 +95,3 @@ RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     REDIS_CLIENT=phpredis
 WORKDIR /app
-
