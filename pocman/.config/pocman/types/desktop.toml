@@ -1,4 +1,7 @@
 [desktop]
+openscq30-gui-bin
+openscq30-cli-bin
+smartmontools
 nss-mdns
 avahi
 android-tools

@@ -41,7 +41,6 @@ avahi
 android-tools
 scrcpy
 tailscale
-android-file-transfer
 wtype
 obsidian
 libmtp
@@ -135,7 +134,6 @@ hyprwhspr
 claude-code
 stripe-cli
 sddm-silent-theme
-handy-bin
 woeusb-ng
 networkmanager-dmenu-git
 vencord-installer-bin
@@ -194,4 +192,3 @@ ttf-liberation
 ttf-dejavu
 
 [ml:yay]
-lmstudio-bin
