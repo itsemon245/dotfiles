@@ -24,14 +24,20 @@
 | 0.3 | Add a `scripts/check-dotfiles` or `just check` command for shell syntax, stow dry-run, and basic path checks. | Low | Run the command locally and confirm failures are actionable. |
 | 0.4 | Document known generated files and runtime artifacts before changing ignore rules. | Low | Compare against `.gitignore` and `git ls-files`. |
 
-## Phase 1: Make Stow Non-Destructive
+## Phase 1: Immediate Bug Fixes and Make Stow Non-Destructive
 
 | Step | Change | Risk | Validation |
 | --- | --- | --- | --- |
 | 1.1 | Replace conflict deletion in `stow.sh` with timestamped backup to `~/.local/state/dotfiles/backups/<timestamp>/`. | High | Create a fake conflict in a temp HOME and confirm it is backed up, not deleted. |
 | 1.2 | Add `--dry-run`, `--packages`, `--except`, and `--adopt` flags to `stow.sh`. | Medium | Run `./stow.sh --dry-run --packages zsh,tmux`; confirm only those packages are checked. |
 | 1.3 | Stop hardcoding `cd ~/dotfiles`; resolve the repo root from the script path. | Medium | Run `stow.sh` from outside the repo and confirm package discovery still works. |
-| 1.4 | Make `.installignore` comments explicit and add non-stow internal dirs such as `.agents`, `.claude`, `.codex` if they should not be linked into `$HOME`. | Medium | Dry-run stow and confirm internal plan/agent folders are skipped. |
+| 1.4 | Add `.claude` to `.installignore` so stow does not link internal dirs into `$HOME`. | Medium | Dry-run stow and confirm `.claude` is skipped. |
+| 1.5 | Fix `zsh/zsh_utils/helpers.sh`: remove invalid `local` declarations at file scope (lines 2-7). | Low | Start a new zsh session and confirm no warnings from helpers.sh. |
+| 1.6 | Fix `vim/.vimrc`: close the dangling `if has('nvim')` block at line 31 (missing `endif` before line 37). | Low | Open vim and confirm no syntax errors on startup. |
+| 1.7 | Fix `mac_setup.sh` line 41: `source update.sh` references a nonexistent file — replace with `source stow.sh`. | Low | Run `bash -n mac_setup.sh` and confirm it parses without error. |
+| 1.8 | Fix `exports.sh`: remove duplicate PATH `/opt/nvim-linux64/bin` (line 13, keep line 8), remove duplicate `QT_IM_MODULE=ibus` (line 22, keep line 7), fix typo `$/usr/local/bin` → `/usr/local/bin` (line 3). | Low | Start a new shell and confirm PATH is clean, no duplicate entries. |
+| 1.9 | Remove hardcoded `$HOME/.nvm/versions/node/v20.11.1/bin` from exports.sh (line 21) — NVM already manages the active version's PATH. | Low | Confirm `node` still resolves after NVM loads. |
+| 1.10 | Remove duplicate NVM loading — keep in `exports.sh` only (lines 17-19), remove from `.zshrc` (lines 19-21). | Low | Confirm NVM loads once, `nvm` command works. |
 
 ## Phase 2: Fix `pocman` Correctness and Reduce Mutation
 
@@ -52,6 +58,7 @@
 | 3.3 | Make `server` install only portable packages: shell, tmux, nvim, git, basic CLI tools, and selected scripts. | Medium | Dry-run on current machine with `--profile server`; confirm no Hyprland, SDDM, Waybar, Rofi, Qt, or gaming packages. |
 | 3.4 | Make `workstation` the only profile that runs desktop hooks such as SDDM, Hyprland, fonts, and wallpaper tooling. | High | Dry-run `--profile workstation`; confirm hooks are listed but not run unless selected. |
 | 3.5 | Add an explicit `--yes` flag for non-interactive installs. | Medium | Confirm unattended install exits if confirmation would be required and `--yes` is absent. |
+| 3.6 | Add a `bootstrap-server.sh` one-liner for headless servers: `curl -sL <url> \| bash` clones repo (shallow) and runs `./install.sh --profile server`. | Low | Test on a clean container to confirm zsh+git+nvim+tmux are configured. |
 
 ## Phase 4: Split Desktop Packages by Ownership
 
@@ -67,12 +74,15 @@
 
 | Step | Change | Risk | Validation |
 | --- | --- | --- | --- |
-| 5.1 | Replace duplicated PATH exports with `path_prepend` and `path_append` helpers. | Medium | Start a new zsh and confirm no duplicate PATH entries or missing tool paths. |
+| 5.1 | Replace duplicated PATH exports with `path_prepend` and `path_append` helpers; use `typeset -U path` for deduplication. | Medium | Start a new zsh and confirm no duplicate PATH entries or missing tool paths. |
 | 5.2 | Remove host-specific `/Users/emon` and `/home/emon` paths from `.zshrc`; gate optional paths by directory existence. | Low | Run zsh on Linux and macOS-style path checks without errors. |
 | 5.3 | Load NVM in one place only and make it optional. | Medium | Confirm shell startup works with and without `~/.nvm`. |
 | 5.4 | Replace `zsh-setup.sh` repeated git clones with idempotent clone-or-update logic. | Medium | Run twice and confirm no failures if plugins already exist. |
 | 5.5 | Stop starting a new `ssh-agent` on every shell startup; reuse an existing agent or make it opt-in. | Medium | Open multiple shells and confirm agent count does not grow. |
 | 5.6 | Remove runtime `chmod -R` from `.zshrc`; store executable bits in git instead. | Low | Confirm aliases and sourced files still load. |
+| 5.7 | Guard all `source` calls in `.zshrc` with existence checks (`[[ -f ... ]] && source ...`). | Medium | Start zsh with a missing plugin dir and confirm no errors. |
+| 5.8 | DRY the PHP/Composer Docker wrappers in `others/env/bin/` — extract shared Docker setup into `_docker-php-common.sh`. | Low | Run `php -v` and `composer --version` via the wrappers and confirm identical behavior. |
+| 5.9 | Standardize shebangs to `#!/usr/bin/env bash` for portability (exception: curl-piped scripts keep `#!/bin/bash`). | Low | Run `shellcheck` or `bash -n` on all scripts after the change. |
 
 ## Phase 6: Decouple `wally` and Desktop Runtime Hooks
 
@@ -101,9 +111,11 @@
 | --- | --- | --- | --- |
 | 8.1 | Remove or ignore tracked runtime artifacts: qBittorrent state, backups, shell history, OpenRGB logs, and local `.env` files. | Medium | Confirm examples remain, secrets/state are untracked, and app configs still have templates. |
 | 8.2 | Remove the large game archive from the repo and add archive patterns to `.gitignore`. | Medium | Confirm repository size decreases after history cleanup if that is chosen. |
-| 8.3 | Replace vendored `zsh/.oh-my-zsh` with bootstrap-managed install or git submodules. | High | Fresh install must still produce a working Zsh setup offline expectations should be documented. |
+| 8.3 | Replace vendored `zsh/.oh-my-zsh` with bootstrap-managed install or git submodules. | High | Fresh install must still produce a working Zsh setup; offline expectations should be documented. |
 | 8.4 | Decide whether fonts are repo assets or package-managed dependencies; avoid doing both for the same font family. | Medium | Confirm fontconfig and Waybar/Kitty font names resolve after install. |
 | 8.5 | Ensure generated Wallust outputs are ignored consistently and only templates are tracked. | Low | Run `wallust run` and confirm generated color files do not appear in `git status`. |
+| 8.6 | Remove nested `.git` directories from vendored zsh plugins (`zsh-autosuggestions/.git`, `zsh-syntax-highlighting/.git`). | Low | Confirm plugins still load correctly without their `.git` dirs. |
+| 8.7 | Consider replacing oh-my-zsh entirely with direct plugin loading (~10 lines vs 15MB framework). | High | Full `.zshrc` rewrite; only attempt after all other shell changes are stable. Requires custom PROMPT or starship. |
 
 ## Phase 9: Validation and Documentation
 
@@ -117,19 +129,24 @@
 
 ## Recommended Iteration Order
 
-1. Phase 1 first, because non-destructive stow protects user data.
-2. Phase 2 next, because package installation correctness affects every later phase.
-3. Phase 3 before package splitting, so profiles define the desired boundaries.
-4. Phase 4 in small commits: one stow package split at a time.
-5. Phase 5 and Phase 6 can proceed independently after profiles exist.
-6. Phase 8 should be done carefully, especially if removing tracked large files or vendored Oh My Zsh.
+1. Phase 0 first, to establish a baseline before any changes.
+2. Phase 1 next, because non-destructive stow and bug fixes protect user data and establish correctness.
+3. Phase 2 next, because package installation correctness affects every later phase.
+4. Phase 3 before package splitting, so profiles define the desired boundaries.
+5. Phase 4 in small commits: one stow package split at a time.
+6. Phase 5 and Phase 6 can proceed independently after profiles exist.
+7. Phase 8 should be done carefully, especially if removing tracked large files or vendored Oh My Zsh.
 
 ## First Concrete PR Scope
 
 | Step | Change | Risk | Validation |
 | --- | --- | --- | --- |
 | A | Fix `install_arch_with_pm` argument order. | High | Mock or dry-run package install path. |
-| B | Add `--dry-run` to `stow.sh`. | Medium | Confirm no filesystem changes occur. |
-| C | Replace stow conflict deletion with backups. | High | Test fake conflict under temp HOME. |
-| D | Add `.installignore` entries for internal agent/plan folders. | Medium | Confirm stow dry-run no longer links internal folders. |
-| E | Document the new safety behavior. | Low | Confirm README/plan examples match commands. |
+| B | Fix `helpers.sh` invalid `local` at file scope. | Low | Start zsh, confirm no warnings. |
+| C | Fix `.vimrc` dangling `if has('nvim')` block. | Low | Open vim, confirm no errors. |
+| D | Fix `mac_setup.sh` nonexistent `source update.sh`. | Low | `bash -n mac_setup.sh` passes. |
+| E | Fix `exports.sh` duplicates and typo. | Low | New shell has clean PATH. |
+| F | Add `--dry-run` to `stow.sh`. | Medium | Confirm no filesystem changes occur. |
+| G | Replace stow conflict deletion with backups. | High | Test fake conflict under temp HOME. |
+| H | Add `.claude` to `.installignore`. | Low | Confirm stow dry-run skips it. |
+| I | Document the new safety behavior. | Low | Confirm README/plan examples match commands. |
