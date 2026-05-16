@@ -3,4 +3,10 @@
 user
 system
 sddm
-
+.agents
+.claude
+.codex
+.cursor
+.gemini
+.ai
+.opencode

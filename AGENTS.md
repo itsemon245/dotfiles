@@ -19,7 +19,7 @@ This dotfiles repository uses **GNU Stow** for symlink-based configuration manag
 - **`stow.sh`** - Stows all directories not listed in `.installignore`.
 - **`colors.sh`** - Defines color variables for scripts.
 - **`.stow-local-ignore`** - Patterns to exclude (`.git`, `*.log`, `README.md`).
-- **`.installignore`** - Directories to exclude from stowing (`user`, `system`).
+- **`.installignore`** - Directories to exclude from stowing (`user`, `system`, `.agents`).
 
 ### Theming Architecture (New)
 
