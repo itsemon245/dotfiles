@@ -36,6 +36,7 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+tree-sitter-cli
 nss-mdns
 avahi
 android-tools

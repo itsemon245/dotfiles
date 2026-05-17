@@ -12,45 +12,30 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
--- vim.api.nvim_create_autocmd("InsertCharPre", {
---   pattern = "*.snippets",
---   callback = function()
---     vim.keymap.set("i", "<CR>", function()
---       local line = vim.api.nvim_get_current_line()
---
---       -- Check if the current line starts with "snippet"
---       if line:match("^snippet") then
---         return vim.api.nvim_replace_termcodes("<CR><Tab>", true, false, true)
---       end
---     end, { buffer = true, expr = true })
---   end,
--- })
+vim.api.nvim_create_autocmd("BufReadPost", {
+  desc = "Restore cursor to the last known position",
+  group = vim.api.nvim_create_augroup("user-last-place", { clear = true }),
+  callback = function(event)
+    local mark = vim.api.nvim_buf_get_mark(event.buf, '"')
+    local line_count = vim.api.nvim_buf_line_count(event.buf)
 
--- local current_file = ""
--- vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
---   pattern = { "*.blade.php" },
---   callback = function()
---     current_file = vim.fn.expand("%:p")
---   end
--- })
--- vim.api.nvim_create_autocmd({ "BufWritePre" }, {
---   pattern = { "*.blade.php" },
---   -- command = ("!blade-formatter -w " .. current_file)
---   callback = function()
---     vim.api.nvim_command("!blade-formatter -w " .. current_file)
---   end
--- })
-
--- Ensure TSX files are properly detected
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
-  pattern = {"*.tsx"},
-  callback = function()
-    vim.bo.filetype = "typescriptreact"
-    -- Force LSP to attach
-    vim.cmd("LspStart")
-  end
+    if mark[1] > 0 and mark[1] <= line_count then
+      pcall(vim.api.nvim_win_set_cursor, 0, mark)
+    end
+  end,
 })
 
+vim.api.nvim_create_autocmd({ "BufWritePre", "FileWritePre" }, {
+  desc = "Create missing parent directories before writing files",
+  group = vim.api.nvim_create_augroup("user-auto-mkdir", { clear = true }),
+  callback = function(event)
+    if event.match:match("://") then
+      return
+    end
+
+    vim.fn.mkdir(vim.fn.fnamemodify(event.match, ":p:h"), "p")
+  end,
+})
 
 local utils = require("user.utils")
 

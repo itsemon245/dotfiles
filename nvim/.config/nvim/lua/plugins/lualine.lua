@@ -24,7 +24,7 @@ return {
                 'branch',
                 'diff',
                 separator,
-                '"🖧  " .. tostring(#vim.tbl_keys(vim.lsp.buf_get_clients()))',
+                '"🖧  " .. tostring(#vim.lsp.get_clients({ bufnr = 0 }))',
                 { 'diagnostics', sources = { 'nvim_diagnostic' } },
                 separator,
             },

@@ -1,4 +1,5 @@
 [desktop]
+tree-sitter-cli
 openscq30-gui-bin
 openscq30-cli-bin
 smartmontools

@@ -1,24 +1,27 @@
+vim.diagnostic.config({
+  virtual_text = false,
+  float = {
+    source = true,
+  },
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "",
+      [vim.diagnostic.severity.WARN] = "",
+      [vim.diagnostic.severity.INFO] = "",
+      [vim.diagnostic.severity.HINT] = "",
+    },
+  },
+})
+
+local function jump_diagnostic(count)
+  vim.diagnostic.jump({ count = count, float = true })
+end
+
 -- LSP Logic on_attach
 local lspLogics = function(client, event)
-  if client then
-    client.server_capabilities.hoverProvider = true
-  end
-  -- Diagnostic configuration
-  vim.diagnostic.config({
-    virtual_text = false,
-    float = {
-      source = true,
-    },
-  })
-  -- Sign configuration
-  vim.fn.sign_define("DiagnosticSignError", { text = "", texthl = "DiagnosticSignError" })
-  vim.fn.sign_define("DiagnosticSignWarn", { text = "", texthl = "DiagnosticSignWarn" })
-  vim.fn.sign_define("DiagnosticSignInfo", { text = "", texthl = "DiagnosticSignInfo" })
-  vim.fn.sign_define("DiagnosticSignHint", { text = "", texthl = "DiagnosticSignHint" })
-
-  -- Utilty function for keymap
+  -- Utility function for keymap
   local map = function(keys, func, desc)
-    vim.keymap.set("n", keys, func, { desc = "LSP: " .. desc })
+    vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
   end
 
   map("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
@@ -28,8 +31,12 @@ local lspLogics = function(client, event)
   map("<Leader>d", "<cmd>lua vim.diagnostic.open_float()<CR>", "[D]iagnostics Popover")
   map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
   -- Go back and forth in code diagnostics
-  map("[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", "Previous Diagnostics")
-  map("]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", "Next Diagnostics")
+  map("[d", function()
+    jump_diagnostic(-1)
+  end, "Previous Diagnostics")
+  map("]d", function()
+    jump_diagnostic(1)
+  end, "Next Diagnostics")
   --  Symbols are things like variables, functions, types, etc.
   map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
   map("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
@@ -60,7 +67,7 @@ local lspLogics = function(client, event)
       group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
       callback = function(event2)
         vim.lsp.buf.clear_references()
-        vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
+        vim.api.nvim_clear_autocmds { group = highlight_augroup, buffer = event2.buf }
       end,
     })
   end

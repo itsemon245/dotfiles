@@ -16,10 +16,10 @@ function M.float(opts)
 
 	local buf = api.nvim_create_buf(false, true)
 
-	api.nvim_buf_set_option(buf, "bufhidden", "wipe")
+	vim.bo[buf].bufhidden = "wipe"
 
-	local width = api.nvim_get_option("columns")
-	local height = api.nvim_get_option("lines")
+	local width = vim.o.columns
+	local height = vim.o.lines
 
 	local win_height = math.ceil(height * 0.8 - 4)
 	local win_width = math.ceil(width * 0.8)

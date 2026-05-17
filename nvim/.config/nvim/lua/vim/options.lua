@@ -1,37 +1,33 @@
 local opt = vim.opt
 local g = vim.g
 
-vim.cmd("set expandtab")
-vim.cmd("set tabstop=2")
-vim.cmd("set softtabstop=2")
-vim.cmd("set shiftwidth=2")
-vim.cmd("set autoindent")
-vim.cmd("set cindent")
-vim.cmd("set spellfile=~/.config/nvim/spell/en.utf-8.add")
-
-
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 g.mapleader = " "
 g.maplocalleader = " "
 
--- .blade.php file type to blade
-vim.api.nvim_exec(
-  [[
-  au BufNewFile,BufRead *.blade.php setfiletype blade
-]],
-  false
-)
+vim.filetype.add({
+  pattern = {
+    [".*%.blade%.php"] = "blade",
+  },
+})
 
 g.have_nerd_font = true
+
+opt.expandtab = true
+opt.tabstop = 2
+opt.softtabstop = 2
+opt.shiftwidth = 2
+opt.autoindent = true
+opt.cindent = true
+opt.spellfile = vim.fn.stdpath("config") .. "/spell/en.utf-8.add"
 opt.termguicolors = true
 
 opt.smartindent = true
 opt.spell = true
 
-opt.wildmode =
-'longest:full,full'                 -- complete the longest common match, and allow tabbing the results to fully complete them
+opt.wildmode = 'longest:full,full'  -- complete the longest common match, and allow tabbing the results to fully complete them
 opt.fillchars:append({ eob = ' ' }) -- remove the ~ from end of buffer
 
 -- Lock the cursor to at least above 8 lines from bottom/up while scrolling
@@ -86,7 +82,6 @@ opt.inccommand = "split"
 
 -- Show which line your cursor is on
 opt.cursorline = true
-vim.o.termguicolors = true
 
 -- Folding --
 opt.foldmethod = "expr"

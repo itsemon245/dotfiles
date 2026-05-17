@@ -7,14 +7,10 @@ return {
   { "tpope/vim-repeat" },
   -- Pairs of handy bracket mappings like [b or ]b
   { "tpope/vim-unimpaired" },
-  -- Remembers the last cursor position of the file
-  { "farmergreg/vim-lastplace" },
   -- Navigate between tmux pane and vim splits seamlessly <C-h,j,k,l>
   { "christoomey/vim-tmux-navigator" },
   -- Enables * search for visually selected texts
   { "nelstrom/vim-visual-star-search" },
-  -- Creates parent directories for a file if not exists
-  { "jessarcher/vim-heritage" },
   -- Schemas for JSON, YAML etc.
   { "b0o/schemastore.nvim",           lazy = true },
   -- More text objects for HTML and XML attributes so we can do `vix` to select an html attribute same goes for c,y & d operations
@@ -85,9 +81,6 @@ return {
     end,
   },
 
-  -- Syntax highlighting for many languages
-  { "sheerun/vim-polyglot" },
-
   -- Blade file highlighting
   {
     'jwalton512/vim-blade',
@@ -100,9 +93,6 @@ return {
     -- Add the blade-nav.nvim plugin which provides Goto File capabilities
     -- for Blade files.
     "ricardoramirezr/blade-nav.nvim",
-    dependencies = {
-      "hrsh7th/nvim-cmp",
-    },
     ft = { "blade", "php" },
     opts = {
       close_tag_on_complete = false, -- default: true
@@ -117,21 +107,4 @@ return {
     opts = {
     },
   },
-
-  {
-    "nathom/filetype.nvim",
-    opts = {
-      overrides = {
-        complex = {
-          ["*.blade.php"] = "blade",
-        },
-      }
-    }
-  },
-  {
-    "mskelton/termicons.nvim",
-    dependecies = { "nvim-tree/nvim-web-devicons" },
-    build = false,
-    opts = {},
-  }
 }
