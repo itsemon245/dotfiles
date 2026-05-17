@@ -10,6 +10,7 @@
 
 # CLI packages
 [cli:pacman]
+fd
 ripgrep
 unzip
 bind
@@ -36,6 +37,7 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+lazygit
 tree-sitter-cli
 nss-mdns
 avahi
