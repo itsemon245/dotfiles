@@ -101,6 +101,25 @@ run() {
     "$@" >> "$LOG_FILE" 2>&1 || notify "$label failed. See $LOG_FILE." critical
 }
 
+move_window_later() {
+    local label="$1"
+    local workspace="$2"
+    local delay="$3"
+    shift 3
+
+    have hyprctl "$label window move" || return
+    (
+        sleep "$delay"
+        for selector in "$@"; do
+            if hyprctl dispatch movetoworkspacesilent "$workspace,$selector" >> "$LOG_FILE" 2>&1; then
+                log "Moved $label window to $workspace."
+                return
+            fi
+        done
+        log "Could not find $label window to move."
+    ) &
+}
+
 set_wallpaper() {
     have awww-daemon "wallpaper daemon" || return
     have awww "wallpaper" || return
@@ -144,5 +163,10 @@ spawn "Waybar" waybar waybar
 sync_openrgb_theme
 
 spawn "Slack" slack slack -u
-spawn "LocalSend" localsend localsend --hidden
+
+spawn "LocalSend" localsend localsend
+move_window_later "LocalSend" "special:magic" 3 \
+    "class:^(localsend|LocalSend|localsend_app)$" \
+    "title:^(LocalSend)$"
+
 spawn_path "OpenWhispr" "$OPENWHISPR_BIN" --no-sandbox
