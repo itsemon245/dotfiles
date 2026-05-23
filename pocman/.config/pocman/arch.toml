@@ -10,6 +10,7 @@
 
 # CLI packages
 [cli:pacman]
+tcpdump
 fd
 ripgrep
 unzip
@@ -133,7 +134,8 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
-hyprwhspr
+openwhispr-bin
+google-chrome
 claude-code
 stripe-cli
 sddm-silent-theme
@@ -148,7 +150,6 @@ ironbar-bin
 xdman-beta-bin
 cloudflare-warp-bin
 wlogout
-google-chrome
 greenclip
 openrgb-bin
 
@@ -195,3 +196,4 @@ ttf-liberation
 ttf-dejavu
 
 [ml:yay]
+lmstudio-bin
