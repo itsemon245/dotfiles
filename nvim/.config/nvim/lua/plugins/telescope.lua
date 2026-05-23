@@ -36,6 +36,11 @@ vim.cmd([[
 ]])
 require("telescope").setup({
 defaults = {
+preview = {
+-- Telescope 0.1.x expects legacy nvim-treesitter preview APIs that are no
+-- longer exported by nvim-treesitter's main branch.
+treesitter = false,
+},
 path_display = { truncate = 1 },
 prompt_prefix = '   ',
 selection_caret = '  ',
