@@ -10,3 +10,8 @@ for dir in "${TOOL_DIRS[@]}"; do
         run bash -c "echo '$dir' >> '$INSTALLIGNORE'"
     fi
 done
+
+if [[ -n "${CODEX_DIR:-}" ]] && ! grep -qxF "$CODEX_DIR" "$INSTALLIGNORE" 2>/dev/null; then
+    echo "ignore $CODEX_DIR (added to .installignore)"
+    run bash -c "echo '$CODEX_DIR' >> '$INSTALLIGNORE'"
+fi

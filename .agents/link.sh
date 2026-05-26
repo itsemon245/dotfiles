@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Symlinks coding agent directories and instruction files to this single source of truth.
+# Keep .codex as a real directory for Codex sandbox compatibility; its contents
+# are symlinked back to .agents.
 #
 # Usage:
 #   .agents/link.sh                     # Link all defaults
@@ -15,7 +17,8 @@
 #   Available variables in post-link.sh:
 #     REPO_DIR              - Absolute path to the repository root
 #     SCRIPT_DIR            - Absolute path to .agents/
-#     SOURCE                - Relative symlink target for directories (default: ".agents")
+#     SOURCE                - Relative symlink target for agent directories (default: ".agents")
+#     CODEX_DIR             - Real Codex directory with contents linked to SOURCE (default: ".codex")
 #     CANONICAL_INSTRUCTIONS - Relative symlink target for files (default: "AGENTS.md")
 #     TOOL_DIRS[@]          - Array of all directory names that were processed
 #     INSTRUCTION_FILES[@]  - Array of all instruction file names that were processed
@@ -27,12 +30,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
 SOURCE=".agents"
+CODEX_DIR=".codex"
 CANONICAL_INSTRUCTIONS="AGENTS.md"
 
-# Agent tool directories that should be symlinks to .agents/
+# Agent tool directories that should be symlinks to .agents/.
+# .codex is intentionally excluded: it must be a real directory because Codex
+# sandboxing treats repo-local .codex specially and fails on symlink boundaries.
 TOOL_DIRS=(
     .claude
-    .codex
     .cursor
     .gemini
     .ai
@@ -159,6 +164,53 @@ merge_dir() {
     run rm -rf "$dir"
 }
 
+link_codex_dir() {
+    if [[ -L "$CODEX_DIR" ]]; then
+        local current
+        current="$(readlink "$CODEX_DIR")"
+        echo "fix  $CODEX_DIR (was -> $current; must be a real directory)"
+        run rm "$CODEX_DIR"
+    elif [[ -e "$CODEX_DIR" && ! -d "$CODEX_DIR" ]]; then
+        echo "rm   $CODEX_DIR (not a directory or symlink, replacing)"
+        run rm "$CODEX_DIR"
+    fi
+
+    if [[ ! -d "$CODEX_DIR" ]]; then
+        echo "mkdir $CODEX_DIR"
+        run mkdir "$CODEX_DIR"
+    else
+        echo "ok   $CODEX_DIR/"
+    fi
+
+    while IFS= read -r -d '' source_entry; do
+        local name target desired current
+        name="$(basename "$source_entry")"
+        target="$CODEX_DIR/$name"
+        desired="../$SOURCE/$name"
+
+        if [[ -L "$target" ]]; then
+            current="$(readlink "$target")"
+            if [[ "$current" == "$desired" ]]; then
+                echo "ok   $target -> $desired"
+                continue
+            fi
+            echo "fix  $target (was -> $current)"
+            run rm "$target"
+        elif [[ -e "$target" ]]; then
+            if [[ "$force" -eq 0 ]]; then
+                echo "conflict: $target exists and is not the expected symlink" >&2
+                echo "  Run with --force to replace it with $desired" >&2
+                return 1
+            fi
+            echo "rm   $target (replacing with symlink)"
+            run rm -rf "$target"
+        fi
+
+        echo "link $target -> $desired"
+        run ln -s "$desired" "$target"
+    done < <(find "$SOURCE" -mindepth 1 -maxdepth 1 -print0)
+}
+
 link_dir() {
     local dir="$1"
     validate_name "$dir" "directory"
@@ -238,6 +290,8 @@ if [[ ! -f "$CANONICAL_INSTRUCTIONS" && ! -L "$CANONICAL_INSTRUCTIONS" ]]; then
 fi
 
 has_errors=0
+
+link_codex_dir || has_errors=1
 
 for dir in "${TOOL_DIRS[@]}"; do
     link_dir "$dir" || has_errors=1
