@@ -144,9 +144,20 @@ Hooks must be listed during dry-run and require confirmation unless `--yes` is e
 - Medium: Touches install flow, package selection, script behavior, or interactive shell behavior.
 - High: Can affect many symlinks, package installs, login/session startup, or user data.
 
+## Progress
+
+| Phase | Status | Notes |
+| --- | --- | --- |
+| Phase 0 | Complete | Baseline captured in `.phase-0-baseline-2026-05-28.md`. |
+| Phase 1 | Complete | Critical safety fixes landed in `9eae85a`: non-destructive stow conflicts, installer delete removal, shell startup fixes, Vim fix, Pocman argument-order fix, and `scripts/check-dotfiles`. |
+| Phase 2 | Next | Build the shared shell/tool helper structure, migrate pilots, validate, then migrate all maintained first-party shell scripts into the new structure. |
+| Phase 3+ | Pending | Continue only after Phase 2 helper and script migration contracts are proven. |
+
 ## Phase 0: Baseline and Safety Checks
 
 This phase captures the current state before fixes. It should be fast and should not change behavior.
+
+Status: complete. Captured in `.phase-0-baseline-2026-05-28.md`.
 
 | Step | Change | Risk | Validation |
 | --- | --- | --- | --- |
@@ -158,6 +169,8 @@ This phase captures the current state before fixes. It should be fast and should
 ## Phase 1: Critical Bug Fixes and Non-Destructive Safety
 
 This phase fixes known breakage and destructive behavior before any structural refactor. Every later phase depends on safe stow behavior, correct package installation, and clean shell startup.
+
+Status: complete in `9eae85a`.
 
 | Step | Change | Risk | Validation |
 | --- | --- | --- | --- |
@@ -193,6 +206,7 @@ This phase happens before broad package splitting. The aim is to decide the help
 | 2.10 | Refactor remaining thin Rofi scripts only after the pilot proves the helper contract. | Medium | `rofi-cast`, `rofi-monitor`, and similar scripts share helper behavior without gaining large abstractions. |
 | 2.11 | DRY the PHP/Composer Docker wrappers in `others/env/bin` if they share real setup code. | Low | Run `php -v` and `composer --version` via the wrappers and confirm identical behavior. |
 | 2.12 | Add validation for maintained files: `bash -n`, `zsh -n` where appropriate, `shellcheck` when available, optional Vim/Neovim/config validation when commands and files exist, and mocked dry-runs for commands that call system tools. | Medium | `scripts/check-dotfiles` reports startup-helper, tool-helper, and config failures clearly; unavailable optional validators are skipped. |
+| 2.13 | After the helper contract, pilots, and validation pass, migrate all maintained first-party shell scripts into the new shell/tool structure. Executable commands move under `tools/.local/bin`; shared startup-safe helpers move under `tools/.local/lib/dotfiles/shell`; executable-tool helpers move under `tools/.local/lib/dotfiles/tool`. Preserve compatibility wrappers or update callers for old paths until package splits are complete. Exclude vendored/third-party scripts unless they are directly maintained. | High | `scripts/check-dotfiles` passes; stow dry-runs confirm new paths; Hyprland keybinds, Waybar/Ironbar commands, Rofi launchers, installer calls, and shell startup all resolve the migrated commands/helpers. |
 
 ## Phase 3: Tool Package Boundaries and Selective Install
 
@@ -308,7 +322,7 @@ Documentation should be updated incrementally, but this final phase makes sure t
 
 1. Phase 0 first, to establish a baseline before any changes.
 2. Phase 1 next, because major bugs and destructive behavior must be fixed before refactors.
-3. Phase 2 next, because shared utilities and script debloating should happen before moving scripts around.
+3. Phase 2 next, because shared utilities and script debloating should happen before moving scripts around. Finish Phase 2 with the all-maintained-shell-script migration after the pilots validate the helper contract.
 4. Phase 3 next, because selective tool install depends on the helper contract from Phase 2.
 5. Phase 4 next, because package-manager correctness affects install profiles.
 6. Phase 5 next, so profiles define package and stow boundaries before desktop splits.
@@ -344,3 +358,4 @@ Documentation should be updated incrementally, but this final phase makes sure t
 | D | Apply path/source helpers to `exports.sh`, `.zshrc`, and sourced shell files. | Medium | New shell has clean PATH and missing optional files do not error. |
 | E | Migrate `wally` and `rofi-vpn` as executable pilot scripts. | Medium | Both scripts run from repo checkout and temp install tree. |
 | F | Add shell and optional config validation for maintained files. | Medium | `scripts/check-dotfiles` reports syntax/helper/config issues clearly and skips unavailable optional validators. |
+| G | After helper validation passes, migrate all maintained first-party shell scripts into the new shell/tool structure, preserving wrappers or updating callers where needed. | High | All known script entrypoints resolve from their new locations and `scripts/check-dotfiles` passes. |

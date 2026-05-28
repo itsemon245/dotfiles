@@ -1,4 +1,6 @@
 [desktop]
+github-cli
+sendmail
 openwhispr-bin
 google-chrome
 lazygit

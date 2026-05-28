@@ -38,6 +38,8 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+github-cli
+ydotool
 lazygit
 tree-sitter-cli
 nss-mdns
@@ -56,7 +58,6 @@ hidapi
 python-click
 python-pillow
 libwebp
-ydotool
 gtk4-layer-shell
 vlc-plugin-ffmpeg
 vlc
@@ -134,6 +135,7 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+sendmail
 openwhispr-bin
 google-chrome
 claude-code
