@@ -109,6 +109,35 @@ Preferred shape:
 - Install/export commands copy or symlink a selected tool plus its declared helper dependencies into `~/.local/bin` and `~/.local/lib/dotfiles`.
 - Stow remains useful for full dotfiles installs, but tool install should not require stowing the whole repo.
 
+### Installer Conflict Policy
+
+Stow and installer conflict handling should be interactive by default and non-destructive unless the user chooses otherwise.
+
+When a target file or directory already exists and would conflict with a stowed file, show the target path and prompt:
+
+- `Y` or `y`: back up this conflict only, then continue.
+- `N` or `n`: skip this conflict or package without modifying the target.
+- `D` or `d`: delete this conflict and all later conflicts for the current script run.
+- `B` or `b`: back up this conflict and all later conflicts for the current script run.
+
+The safe default is backup, not deletion. Dry-runs must never modify files. Non-interactive installs must not delete conflicts unless an explicit conflict policy is provided.
+
+Direct installer removals, such as replacing `~/.zshrc` or `~/.config/pocman`, should use the same prompt/backup behavior instead of unconditional `rm`.
+
+### Profile-Gated Hooks
+
+Tracked configuration files and runtime activation state should stay separate.
+
+Do not track enabled-service symlinks such as `~/.config/systemd/user/*.wants/*.service` as reusable dotfiles. Those symlinks are host activation state: stowing them silently enables services, may point at machine-specific paths, and can enable desktop services during server installs.
+
+Keep actual unit files in the repo when they are reusable. Enable or start them from installer hooks only when the selected profile allows it:
+
+- `server`: no desktop user services.
+- `desktop`: generic desktop services only.
+- `workstation`: host/workstation services such as speech, input, AppImage, SDDM, OpenRGB, wallpaper, or other local desktop hooks.
+
+Hooks must be listed during dry-run and require confirmation unless `--yes` is explicitly provided.
+
 ## Risk Scale
 
 - Low: Small, local, easy to validate, unlikely to break an installed system.
@@ -133,17 +162,18 @@ This phase fixes known breakage and destructive behavior before any structural r
 | Step | Change | Risk | Validation |
 | --- | --- | --- | --- |
 | 1.1 | Fix `install_arch_with_pm` so it passes `create_type_file=false` before the package name. | High | Run a dry/isolated shell trace or mocked install call and confirm package args are preserved. |
-| 1.2 | Replace conflict deletion in `stow.sh` with timestamped backup to `~/.local/state/dotfiles/backups/<timestamp>/`. | High | Create a fake conflict in a temp HOME and confirm it is backed up, not deleted. |
+| 1.2 | Replace conflict deletion in `stow.sh` with the interactive conflict policy: prompt per conflict, support one-file backup/skip, and support delete-all or backup-all for the current run. Backups go to `~/.local/state/dotfiles/backups/<timestamp>/`. | High | Create fake file and directory conflicts in a temp HOME and confirm `Y`, `N`, `D`, and `B` behave as documented. |
 | 1.3 | Add `--dry-run`, `--packages`, `--except`, and `--adopt` flags to `stow.sh`. | Medium | Run `./stow.sh --dry-run --packages zsh,tmux`; confirm only those packages are checked. |
 | 1.4 | Stop hardcoding `cd ~/dotfiles`; resolve the repo root from the script path. | Medium | Run `stow.sh` from outside the repo and confirm package discovery still works. |
 | 1.5 | Add internal agent/tooling directories such as `.claude` to `.installignore` so stow does not link them into `$HOME`. | Medium | Dry-run stow and confirm internal dirs are skipped. |
 | 1.6 | Fix `zsh/zsh_utils/helpers.sh`: remove invalid `local` declarations at file scope. | Low | Start a new zsh session and confirm no warnings from helpers.sh. |
 | 1.7 | Fix `vim/.vimrc`: close the dangling `if has("nvim")` block. | Low | Open vim and confirm no syntax errors on startup. |
 | 1.8 | Fix `mac_setup.sh`: replace the nonexistent `source update.sh` reference with the intended stow/setup source. | Low | Run `bash -n mac_setup.sh` and confirm it parses without error. |
-| 1.9 | Fix `exports.sh`: remove duplicate PATH entries, remove duplicate `QT_IM_MODULE=ibus`, and fix `$/usr/local/bin` to `/usr/local/bin`. | Low | Start a new shell and confirm PATH is clean. |
-| 1.10 | Remove hardcoded `$HOME/.nvm/versions/node/v20.11.1/bin`; NVM should manage the active Node path. | Low | Confirm `node` still resolves after NVM loads. |
-| 1.11 | Remove duplicate NVM loading; keep it in one shell startup path only. | Low | Confirm NVM loads once and `nvm` works. |
-| 1.12 | Add a minimal `scripts/check-dotfiles` command for Phase 1 checks: shell syntax, stow dry-run, and basic path checks. | Medium | Run the command locally and confirm failures are actionable. |
+| 1.9 | Replace direct destructive installer removals such as `rm -rf ~/.config/pocman` and `rm -f ~/.zshrc` with the same prompt/backup policy used for stow conflicts. | High | Run installer paths against a temp HOME and confirm existing files are backed up, skipped, or deleted only by explicit choice. |
+| 1.10 | Fix `exports.sh`: remove duplicate PATH entries, remove duplicate `QT_IM_MODULE=ibus`, and fix `$/usr/local/bin` to `/usr/local/bin`. | Low | Start a new shell and confirm PATH is clean. |
+| 1.11 | Remove hardcoded `$HOME/.nvm/versions/node/v20.11.1/bin`; NVM should manage the active Node path. | Low | Confirm `node` still resolves after NVM loads. |
+| 1.12 | Remove duplicate NVM loading; keep it in one shell startup path only. | Low | Confirm NVM loads once and `nvm` works. |
+| 1.13 | Add a minimal `scripts/check-dotfiles` command for Phase 1 checks: shell syntax, stow dry-run, optional Vim/Neovim/config checks when commands and files exist, and basic path checks. | Medium | Run the command locally and confirm failures are actionable while missing optional commands are reported as skipped. |
 
 ## Phase 2: Shared Shell Utilities and Script Debloating
 
@@ -162,7 +192,7 @@ This phase happens before broad package splitting. The aim is to decide the help
 | 2.9 | Refactor `wally` in place after the pilot: dependency gates, no source wallpaper deletion, optional Rofi/upscale/reload behavior, and cleaner function boundaries. | Medium | Test picker mode, direct `set`, no-upscale, optional upscale, and missing dependency handling. |
 | 2.10 | Refactor remaining thin Rofi scripts only after the pilot proves the helper contract. | Medium | `rofi-cast`, `rofi-monitor`, and similar scripts share helper behavior without gaining large abstractions. |
 | 2.11 | DRY the PHP/Composer Docker wrappers in `others/env/bin` if they share real setup code. | Low | Run `php -v` and `composer --version` via the wrappers and confirm identical behavior. |
-| 2.12 | Add shell validation for maintained files: `bash -n`, `zsh -n` where appropriate, `shellcheck` when available, and mocked dry-runs for commands that call system tools. | Medium | `scripts/check-dotfiles` reports startup-helper and tool-helper failures clearly. |
+| 2.12 | Add validation for maintained files: `bash -n`, `zsh -n` where appropriate, `shellcheck` when available, optional Vim/Neovim/config validation when commands and files exist, and mocked dry-runs for commands that call system tools. | Medium | `scripts/check-dotfiles` reports startup-helper, tool-helper, and config failures clearly; unavailable optional validators are skipped. |
 
 ## Phase 3: Tool Package Boundaries and Selective Install
 
@@ -198,9 +228,10 @@ Profiles come after the installer and package manager have dry-run support. This
 | 5.1 | Create profile definitions: `base`, `server`, `desktop`, `workstation`, and optional `gaming`. | Medium | Print each profile and confirm intended packages/stow packages are included. |
 | 5.2 | Change `install.sh` to accept `--profile`, `--only`, and `--except`. | High | Run dry-runs for Arch workstation and Debian/Fedora server paths. |
 | 5.3 | Make `server` install only portable packages: shell, tmux, nvim, git, basic CLI tools, and selected scripts. | Medium | Dry-run `--profile server`; confirm no Hyprland, SDDM, Waybar, Rofi, Qt, or gaming packages. |
-| 5.4 | Make `desktop` include desktop config without host-specific extras. | Medium | Dry-run `--profile desktop`; confirm desktop packages are included without workstation-only hooks. |
+| 5.4 | Make `desktop` include desktop config without host-specific extras. Desktop-owned components include Hyprland, Waybar, Rofi, Wallust, Dunst, Ironbar, Wlogout, ReGreet, shared theme assets, OpenRGB theming, MangoHud theming, and SDDM config/templates. | Medium | Dry-run `--profile desktop`; confirm desktop packages are included without workstation-only hooks. |
 | 5.5 | Make `workstation` the only profile that runs desktop hooks such as SDDM, Hyprland, fonts, wallpaper tooling, and optional local apps. | High | Dry-run `--profile workstation`; confirm hooks are listed but not run unless selected. |
-| 5.6 | Add a `bootstrap-server.sh` one-liner for headless servers: `curl -sL <url> \| bash` clones repo shallowly and runs `./install.sh --profile server`. | Low | Test on a clean container to confirm zsh, git, nvim, and tmux are configured. |
+| 5.6 | Move systemd user-service activation out of tracked `.wants` symlinks and into profile-gated hooks. Keep reusable unit files tracked, but enable/start services only from allowed profiles. | High | Dry-run each profile and confirm server does not enable desktop services; workstation lists intended user-service hooks. |
+| 5.7 | Add a `bootstrap-server.sh` one-liner for headless servers: `curl -sL <url> \| bash` clones repo shallowly and runs `./install.sh --profile server`. | Low | Test on a clean container to confirm zsh, git, nvim, and tmux are configured. |
 
 ## Phase 6: Shell and Server Portability
 
@@ -209,7 +240,7 @@ This phase applies the Phase 2 shell-helper model more broadly after immediate b
 | Step | Change | Risk | Validation |
 | --- | --- | --- | --- |
 | 6.1 | Replace remaining duplicated PATH exports with the shared `path_prepend` and `path_append` helpers; use shell-native deduplication where appropriate. | Medium | Start a new zsh and bash shell where applicable; confirm no duplicate PATH entries or missing tool paths. |
-| 6.2 | Remove host-specific `/Users/emon` and `/home/emon` paths from startup files; gate optional paths by directory existence. | Low | Run zsh on Linux and macOS-style path checks without errors. |
+| 6.2 | Remove host-specific `/Users/emon`, `/home/emon`, `~/dotfiles`, and `~/scripts` assumptions from reusable startup files and app configs. Use `$HOME`, XDG paths, repo-root detection, commands from `PATH`, or local/workstation-only files. | Medium | Run a repo-wide host-path scan; start zsh on Linux and macOS-style path checks without errors; confirm desktop configs still resolve scripts and assets. |
 | 6.3 | Load NVM in one place only and make it optional. | Medium | Confirm shell startup works with and without `~/.nvm`. |
 | 6.4 | Replace `zsh-setup.sh` repeated git clones with idempotent clone-or-update logic. | Medium | Run twice and confirm no failures if plugins already exist. |
 | 6.5 | Stop starting a new `ssh-agent` on every shell startup; reuse an existing agent or make it opt-in. | Medium | Open multiple shells and confirm agent count does not grow. |
@@ -227,7 +258,8 @@ Package splitting now happens after bugs, shared utilities, selective tool insta
 | 7.2 | Split `hyprland/.config/rofi` into top-level `rofi/`. | High | Test launcher paths and Hyprland keybinds after stowing. |
 | 7.3 | Split `hyprland/.config/wallust` into top-level `wallust/`. | High | Run `wallust run <image>` and confirm all generated targets update. |
 | 7.4 | Split notification config/templates into `dunst/` if current generated config is intended to be managed independently. | Medium | Confirm `dunst` starts and receives generated colors. |
-| 7.5 | Move `wally` and other stable desktop helper commands into `tools` or `desktop-tools` according to the Phase 3 package boundary. | Medium | Confirm `~/bin/wally` exists after stow or selective install and `SUPER+W` still works. |
+| 7.5 | Keep Ironbar, Wlogout, ReGreet, shared desktop themes, OpenRGB theming, MangoHud theming, Wallust templates, and SDDM theming in desktop-owned packages, either as one coherent desktop package or smaller packages split by ownership. | Medium | Dry-run desktop/workstation profiles and confirm these components are never pulled into base/server profiles. |
+| 7.6 | Move `wally` and other stable desktop helper commands into `tools` or `desktop-tools` according to the Phase 3 package boundary. | Medium | Confirm `~/bin/wally` exists after stow or selective install and `SUPER+W` still works. |
 
 ## Phase 8: Desktop Runtime Dependency Reduction
 
@@ -270,7 +302,7 @@ Documentation should be updated incrementally, but this final phase makes sure t
 | 10.3 | Add recovery docs for stow conflicts and backup restore. | Low | Confirm backup path and restore command examples match implementation. |
 | 10.4 | Add a smoke-test checklist for a new machine. | Low | Run checklist on current machine after refactor. |
 | 10.5 | Document selective tool install and helper dependency rules. | Low | A reader can install one selected tool without stowing the full repo. |
-| 10.6 | Keep shell syntax checks for all maintained Bash/Zsh scripts in the standard validation command. | Medium | Run checks locally and handle known third-party scripts separately. |
+| 10.6 | Keep shell syntax checks for all maintained Bash/Zsh scripts and optional Vim/Neovim/config checks in the standard validation command. | Medium | Run checks locally, skip unavailable optional validators cleanly, and handle known third-party scripts separately. |
 
 ## Recommended Iteration Order
 
@@ -291,15 +323,16 @@ Documentation should be updated incrementally, but this final phase makes sure t
 | Step | Change | Risk | Validation |
 | --- | --- | --- | --- |
 | A | Fix `install_arch_with_pm` argument order. | High | Mock or dry-run package install path. |
-| B | Replace stow conflict deletion with backups. | High | Test fake conflict under temp HOME. |
+| B | Replace stow conflict deletion with the interactive conflict policy: per-conflict backup/skip and runtime delete-all/backup-all choices. | High | Test fake file and directory conflicts under temp HOME. |
 | C | Add `--dry-run` and package selection flags to `stow.sh`. | Medium | Confirm no filesystem changes occur in dry-run mode. |
 | D | Fix `helpers.sh` invalid `local` at file scope. | Low | Start zsh, confirm no warnings. |
 | E | Fix `.vimrc` dangling `if has("nvim")` block. | Low | Open vim, confirm no errors. |
 | F | Fix `mac_setup.sh` nonexistent `source update.sh`. | Low | `bash -n mac_setup.sh` passes. |
-| G | Fix `exports.sh` duplicates, typo, hardcoded NVM path, and duplicate NVM loading. | Low | New shell has clean PATH and NVM loads once. |
-| H | Add internal dirs such as `.claude` to `.installignore`. | Low | Confirm stow dry-run skips them. |
-| I | Add or update the first `scripts/check-dotfiles` safety command. | Medium | Command runs Phase 1 validations locally. |
-| J | Document the new safety behavior. | Low | Confirm README/plan examples match commands. |
+| G | Replace direct destructive installer removals with prompt/backup behavior. | High | Temp HOME install path preserves existing files unless deletion is explicitly selected. |
+| H | Fix `exports.sh` duplicates, typo, hardcoded NVM path, and duplicate NVM loading. | Low | New shell has clean PATH and NVM loads once. |
+| I | Add internal dirs such as `.claude` to `.installignore`. | Low | Confirm stow dry-run skips them. |
+| J | Add or update the first `scripts/check-dotfiles` safety command, including optional Vim/Neovim/config checks when available. | Medium | Command runs Phase 1 validations locally and skips unavailable optional validators. |
+| K | Document the new safety behavior. | Low | Confirm README/plan examples match commands. |
 
 ## Second Concrete PR Scope
 
@@ -310,4 +343,4 @@ Documentation should be updated incrementally, but this final phase makes sure t
 | C | Create the Bash tool helper layer. | Medium | Source helpers from Bash with no load-time side effects. |
 | D | Apply path/source helpers to `exports.sh`, `.zshrc`, and sourced shell files. | Medium | New shell has clean PATH and missing optional files do not error. |
 | E | Migrate `wally` and `rofi-vpn` as executable pilot scripts. | Medium | Both scripts run from repo checkout and temp install tree. |
-| F | Add shell validation for maintained files. | Medium | `scripts/check-dotfiles` reports syntax/helper issues clearly. |
+| F | Add shell and optional config validation for maintained files. | Medium | `scripts/check-dotfiles` reports syntax/helper/config issues clearly and skips unavailable optional validators. |
