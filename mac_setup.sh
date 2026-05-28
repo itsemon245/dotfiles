@@ -1,47 +1,56 @@
 #!/usr/bin/env bash
-source colors.sh
 
-# Installs dotfiles for macOS
+set -uo pipefail
 
-echo -e "${CYAN}Setting up dotfiles for macOS...${NC}"
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[0;33m'
+CYAN=$'\033[0;36m'
+NC=$'\033[0m'
 
-# Check if Homebrew is installed
-if ! command -v brew &> /dev/null; then
-    echo -e "${YELLOW}Homebrew not found. Installing Homebrew...${NC}"
+printf '%bSetting up dotfiles for macOS...%b\n' "$CYAN" "$NC"
+
+if ! command -v brew >/dev/null 2>&1; then
+    printf '%bHomebrew not found. Installing Homebrew...%b\n' "$YELLOW" "$NC"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
-    # Add Homebrew to PATH for Apple Silicon Macs
-    if [[ $(uname -m) == "arm64" ]]; then
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+
+    if [[ "$(uname -m)" == "arm64" ]]; then
+        printf '%s\n' 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
         eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
 else
-    echo -e "${GREEN}Homebrew already installed.${NC}"
+    printf '%bHomebrew already installed.%b\n' "$GREEN" "$NC"
 fi
 
-# Clone dotfiles if not already present
-if [ ! -d ~/dotfiles ]; then
-    echo -e "${CYAN}Cloning dotfiles...${NC}"
-    git clone https://github.com/itsemon245/dotfiles.git ~/dotfiles
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+
+if [[ ! -d "$DOTFILES_DIR" ]]; then
+    printf '%bCloning dotfiles...%b\n' "$CYAN" "$NC"
+    git clone https://github.com/itsemon245/dotfiles.git "$DOTFILES_DIR"
 else
-    echo -e "${GREEN}Dotfiles already cloned.${NC}"
+    printf '%bDotfiles already cloned.%b\n' "$GREEN" "$NC"
 fi
 
-cd ~/dotfiles
+cd "$DOTFILES_DIR" || exit 1
 
-# Install packages using Homebrew
-echo -e "${CYAN}Installing packages with Homebrew...${NC}"
-source mac_install_packages.sh
+if [[ -f "$DOTFILES_DIR/colors.sh" ]]; then
+    # shellcheck source=/dev/null
+    source "$DOTFILES_DIR/colors.sh"
+fi
 
-# Remove existing .zshrc if present
-rm -f ~/.zshrc
+printf '%bInstalling packages with Homebrew...%b\n' "$CYAN" "$NC"
+"$DOTFILES_DIR/mac_install_packages.sh"
 
-# Run the rest of the setup
-echo -e "${CYAN}Running dotfiles setup...${NC}"
-source update.sh
-source zsh-setup.sh
-source ~/.zshrc
-source nvm-setup.sh
+printf '%bStowing macOS dotfiles...%b\n' "$CYAN" "$NC"
+"$DOTFILES_DIR/stow.sh" --packages zsh,tmux,nvim,vim,mac-wm,others,composer,fonts
 
-echo -e "${GREEN}macOS setup completed successfully!${NC}"
-echo -e "${YELLOW}Please restart your terminal or run 'source ~/.zshrc' to apply changes.${NC}"
+if [[ -x "$DOTFILES_DIR/nvm-setup.sh" ]]; then
+    "$DOTFILES_DIR/nvm-setup.sh"
+fi
+
+if [[ -x "$DOTFILES_DIR/zsh-setup.sh" ]]; then
+    "$DOTFILES_DIR/zsh-setup.sh"
+fi
+
+printf '%bmacOS setup completed successfully.%b\n' "$GREEN" "$NC"
+printf '%bRestart your terminal or run `source ~/.zshrc` to apply changes.%b\n' "$YELLOW" "$NC"

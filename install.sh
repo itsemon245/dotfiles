@@ -1,49 +1,79 @@
 #!/usr/bin/env bash
-source colors.sh
 
-# Check if git is installed, install if not
-if ! command -v git &>/dev/null; then
-    echo "Git not found. Installing git..."
-    # Detect package manager and install git
-    if command -v pacman &>/dev/null; then
+set -uo pipefail
+
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[0;33m'
+CYAN=$'\033[0;36m'
+NC=$'\033[0m'
+
+install_git_if_missing() {
+    if command -v git >/dev/null 2>&1; then
+        return 0
+    fi
+
+    printf '%bGit not found. Installing git...%b\n' "$YELLOW" "$NC"
+
+    if command -v pacman >/dev/null 2>&1; then
         sudo pacman -S --noconfirm git
-    elif command -v apt-get &>/dev/null; then
-        sudo apt-get update && sudo apt-get install -y git
-    elif command -v dnf &>/dev/null; then
+    elif command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get update
+        sudo apt-get install -y git
+    elif command -v dnf >/dev/null 2>&1; then
         sudo dnf install -y git
-    elif command -v yum &>/dev/null; then
+    elif command -v yum >/dev/null 2>&1; then
         sudo yum install -y git
     else
-        echo "Error: Could not detect package manager. Please install git manually."
+        printf '%bError:%b could not detect a package manager. Install git manually.\n' "$RED" "$NC" >&2
         exit 1
     fi
-fi
+}
 
-# Check if we're already inside the dotfiles directory
-if [ -d ".git" ] && [ -f "pocman/bin/pocman" ]; then
-    echo "Already inside dotfiles directory. Skipping clone."
-    DOTFILES_DIR="$(pwd)"
-else
-    # Clone dotfiles only if not already in dotfiles directory
-    if [ ! -d ~/dotfiles ]; then
-        git clone https://github.com/itsemon245/dotfiles.git ~/dotfiles
+resolve_dotfiles_dir() {
+    if [[ -d ".git" && -x "pocman/bin/pocman" ]]; then
+        pwd
+        return 0
     fi
-    DOTFILES_DIR=~/dotfiles
+
+    local dotfiles_dir="${DOTFILES_DIR:-$HOME/dotfiles}"
+
+    if [[ ! -d "$dotfiles_dir" ]]; then
+        git clone https://github.com/itsemon245/dotfiles.git "$dotfiles_dir"
+    fi
+
+    printf '%s\n' "$dotfiles_dir"
+}
+
+install_git_if_missing
+
+DOTFILES_DIR="$(resolve_dotfiles_dir)"
+cd "$DOTFILES_DIR" || exit 1
+
+if [[ -f "$DOTFILES_DIR/colors.sh" ]]; then
+    # shellcheck source=/dev/null
+    source "$DOTFILES_DIR/colors.sh"
 fi
 
-cd "$DOTFILES_DIR"
+printf '%bInstalling stow...%b\n' "$CYAN" "$NC"
+"$DOTFILES_DIR/pocman/bin/pocman" install stow
 
-./pocman/bin/pocman install stow
-rm -rf ~/.config/pocman
-source stow.sh
-# Install all packages from TOML file using pkg script
-./pocman/bin/pocman --all
+printf '%bStowing dotfiles...%b\n' "$CYAN" "$NC"
+"$DOTFILES_DIR/stow.sh"
 
-echo -e "${CYAN}Updating SDDM theme...${NC}"
-chmod +x ~/dotfiles/sddm/update.sh
-source ~/dotfiles/sddm/update.sh
-echo -e "${GREEN}SDDM theme updated successfully!${NC}"
+printf '%bInstalling packages from Pocman lists...%b\n' "$CYAN" "$NC"
+"$DOTFILES_DIR/pocman/bin/pocman" --all
 
-rm -f ~/.zshrc
-source nvm-setup.sh
-source zsh-setup.sh
+if [[ -x "$DOTFILES_DIR/sddm/update.sh" ]]; then
+    printf '%bUpdating SDDM theme...%b\n' "$CYAN" "$NC"
+    "$DOTFILES_DIR/sddm/update.sh"
+    printf '%bSDDM theme updated successfully.%b\n' "$GREEN" "$NC"
+fi
+
+if [[ -x "$DOTFILES_DIR/nvm-setup.sh" ]]; then
+    "$DOTFILES_DIR/nvm-setup.sh"
+fi
+
+if [[ -x "$DOTFILES_DIR/zsh-setup.sh" ]]; then
+    "$DOTFILES_DIR/zsh-setup.sh"
+fi

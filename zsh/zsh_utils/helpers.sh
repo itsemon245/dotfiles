@@ -1,10 +1,10 @@
 #!/bin/bash
  # Colors
-  local BOLD="\033[1m"
-  local GREEN="\033[1;32m"
-  local RED="\033[1;31m"
-  local CYAN="\033[1;36m"
-  local RESET="\033[0m"
+  BOLD="\033[1m"
+  GREEN="\033[1;32m"
+  RED="\033[1;31m"
+  CYAN="\033[1;36m"
+  RESET="\033[0m"
 
 # Function to source every file in a directory
 # Usage: source_files_in directory_path

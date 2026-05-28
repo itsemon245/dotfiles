@@ -30,6 +30,7 @@ vnoremap <A-k> :m '<-2<CR>gv=gv
 " Use <c-space> to trigger completion
 if has('nvim')
   inoremap <silent><expr> <c-space> coc#refresh()
+endif
 
 " COC nvim configuration
 

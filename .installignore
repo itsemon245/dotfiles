@@ -3,6 +3,7 @@
 user
 system
 sddm
+scripts
 .agents
 .claude
 .codex

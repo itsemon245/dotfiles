@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+
+passed=0
+failed=0
+skipped=0
+
+info() {
+    printf '%s\n' "$*"
+}
+
+pass() {
+    passed=$((passed + 1))
+    printf 'ok: %s\n' "$*"
+}
+
+fail() {
+    failed=$((failed + 1))
+    printf 'fail: %s\n' "$*" >&2
+}
+
+skip() {
+    skipped=$((skipped + 1))
+    printf 'skip: %s\n' "$*"
+}
+
+run_check() {
+    local label="$1"
+    shift
+
+    if "$@"; then
+        pass "$label"
+    else
+        fail "$label"
+    fi
+}
+
+check_bash_syntax() {
+    local files=(
+        colors.sh
+        install.sh
+        stow.sh
+        mac_setup.sh
+        mac_install_packages.sh
+        nvm-setup.sh
+        zsh-setup.sh
+        pocman/bin/pocman
+        hyprland/bin/barr
+        hyprland/bin/disk-free
+        hyprland/bin/rofi-cast
+        hyprland/bin/rofi-monitor
+        hyprland/bin/rofi-vpn
+        hyprland/bin/wally
+        hyprland/bin/zstd-compress
+        hyprland/bin/zstd-extract
+        hyprland/.config/hypr/scripts/cliphist-rofi.sh
+        hyprland/.config/hypr/scripts/readable-window.sh
+        hyprland/.config/hypr/startup/launch.sh
+        hyprland/.config/waybar/scripts/brightness.sh
+        hyprland/.config/waybar/scripts/brightness-adjust.sh
+        others/env/bin/composer
+        others/env/bin/php
+        others/env/bin/sysphp
+        scripts/check-dotfiles
+    )
+    local file
+
+    for file in "${files[@]}"; do
+        [[ -f "$REPO_ROOT/$file" ]] || continue
+        run_check "bash -n $file" bash -n "$REPO_ROOT/$file"
+    done
+}
+
+check_zsh_syntax() {
+    local files=(
+        zsh/.zshrc
+        zsh/exports.sh
+        zsh/ssh-agent.sh
+        zsh/zsh_utils/helpers.sh
+    )
+    local file
+
+    if ! command -v zsh >/dev/null 2>&1; then
+        skip "zsh syntax checks; zsh is not installed"
+        return
+    fi
+
+    shopt -s nullglob
+    for alias_file in "$REPO_ROOT"/zsh/aliases/*.sh; do
+        files+=("${alias_file#"$REPO_ROOT"/}")
+    done
+    shopt -u nullglob
+
+    for file in "${files[@]}"; do
+        [[ -f "$REPO_ROOT/$file" ]] || continue
+        run_check "zsh -n $file" zsh -n "$REPO_ROOT/$file"
+    done
+}
+
+check_stow_dry_runs() {
+    run_check "stow dry-run package selection" "$REPO_ROOT/stow.sh" --dry-run --packages zsh,tmux
+    run_check "stow dry-run except filter" "$REPO_ROOT/stow.sh" --dry-run --packages zsh,tmux --except tmux
+}
+
+check_path_regressions() {
+    if command -v rg >/dev/null 2>&1; then
+        if rg -n '\$/usr/local/bin|\$HOME/\.nvm/versions/node/v20\.11\.1/bin' "$REPO_ROOT/zsh" >/dev/null; then
+            rg -n '\$/usr/local/bin|\$HOME/\.nvm/versions/node/v20\.11\.1/bin' "$REPO_ROOT/zsh" >&2
+            fail "removed known bad PATH entries"
+        else
+            pass "removed known bad PATH entries"
+        fi
+    else
+        skip "known PATH regression scan; rg is not installed"
+    fi
+}
+
+check_vim_config() {
+    local vimrc="$REPO_ROOT/vim/.vimrc"
+    local tmp_home
+
+    [[ -f "$vimrc" ]] || {
+        skip "vim config check; vim/.vimrc is missing"
+        return
+    }
+
+    if ! command -v vim >/dev/null 2>&1; then
+        skip "vim config check; vim is not installed"
+        return
+    fi
+
+    tmp_home="$(mktemp -d)"
+    mkdir -p "$tmp_home/.vim_runtime/vimrcs"
+    touch \
+        "$tmp_home/.vim_runtime/vimrcs/basic.vim" \
+        "$tmp_home/.vim_runtime/vimrcs/filetypes.vim" \
+        "$tmp_home/.vim_runtime/vimrcs/plugins_config.vim" \
+        "$tmp_home/.vim_runtime/vimrcs/extended.vim" \
+        "$tmp_home/.vim_runtime/my_configs.vim"
+
+    if HOME="$tmp_home" vim --clean -Nu "$vimrc" -n -es '+qall'; then
+        pass "vim config parses"
+    else
+        fail "vim config parses"
+    fi
+
+    rm -rf "$tmp_home"
+}
+
+check_neovim_config() {
+    local init_lua="$REPO_ROOT/nvim/.config/nvim/init.lua"
+    local lua_file
+
+    [[ -f "$init_lua" ]] || {
+        skip "neovim config check; init.lua is missing"
+        return
+    }
+
+    if ! command -v nvim >/dev/null 2>&1; then
+        skip "neovim config check; nvim is not installed"
+        return
+    fi
+
+    while IFS= read -r lua_file; do
+        run_check "neovim lua syntax ${lua_file#"$REPO_ROOT"/}" \
+            nvim --headless --clean -u NONE --cmd "lua assert(loadfile([[$lua_file]]))" '+qall'
+    done < <(find "$REPO_ROOT/nvim/.config/nvim" -type f -name '*.lua' | sort)
+}
+
+main() {
+    cd "$REPO_ROOT" || exit 1
+
+    info "Running dotfiles checks..."
+    check_bash_syntax
+    check_zsh_syntax
+    check_stow_dry_runs
+    check_path_regressions
+    check_vim_config
+    check_neovim_config
+
+    printf '\nSummary: %d passed, %d failed, %d skipped\n' "$passed" "$failed" "$skipped"
+
+    ((failed == 0))
+}
+
+main "$@"
