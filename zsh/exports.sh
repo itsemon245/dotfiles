@@ -1,38 +1,45 @@
 #!/usr/bin/env bash
 
-path_contains() {
-    case ":$PATH:" in
-        *":$1:"*) return 0 ;;
-        *) return 1 ;;
-    esac
-}
+if ! command -v path_prepend >/dev/null 2>&1; then
+    _dotfiles_shell_helpers="${DOTFILES_SHELL_HELPERS:-$HOME/.local/lib/dotfiles/shell/common.sh}"
+    if [[ -r "$_dotfiles_shell_helpers" ]]; then
+        # shellcheck source=/dev/null
+        . "$_dotfiles_shell_helpers"
+    fi
+    unset _dotfiles_shell_helpers
+fi
 
-path_prepend_once() {
-    local entry="$1"
+if ! command -v path_prepend >/dev/null 2>&1; then
+    path_contains() {
+        case ":${PATH:-}:" in
+            *":$1:"*) return 0 ;;
+            *) return 1 ;;
+        esac
+    }
 
-    [[ -n "$entry" ]] || return 0
-    path_contains "$entry" && return 0
-    PATH="$entry:$PATH"
-}
+    path_prepend() {
+        [[ -n "${1:-}" ]] || return 0
+        path_contains "$1" && return 0
+        PATH="$1${PATH:+:$PATH}"
+    }
 
-path_append_once() {
-    local entry="$1"
+    path_append() {
+        [[ -n "${1:-}" ]] || return 0
+        path_contains "$1" && return 0
+        PATH="${PATH:+$PATH:}$1"
+    }
+fi
 
-    [[ -n "$entry" ]] || return 0
-    path_contains "$entry" && return 0
-    PATH="$PATH:$entry"
-}
-
-path_prepend_once "$HOME/bin"
-path_prepend_once "$HOME/env/bin"
-path_append_once "/usr/local/bin"
-path_append_once "$HOME/.config/composer/vendor/bin"
-path_append_once "/opt/nvim-linux64/bin"
-path_append_once "$HOME/.local/bin"
-path_append_once "$HOME/.local/share/bin"
-path_append_once "$HOME/.local/share/nvim/mason/bin"
-path_append_once "$HOME/.local/share/nvim/lazy/none-ls.nvim/lua/null-ls/builtins/diagnostics"
-path_append_once "$HOME/scripts"
+path_prepend "$HOME/env/bin"
+path_prepend "$HOME/bin"
+path_prepend "$HOME/.local/bin"
+path_append "/usr/local/bin"
+path_append "$HOME/.config/composer/vendor/bin"
+path_append "/opt/nvim-linux64/bin"
+path_append "$HOME/.local/share/bin"
+path_append "$HOME/.local/share/nvim/mason/bin"
+path_append "$HOME/.local/share/nvim/lazy/none-ls.nvim/lua/null-ls/builtins/diagnostics"
+path_append "$HOME/scripts"
 
 export PATH
 
@@ -54,8 +61,8 @@ fi
 
 # Android SDK
 export ANDROID_HOME=/opt/android-sdk
-path_append_once "$ANDROID_HOME/emulator"
-path_append_once "$ANDROID_HOME/platform-tools"
-path_append_once "$ANDROID_HOME/tools"
-path_append_once "$ANDROID_HOME/tools/bin"
+path_append "$ANDROID_HOME/emulator"
+path_append "$ANDROID_HOME/platform-tools"
+path_append "$ANDROID_HOME/tools"
+path_append "$ANDROID_HOME/tools/bin"
 export PATH

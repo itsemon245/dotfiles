@@ -1,30 +1,72 @@
+_dotfiles_shell_helpers="${DOTFILES_SHELL_HELPERS:-$HOME/.local/lib/dotfiles/shell/common.sh}"
+if [[ -r "$_dotfiles_shell_helpers" ]]; then
+    source "$_dotfiles_shell_helpers"
+fi
+unset _dotfiles_shell_helpers
+
+if ! command -v source_if_exists >/dev/null 2>&1; then
+    source_if_exists() {
+        [[ -r "$1" ]] && source "$1"
+    }
+fi
+
+if ! command -v source_dir_if_exists >/dev/null 2>&1; then
+    source_dir_if_exists() {
+        local dir="${1:-}"
+        local find_dir
+        local file
+
+        [[ -d "$dir" ]] || return 0
+        find_dir="$dir/"
+        while IFS= read -r file; do
+            [[ -r "$file" ]] && source "$file"
+        done <<EOF
+$(find "$find_dir" -maxdepth 1 -type f \( -name '*.sh' -o -name '*.zsh' \) 2>/dev/null | sort)
+EOF
+    }
+fi
+
+if ! command -v path_prepend >/dev/null 2>&1; then
+    path_contains() {
+        case ":${PATH:-}:" in
+            *":$1:"*) return 0 ;;
+            *) return 1 ;;
+        esac
+    }
+
+    path_prepend() {
+        [[ -n "${1:-}" ]] || return 0
+        path_contains "$1" && return 0
+        PATH="$1${PATH:+:$PATH}"
+    }
+
+    path_append() {
+        [[ -n "${1:-}" ]] || return 0
+        path_contains "$1" && return 0
+        PATH="${PATH:+$PATH:}$1"
+    }
+fi
+
 #Oh-my-zsh things
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)
-source $ZSH/oh-my-zsh.sh
+source_if_exists "$ZSH/oh-my-zsh.sh"
 
 #Source helpers from utils
-source ~/zsh_utils/helpers.sh
-#Give permission to Scripts
-chmod -R +x ~/aliases
-chmod -R +x ~/exports.sh
-chmod -R +x ~/ssh-agent.sh
-#Source Scripts
-source_files_in ~/aliases/
-source ~/exports.sh
-source ~/ssh-agent.sh
+source_if_exists "$HOME/zsh_utils/helpers.sh"
 
-export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+#Source Scripts
+source_dir_if_exists "$HOME/aliases"
+source_if_exists "$HOME/exports.sh"
+source_if_exists "$HOME/ssh-agent.sh"
+
+path_prepend "/opt/homebrew/opt/libpq/bin"
 
 # Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/emon/.lmstudio/bin"
+path_append "$HOME/.lmstudio/bin"
 # End of LM Studio CLI section
 
 
 # Added by Antigravity
-export PATH="/Users/emon/.antigravity/antigravity/bin:$PATH"
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/home/emon/.lmstudio/bin"
-# End of LM Studio CLI section
+path_prepend "$HOME/.antigravity/antigravity/bin"
