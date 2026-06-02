@@ -74,10 +74,12 @@ Create a `.env` file in this directory to configure:
 
 ### Permanent Update
 
-Edit the `PHP_VERSION` variable at the top of:
-- `bin/php` script (line 5)
-- `bin/composer` script (line 5)
-- `php/Dockerfile` (line 2)
+Set `PHP_VERSION` in your shell profile or environment. The `php` and `composer`
+commands now live in `tools/.local/bin` and read the value at runtime through the
+shared Python Docker wrapper.
+
+The image build arg in `php/Dockerfile` should match the version you want to
+build.
 
 **After permanent update, rebuild the Docker image:**
 
@@ -116,7 +118,7 @@ PHPV=8.4 && docker build --build-arg PHP_VERSION=$PHPV -t my/php:$PHPV-dev ~/dot
 
 **Notes:**
 - `PHPV` variable ensures the version is consistent between build arg and image tag
-- The `PHP_VERSION` build arg should match the version in `bin/php` and `bin/composer` scripts
+- The `PHP_VERSION` build arg should match the runtime version exported for the `php` and `composer` tools.
 - Alternative: Set the variable first, then run the build command:
   ```bash
   export PHPV=8.4
@@ -174,4 +176,3 @@ sysphp script.php
 - No breaking team workflows
 - Easy to add PHP 8.5/8.6 later
 - Same behavior on any machine with Docker
-

@@ -40,39 +40,33 @@ run_check() {
 }
 
 check_bash_syntax() {
-    local files=(
-        colors.sh
-        install.sh
-        stow.sh
-        mac_setup.sh
-        mac_install_packages.sh
-        nvm-setup.sh
-        zsh-setup.sh
-        pocman/bin/pocman
-        hyprland/bin/barr
-        hyprland/bin/disk-free
-        hyprland/bin/rofi-cast
-        hyprland/bin/rofi-monitor
-        hyprland/bin/rofi-vpn
-        hyprland/bin/wally
-        hyprland/bin/zstd-compress
-        hyprland/bin/zstd-extract
-        hyprland/.config/hypr/scripts/cliphist-rofi.sh
-        hyprland/.config/hypr/scripts/readable-window.sh
-        hyprland/.config/hypr/startup/launch.sh
-        hyprland/.config/waybar/scripts/brightness.sh
-        hyprland/.config/waybar/scripts/brightness-adjust.sh
-        others/env/bin/composer
-        others/env/bin/php
-        others/env/bin/sysphp
-        scripts/check-dotfiles
-    )
     local file
 
-    for file in "${files[@]}"; do
-        [[ -f "$REPO_ROOT/$file" ]] || continue
+    while IFS= read -r file; do
+        file="${file#"$REPO_ROOT"/}"
+        is_shell_file "$REPO_ROOT/$file" || continue
         run_check "bash -n $file" bash -n "$REPO_ROOT/$file"
-    done
+    done < <(
+        find "$REPO_ROOT" \
+            -path "$REPO_ROOT/.git" -prune -o \
+            -path "$REPO_ROOT/zsh/.oh-my-zsh" -prune -o \
+            -path "$REPO_ROOT/tmux/tmux-installer" -prune -o \
+            -path "$REPO_ROOT/omarchy" -prune -o \
+            -type f \
+            -print | sort
+    )
+}
+
+is_shell_file() {
+    local file="$1"
+    local first_line
+
+    case "$file" in
+        *.sh) return 0 ;;
+    esac
+
+    IFS= read -r first_line < "$file" || return 1
+    [[ "$first_line" =~ ^#!.*(bash|/sh|env[[:space:]]+sh) ]]
 }
 
 check_zsh_syntax() {
@@ -104,6 +98,159 @@ check_zsh_syntax() {
 check_stow_dry_runs() {
     run_check "stow dry-run package selection" "$REPO_ROOT/stow.sh" --dry-run --packages zsh,tmux
     run_check "stow dry-run except filter" "$REPO_ROOT/stow.sh" --dry-run --packages zsh,tmux --except tmux
+    run_check "stow dry-run tools package" "$REPO_ROOT/stow.sh" --dry-run --packages tools
+}
+
+check_helper_loading() {
+    local tmp_home
+
+    run_check "bash loads startup helpers" \
+        bash -c '. "$1"; path_prepend /tmp/dotfiles-check; path_append /tmp/dotfiles-check-tail; path_remove /tmp/dotfiles-check; source_if_exists /no/such/file; command_exists bash' \
+        _ "$REPO_ROOT/tools/.local/lib/dotfiles/shell/common.sh"
+
+    if command -v zsh >/dev/null 2>&1; then
+        run_check "zsh loads startup helpers" \
+            zsh -c 'source "$1"; path_prepend /tmp/dotfiles-check; path_append /tmp/dotfiles-check-tail; path_remove /tmp/dotfiles-check; source_if_exists /no/such/file; command_exists zsh' \
+            _ "$REPO_ROOT/tools/.local/lib/dotfiles/shell/common.sh"
+    else
+        skip "zsh helper loading; zsh is not installed"
+    fi
+
+    tmp_home="$(mktemp -d)"
+    ln -s "$REPO_ROOT/zsh/aliases" "$tmp_home/aliases"
+    run_check "zsh loads aliases from symlinked directory" \
+        env HOME="$tmp_home" zsh -fc 'source "$1"; source_dir_if_exists "$HOME/aliases"; alias a >/dev/null; alias gac >/dev/null; alias gl | grep -q "git log --graph"' \
+        _ "$REPO_ROOT/tools/.local/lib/dotfiles/shell/common.sh"
+    rm -rf -- "$tmp_home"
+}
+
+check_python_tools() {
+    local tool
+    local help_arg
+    local tools=(
+        barr
+        brightness
+        brightness-adjust
+        cliphist-rofi
+        composer
+        disk-free
+        download_speed
+        hypr-startup
+        memory
+        php
+        readable-window
+        rofi-cast
+        rofi-monitor
+        rofi-vpn
+        sysphp
+        vhost
+        wally
+        zstd-compress
+        zstd-extract
+    )
+
+    if ! command -v python3 >/dev/null 2>&1; then
+        skip "python tools; python3 is not installed"
+        return
+    fi
+
+    run_check "python compile dotfiles tools" check_python_compile
+
+    for tool in "${tools[@]}"; do
+        help_arg="--help"
+        case "$tool" in
+            php|composer|sysphp) help_arg="--dotfiles-tool-help" ;;
+        esac
+        run_check "$tool help" env PYTHONDONTWRITEBYTECODE=1 "$REPO_ROOT/tools/.local/bin/$tool" "$help_arg"
+    done
+}
+
+check_python_compile() {
+    local pycache_tmp
+    local status
+
+    pycache_tmp="$(mktemp -d)"
+    env PYTHONPYCACHEPREFIX="$pycache_tmp" python3 -m compileall -q "$REPO_ROOT/tools/.local/lib/dotfiles_py"
+    status=$?
+    rm -rf -- "$pycache_tmp"
+    return "$status"
+}
+
+check_canonical_tool_call_sites() {
+    if ! command -v rg >/dev/null 2>&1; then
+        skip "canonical tool call-site scan; rg is not installed"
+        return
+    fi
+
+    if rg -n \
+        '~/bin/(wally|rofi-vpn|rofi-monitor|rofi-cast|barr|disk-free)|~/.config/hypr/scripts/(readable-window|cliphist-rofi)\.sh|~/.config/waybar/scripts/brightness|~/scripts/disk-free|startup/launch\.sh' \
+        "$REPO_ROOT/hyprland" "$REPO_ROOT/customization" "$REPO_ROOT/others" >/dev/null; then
+        rg -n \
+            '~/bin/(wally|rofi-vpn|rofi-monitor|rofi-cast|barr|disk-free)|~/.config/hypr/scripts/(readable-window|cliphist-rofi)\.sh|~/.config/waybar/scripts/brightness|~/scripts/disk-free|startup/launch\.sh' \
+            "$REPO_ROOT/hyprland" "$REPO_ROOT/customization" "$REPO_ROOT/others" >&2
+        fail "removed legacy tool call sites"
+    else
+        pass "removed legacy tool call sites"
+    fi
+}
+
+check_removed_legacy_tool_files() {
+    local file
+    local legacy_files=(
+        customization/scripts/download_speed
+        customization/scripts/memory
+        customization/scripts/vhost
+        hyprland/.config/hypr/scripts/cliphist-rofi.sh
+        hyprland/.config/hypr/scripts/readable-window.sh
+        hyprland/.config/hypr/startup/launch.sh
+        hyprland/.config/waybar/scripts/brightness-adjust.sh
+        hyprland/.config/waybar/scripts/brightness.sh
+        hyprland/bin/barr
+        hyprland/bin/disk-free
+        hyprland/bin/rofi-cast
+        hyprland/bin/rofi-monitor
+        hyprland/bin/rofi-vpn
+        hyprland/bin/wally
+        hyprland/bin/zstd-compress
+        hyprland/bin/zstd-extract
+        others/env/bin/composer
+        others/env/bin/php
+        others/env/bin/sysphp
+        tools/.local/bin/brightness-adjust.sh
+        tools/.local/bin/brightness.sh
+        tools/.local/bin/cliphist-rofi.sh
+        tools/.local/bin/readable-window.sh
+        tools/.local/lib/dotfiles/tool
+    )
+
+    for file in "${legacy_files[@]}"; do
+        if [[ -e "$REPO_ROOT/$file" ]]; then
+            fail "removed legacy file $file"
+            return
+        fi
+    done
+    pass "removed legacy tool files"
+}
+
+check_shellcheck() {
+    local files=(
+        tools/.local/lib/dotfiles/shell/common.sh
+        tools/.local/lib/dotfiles/shell/path.sh
+        tools/.local/lib/dotfiles/shell/source.sh
+        tools/.local/lib/dotfiles/shell/env.sh
+        scripts/check-dotfiles
+    )
+    local file
+
+    if ! command -v shellcheck >/dev/null 2>&1; then
+        skip "shellcheck; shellcheck is not installed"
+        return
+    fi
+
+    for file in "${files[@]}"; do
+        [[ -f "$REPO_ROOT/$file" ]] || continue
+        run_check "shellcheck $file" shellcheck "$REPO_ROOT/$file"
+    done
 }
 
 check_path_regressions() {
@@ -167,6 +314,7 @@ check_neovim_config() {
 
     while IFS= read -r lua_file; do
         run_check "neovim lua syntax ${lua_file#"$REPO_ROOT"/}" \
+            env NVIM_LOG_FILE="${TMPDIR:-/tmp}/dotfiles-check-nvim.log" \
             nvim --headless --clean -u NONE --cmd "lua assert(loadfile([[$lua_file]]))" '+qall'
     done < <(find "$REPO_ROOT/nvim/.config/nvim" -type f -name '*.lua' | sort)
 }
@@ -178,6 +326,11 @@ main() {
     check_bash_syntax
     check_zsh_syntax
     check_stow_dry_runs
+    check_helper_loading
+    check_python_tools
+    check_canonical_tool_call_sites
+    check_removed_legacy_tool_files
+    check_shellcheck
     check_path_regressions
     check_vim_config
     check_neovim_config

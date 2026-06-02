@@ -33,7 +33,7 @@ let {
 
   $disk= {
     type = "custom"
-    cmd = "~/scripts/disk-free"
+    cmd = "~/.local/bin/disk-free"
 
   }
 
