@@ -26,7 +26,7 @@ This dotfiles repository uses **GNU Stow** for symlink-based configuration manag
 The repository implements a **Unified Source of Truth** for theming. Colors are derived from the wallpaper and injected into all applications automatically.
 
 #### 1. The Controller: `wally`
-Located in: `customization/bin/wally`
+Located in: `tools/.local/bin/wally`
 A robust CLI utility that orchestrates the entire visual stack.
 
 *   **Capabilities:**
@@ -101,7 +101,6 @@ Each directory in the root is a stow package that gets symlinked to `~`:
 
 #### Customization & System Configs
 - **`customization/`** - General customization files.
-  - `bin/wally` - **The Wallpaper/Theme Utility**.
   - `.config/gtk-3.0/` & `gtk-4.0/` - GTK settings (receiving Wallust colors).
   - `.config/qt5ct/` - Qt theming configuration.
   - `.config/nwg-look/` - GTK theme switcher.
@@ -116,6 +115,10 @@ Each directory in the root is a stow package that gets symlinked to `~`:
 - **`fonts/`** - Font configurations.
 
 #### Development Tools
+- **`tools/`** - Maintained user commands and helper libraries.
+  - `.local/bin/` - Canonical command entrypoints such as `wally`, `rofi-vpn`, `rofi-cast`, `rofi-monitor`, `hypr-startup`, `php`, and `composer`.
+  - `.local/lib/dotfiles/shell/` - Startup-safe shell helpers for `.zshrc`, `exports.sh`, aliases, and sourced files.
+  - `.local/lib/dotfiles_py/dotfiles_tools/` - Python modules for maintained tools. The removed `tools/.local/lib/dotfiles/tool/` Bash helper layer should not be reintroduced.
 - **`pocman/`** - Custom package manager.
   - `bin/pocman` - Package manager executable.
   - `.config/pocman/` - Package lists.
