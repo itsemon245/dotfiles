@@ -1,0 +1,12 @@
+{
+  "extraPaths": [
+    "tools/.local/lib/dotfiles_py"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    ".git",
+    "zsh/.oh-my-zsh",
+    "tmux/tmux-installer",
+    "omarchy"
+  ]
+}

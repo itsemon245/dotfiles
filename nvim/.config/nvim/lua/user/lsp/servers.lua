@@ -18,7 +18,19 @@ return {
     filetypes = { "html", "css", "javascript", "typescript", "blade", "typescriptreact", "javascriptreact", "vue", "svelte" }
   },
   --python
-  pyright = {},
+  pyright = {
+    settings = {
+      python = {
+        analysis = {
+          autoImportCompletions = true,
+          extraPaths = {
+            "./tools/.local/lib/dotfiles_py",
+            vim.fn.expand("~/dotfiles/tools/.local/lib/dotfiles_py"),
+          },
+        },
+      },
+    },
+  },
   yamlls = {
     filetypes = { "yaml" },
     settings = {
