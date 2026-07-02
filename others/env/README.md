@@ -81,13 +81,9 @@ shared Python Docker wrapper.
 The image build arg in `php/Dockerfile` should match the version you want to
 build.
 
-**After permanent update, rebuild the Docker image:**
-
-```bash
-PHPV=8.4 && docker build --build-arg PHP_VERSION=$PHPV -t my/php:$PHPV-dev ~/dotfiles/others/env/php
-```
-
-Replace `8.4` with your desired version. The `PHPV` variable ensures consistency between the build arg and image tag.
+After a permanent update, rebuild the Docker image with the `php-build` command
+documented below. The build command keeps the build arg, cache source, and image
+tag consistent.
 
 ### On-Demand Update
 
@@ -113,16 +109,20 @@ composer install
 Build the image with the configured PHP version:
 
 ```bash
-PHPV=8.4 && docker build --build-arg PHP_VERSION=$PHPV -t my/php:$PHPV-dev ~/dotfiles/others/env/php
+php-build 8.4
 ```
 
 **Notes:**
-- `PHPV` variable ensures the version is consistent between build arg and image tag
+- `php-build 8.4` builds `my/php:8.4-dev`. You can also use `php-build --php-version 8.4`.
 - The `PHP_VERSION` build arg should match the runtime version exported for the `php` and `composer` tools.
-- Alternative: Set the variable first, then run the build command:
+- Run `php-build --help` for flags such as `--tag`, `--context`, `--builder`, `--legacy`, `--no-cache`, `--pull`, and `--dry-run`.
+- `php-build` prefers BuildKit when `docker buildx` is installed. Without buildx, it falls back to Docker's legacy builder with a warning.
+- Install `docker-buildx` for the best cache behavior, or use `php-build --buildkit` to fail fast when BuildKit is unavailable.
+- `php-build` passes `--cache-from my/php:<version>-dev`; when BuildKit is available it also passes `BUILDKIT_INLINE_CACHE=1` so future builds have a better chance of reusing layers after ordinary Docker cleanup.
+- If a late Dockerfile line is added, earlier steps should be cached. If the build restarts at an early `RUN apt-get ...` step, the intermediate build cache was probably pruned or a source image tag changed.
+- Extra Docker build options go after `--`:
   ```bash
-  export PHPV=8.4
-  docker build --build-arg PHP_VERSION=$PHPV -t my/php:$PHPV-dev ~/dotfiles/others/env/php
+  php-build 8.4 -- --progress=plain
   ```
 
 ---

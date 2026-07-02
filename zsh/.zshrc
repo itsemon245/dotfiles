@@ -70,3 +70,11 @@ path_append "$HOME/.lmstudio/bin"
 
 # Added by Antigravity
 path_prepend "$HOME/.antigravity/antigravity/bin"
+
+# pnpm
+export PNPM_HOME="/home/emon/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end

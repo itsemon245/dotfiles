@@ -1,4 +1,8 @@
 [desktop]
+dust
+linux
+linux-headers
+bindfs
 github-cli
 sendmail
 openwhispr-bin
@@ -54,7 +58,6 @@ cloudflared
 epiphany
 lib32-gamemode
 protonplus
-ncdu
 bleachbit
 yad
 thunar

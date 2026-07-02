@@ -11,6 +11,7 @@ return {
   --     },
   --   },
   -- },
+  laravel_ls = {},
   emmet_ls = {
     filetypes = { "html", "css", "javascript", "typescript", "javascriptreact", "typescriptreact", "vue", "svelte", "blade" },
   },

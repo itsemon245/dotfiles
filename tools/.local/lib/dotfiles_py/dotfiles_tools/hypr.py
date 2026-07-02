@@ -27,11 +27,11 @@ class Startup:
         self.ibus_wayland_panel = Path(os.environ.get("IBUS_WAYLAND_PANEL", "/usr/lib/ibus/ibus-ui-gtk3"))
 
     def setup_log(self) -> None:
-        self.log_dir.mkdir(parents=True, exist_ok=True)
         if self.dry_run:
             print(f"+ truncate {self.log_file}")
-        else:
-            self.log_file.write_text("", encoding="utf-8")
+            return
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.log_file.write_text("", encoding="utf-8")
 
     def log(self, message: str) -> None:
         line = f"[{datetime.now():%F %T}] [INFO] {message}"
@@ -150,7 +150,16 @@ class Startup:
         if self.have("openrgb", "OpenRGB theme sync"):
             self.run_logged("OpenRGB theme sync", ["bash", str(self.openrgb_script)])
 
-    def move_window_later(self, label: str, workspace: str, delay: float, selectors: list[str]) -> None:
+    def move_window_later(
+        self,
+        label: str,
+        workspace: str,
+        delay: float,
+        selectors: list[str],
+        *,
+        timeout: float = 6,
+        interval: float = 0.25,
+    ) -> None:
         if not self.have("hyprctl", f"{label} window move"):
             return
         code = r"""
@@ -159,19 +168,22 @@ import sys
 import time
 from pathlib import Path
 
-label, workspace, delay, log_file, *selectors = sys.argv[1:]
+label, workspace, delay, timeout, interval, log_file, *selectors = sys.argv[1:]
 time.sleep(float(delay))
-for selector in selectors:
-    with Path(log_file).open("ab") as handle:
-        result = subprocess.run(
-            ["hyprctl", "dispatch", "movetoworkspacesilent", f"{workspace},{selector}"],
-            stdout=handle,
-            stderr=subprocess.STDOUT,
-        )
-    if result.returncode == 0:
-        with Path(log_file).open("a", encoding="utf-8") as handle:
-            handle.write(f"Moved {label} window to {workspace}.\n")
-        sys.exit(0)
+deadline = time.monotonic() + float(timeout)
+while time.monotonic() <= deadline:
+    for selector in selectors:
+        with Path(log_file).open("ab") as handle:
+            result = subprocess.run(
+                ["hyprctl", "dispatch", "movetoworkspacesilent", f"{workspace},{selector}"],
+                stdout=handle,
+                stderr=subprocess.STDOUT,
+            )
+        if result.returncode == 0:
+            with Path(log_file).open("a", encoding="utf-8") as handle:
+                handle.write(f"Moved {label} window to {workspace}.\n")
+            sys.exit(0)
+    time.sleep(float(interval))
 with Path(log_file).open("a", encoding="utf-8") as handle:
     handle.write(f"Could not find {label} window to move.\n")
 """
@@ -182,6 +194,8 @@ with Path(log_file).open("a", encoding="utf-8") as handle:
             label,
             workspace,
             str(delay),
+            str(timeout),
+            str(interval),
             str(self.log_file),
             *selectors,
         ]
@@ -199,11 +213,21 @@ with Path(log_file).open("a", encoding="utf-8") as handle:
         self.start_ibus()
         self.sync_openrgb_theme()
         self.spawn("Slack", "slack", ["slack", "-u"])
+        self.spawn("Discord", "Discord", ["discord"])
+        self.move_window_later(
+            "Discord",
+            "special:magic",
+            0.8,
+            [
+                "class:^(discord|Discord|discordcanary|discordptb)$",
+                "title:^(Discord)$",
+            ],
+        )
         self.spawn("LocalSend", "localsend", ["localsend"])
         self.move_window_later(
             "LocalSend",
             "special:magic",
-            3,
+            0.8,
             [
                 "class:^(localsend|LocalSend|localsend_app)$",
                 "title:^(LocalSend)$",

@@ -1,38 +1,38 @@
 /* Primary Opacity Variants */
-@define-color primary #73767E;
-@define-color primary_10 rgba(115,118,126, 0.1);
-@define-color primary_20 rgba(115,118,126, 0.2);
-@define-color primary_30 rgba(115,118,126, 0.3);
-@define-color primary_40 rgba(115,118,126, 0.4);
-@define-color primary_50 rgba(115,118,126, 0.5);
-@define-color primary_60 rgba(115,118,126, 0.6);
-@define-color primary_70 rgba(115,118,126, 0.7);
-@define-color primary_80 rgba(115,118,126, 0.8);
-@define-color primary_90 rgba(115,118,126, 0.9);
+@define-color primary #BF4F6A;
+@define-color primary_10 rgba(191,79,106, 0.1);
+@define-color primary_20 rgba(191,79,106, 0.2);
+@define-color primary_30 rgba(191,79,106, 0.3);
+@define-color primary_40 rgba(191,79,106, 0.4);
+@define-color primary_50 rgba(191,79,106, 0.5);
+@define-color primary_60 rgba(191,79,106, 0.6);
+@define-color primary_70 rgba(191,79,106, 0.7);
+@define-color primary_80 rgba(191,79,106, 0.8);
+@define-color primary_90 rgba(191,79,106, 0.9);
 
 /* Background Opacity Variants */
-@define-color background #000003;
-@define-color background_10 rgba(0,0,3, 0.1);
-@define-color background_20 rgba(0,0,3, 0.2);
-@define-color background_30 rgba(0,0,3, 0.3);
-@define-color background_40 rgba(0,0,3, 0.4);
-@define-color background_50 rgba(0,0,3, 0.5);
-@define-color background_60 rgba(0,0,3, 0.6);
-@define-color background_70 rgba(0,0,3, 0.7);
-@define-color background_80 rgba(0,0,3, 0.8);
-@define-color background_90 rgba(0,0,3, 0.9);
+@define-color background #0C0000;
+@define-color background_10 rgba(12,0,0, 0.1);
+@define-color background_20 rgba(12,0,0, 0.2);
+@define-color background_30 rgba(12,0,0, 0.3);
+@define-color background_40 rgba(12,0,0, 0.4);
+@define-color background_50 rgba(12,0,0, 0.5);
+@define-color background_60 rgba(12,0,0, 0.6);
+@define-color background_70 rgba(12,0,0, 0.7);
+@define-color background_80 rgba(12,0,0, 0.8);
+@define-color background_90 rgba(12,0,0, 0.9);
 
 /* Foreground Opacity Variants */
-@define-color foreground #F2F3F6;
-@define-color foreground_10 rgba(242,243,246, 0.1);
-@define-color foreground_20 rgba(242,243,246, 0.2);
-@define-color foreground_30 rgba(242,243,246, 0.3);
-@define-color foreground_40 rgba(242,243,246, 0.4);
-@define-color foreground_50 rgba(242,243,246, 0.5);
-@define-color foreground_60 rgba(242,243,246, 0.6);
-@define-color foreground_70 rgba(242,243,246, 0.7);
-@define-color foreground_80 rgba(242,243,246, 0.8);
-@define-color foreground_90 rgba(242,243,246, 0.9);
+@define-color foreground #F7DDE4;
+@define-color foreground_10 rgba(247,221,228, 0.1);
+@define-color foreground_20 rgba(247,221,228, 0.2);
+@define-color foreground_30 rgba(247,221,228, 0.3);
+@define-color foreground_40 rgba(247,221,228, 0.4);
+@define-color foreground_50 rgba(247,221,228, 0.5);
+@define-color foreground_60 rgba(247,221,228, 0.6);
+@define-color foreground_70 rgba(247,221,228, 0.7);
+@define-color foreground_80 rgba(247,221,228, 0.8);
+@define-color foreground_90 rgba(247,221,228, 0.9);
 
 * {
     background-image: none;

@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+import argparse
+import os
+import shlex
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+def split_passthrough(argv):
+    try:
+        index = argv.index("--")
+    except ValueError:
+        return argv, []
+    return argv[:index], argv[index + 1 :]
+
+
+def has_buildx():
+    return bool(
+        shutil.which("docker")
+        and subprocess.run(
+            ["docker", "buildx", "version"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        ).returncode
+        == 0
+    )
+
+
+def main():
+    root = Path(os.environ.get("DOTFILES_ROOT", Path(__file__).resolve().parents[3])).expanduser().resolve()
+    default_context = root / "others" / "env" / "php"
+
+    parser = argparse.ArgumentParser(
+        prog="php-build",
+        usage="%(prog)s [PHP_VERSION] [options] [-- DOCKER_BUILD_ARGS...]",
+        description="Build the shared Docker-backed PHP image.",
+        epilog=(
+            "Examples:\n"
+            "  php-build\n"
+            "  php-build 8.5\n"
+            "  php-build --legacy 8.4\n"
+            "  php-build --php-version 8.4 -- --progress=plain"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("version", nargs="?", help="PHP version to build")
+    parser.add_argument("-v", "--php-version", metavar="VERSION", help="PHP version to build")
+    parser.add_argument("-t", "--tag", "--image", metavar="IMAGE", help="Image tag to write")
+    parser.add_argument("-c", "--context", metavar="DIR", default=str(default_context), help="Docker build context")
+    parser.add_argument(
+        "--builder",
+        choices=("auto", "buildkit", "legacy"),
+        default=os.environ.get("PHP_BUILD_BUILDER", "auto"),
+        help="Builder mode",
+    )
+    parser.add_argument("--buildkit", action="store_const", const="buildkit", dest="builder", help="Require BuildKit")
+    parser.add_argument("--legacy", action="store_const", const="legacy", dest="builder", help="Use legacy builder")
+    parser.add_argument("--no-cache", action="store_true", help="Pass --no-cache to docker build")
+    parser.add_argument("--pull", action="store_true", help="Pass --pull to docker build")
+    parser.add_argument("--dry-run", action="store_true", help="Print the docker build command")
+
+    cli_args, extra_docker_args = split_passthrough(sys.argv[1:])
+    args = parser.parse_args(cli_args)
+    if args.builder not in {"auto", "buildkit", "legacy"}:
+        parser.error("builder mode must be auto, buildkit, or legacy")
+
+    version = args.php_version or args.version or os.environ.get("PHP_VERSION", "8.4")
+    if not version:
+        parser.error("PHP version cannot be empty")
+
+    tag = args.tag or f"my/php:{version}-dev"
+    context = Path(args.context).expanduser()
+    if not (context / "Dockerfile").is_file():
+        parser.exit(2, f"php-build: Dockerfile not found: {context / 'Dockerfile'}\n")
+
+    buildx = has_buildx()
+    if args.builder == "buildkit" and not buildx:
+        parser.exit(2, "php-build: BuildKit requested, but docker buildx is missing. Install docker-buildx or rerun with --legacy.\n")
+
+    use_buildkit = args.builder == "buildkit" or (args.builder == "auto" and buildx)
+    if args.builder == "auto" and not buildx and not args.dry_run:
+        print(
+            "php-build: docker buildx is missing; falling back to the legacy builder. Install docker-buildx for BuildKit caching.",
+            file=sys.stderr,
+        )
+
+    env = os.environ.copy()
+    env["DOCKER_BUILDKIT"] = "1" if use_buildkit else "0"
+    command = [
+        "docker",
+        "build",
+        "--build-arg",
+        f"PHP_VERSION={version}",
+        "--cache-from",
+        tag,
+        "-t",
+        tag,
+    ]
+    if use_buildkit:
+        command += ["--build-arg", "BUILDKIT_INLINE_CACHE=1"]
+    if args.no_cache:
+        command.append("--no-cache")
+    if args.pull:
+        command.append("--pull")
+    command += extra_docker_args + [str(context)]
+
+    if args.dry_run:
+        print(" ".join([f"DOCKER_BUILDKIT={env['DOCKER_BUILDKIT']}", *map(shlex.quote, command)]))
+        return 0
+
+    if not shutil.which("docker"):
+        parser.exit(2, "php-build: missing required command: docker\n")
+
+    builder = "BuildKit" if use_buildkit else "Docker legacy builder"
+    print(f"Building {tag} with PHP {version} using {builder}")
+    os.execvpe("docker", command, env)
+    return 127
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

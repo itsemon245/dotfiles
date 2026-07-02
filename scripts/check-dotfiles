@@ -135,6 +135,7 @@ check_python_tools() {
         composer
         disk-free
         download_speed
+        game-prep
         hypr-startup
         memory
         php
