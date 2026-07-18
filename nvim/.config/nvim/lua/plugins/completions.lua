@@ -135,7 +135,7 @@ return {
           draw = {
             columns = {
               { "label", "kind_icon", gap = 4 },
-              { "kind", gap = 1 },
+              { "kind",  gap = 1 },
             },
           }
         }

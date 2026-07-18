@@ -1,0 +1,9 @@
+[Unit]
+Description=Heal the homelab Caddy reverse proxy if Docker networking breaks
+After=docker.service tailscaled.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/emon/homelab
+ExecStart=/home/emon/homelab/caddy/scripts/ensure-proxy.sh heal

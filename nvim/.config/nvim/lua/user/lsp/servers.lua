@@ -60,7 +60,7 @@ return {
   --     "vue"
   --   },
   -- },
-  ts_ls = {
+  tsgo = {
     filetypes = {
       "typescript",
       "javascript",

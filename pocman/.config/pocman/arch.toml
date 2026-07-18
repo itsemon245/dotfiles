@@ -39,6 +39,7 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+vlc
 dust
 flatpak
 linux
@@ -65,7 +66,6 @@ python-pillow
 libwebp
 gtk4-layer-shell
 vlc-plugin-ffmpeg
-vlc
 just
 innoextract
 perl-image-exiftool
@@ -136,10 +136,10 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+google-chrome
 bindfs
 sendmail
 openwhispr-bin
-google-chrome
 claude-code
 sddm-silent-theme
 networkmanager-dmenu-git
@@ -161,6 +161,7 @@ openrgb-bin
 
 # Gaming packages
 [gaming:pacman]
+lutris
 lib32-nvidia-utils
 nvidia-open
 discord

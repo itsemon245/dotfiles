@@ -27,7 +27,8 @@ opt.termguicolors = true
 opt.smartindent = true
 opt.spell = true
 
-opt.wildmode = 'longest:full,full'  -- complete the longest common match, and allow tabbing the results to fully complete them
+opt.wildmode =
+'longest:full,full'                 -- complete the longest common match, and allow tabbing the results to fully complete them
 opt.fillchars:append({ eob = ' ' }) -- remove the ~ from end of buffer
 
 -- Lock the cursor to at least above 8 lines from bottom/up while scrolling
@@ -94,3 +95,15 @@ g.loaded_node_provider = 0
 g.loaded_perl_provider = 0
 g.loaded_python3_provider = 0
 g.loaded_ruby_provider = 0
+
+--
+--Wrapping --
+--
+-- Enable line wrapping
+vim.opt.wrap = true
+-- Prevent wrapping from breaking words in the middle
+vim.opt.linebreak = true
+-- Indent wrapped lines to match the start of the line
+vim.opt.breakindent = true
+-- Visual prefix for wrapped lines (optional)
+vim.opt.showbreak = "↳ "
