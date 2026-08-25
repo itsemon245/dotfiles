@@ -136,6 +136,7 @@ check_python_tools() {
         disk-free
         download_speed
         game-prep
+        vn-optimize-assets
         hypr-startup
         memory
         php

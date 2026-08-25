@@ -39,6 +39,8 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+samba
+libreoffice-fresh
 vlc
 dust
 flatpak
@@ -136,6 +138,7 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+chatgpt-desktop-bin
 google-chrome
 bindfs
 sendmail

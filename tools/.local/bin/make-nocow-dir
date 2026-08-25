@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="${1:-}"
+
+die() {
+  echo "error: $*" >&2
+  exit 1
+}
+
+need() {
+  command -v "$1" >/dev/null || die "$1 is required"
+}
+
+is_nocow_dir() {
+  lsattr -d "$1" 2>/dev/null | awk '{print $1}' | grep -q 'C'
+}
+
+verify() {
+  local dir="$1"
+  local count
+
+  echo
+  echo "Directory attribute:"
+  lsattr -d "$dir"
+
+  echo
+  echo "Sample copied file attributes:"
+  if find "$dir" -type f -print -quit | grep -q .; then
+    count=0
+    while IFS= read -r file; do
+      lsattr "$file"
+      count=$((count + 1))
+      [ "$count" -ge 20 ] && break
+    done < <(find "$dir" -type f)
+  else
+    echo "No regular files found under $dir"
+  fi
+
+  echo
+  echo "Symlink sample:"
+  if find "$dir" -type l -print -quit | grep -q .; then
+    count=0
+    while IFS= read -r link; do
+      ls -la "$link"
+      count=$((count + 1))
+      [ "$count" -ge 20 ] && break
+    done < <(find "$dir" -type l)
+  else
+    echo "No symlinks found under $dir"
+  fi
+}
+
+[ -n "$DIR" ] || die "Usage: $0 /path/to/directory"
+
+need rsync
+need chattr
+need lsattr
+need realpath
+need awk
+need grep
+
+DIR="$(realpath -m "$DIR")"
+PARENT="$(dirname "$DIR")"
+BASE="$(basename "$DIR")"
+OLD="$PARENT/$BASE.COW-old"
+
+[ -d "$DIR" ] || [ -d "$OLD" ] || die "neither target nor old backup exists: $DIR / $OLD"
+
+echo "Making NOCOW directory:"
+echo "  target: $DIR"
+echo "  old:    $OLD"
+echo
+
+if [ -d "$DIR" ] && is_nocow_dir "$DIR" && [ ! -e "$OLD" ]; then
+  echo "Already NOCOW and no old backup exists. Nothing to do."
+  verify "$DIR"
+  exit 0
+fi
+
+if [ ! -e "$OLD" ]; then
+  [ -d "$DIR" ] || die "target does not exist: $DIR"
+
+  read -rp "Rename target to .COW-old and recreate as NOCOW? [y/N] " ans
+  [[ "$ans" == "y" || "$ans" == "Y" ]] || exit 0
+
+  mv "$DIR" "$OLD"
+fi
+
+if [ ! -d "$OLD" ]; then
+  die "old backup exists but is not a directory: $OLD"
+fi
+
+if [ ! -d "$DIR" ]; then
+  mkdir "$DIR"
+  chattr +C "$DIR"
+elif ! is_nocow_dir "$DIR"; then
+  if find "$DIR" -mindepth 1 -print -quit | grep -q .; then
+    die "target exists, is not NOCOW, and is not empty: $DIR"
+  fi
+
+  chattr +C "$DIR"
+fi
+
+echo "Syncing old COW data into NOCOW target..."
+rsync -aHAX --info=progress2 "$OLD/" "$DIR/"
+
+echo
+echo "Done."
+verify "$DIR"
+
+echo
+echo "Old COW copy kept at:"
+echo "$OLD"
+echo
+echo "Delete it later after testing:"
+printf 'rm -rf %q\n' "$OLD"

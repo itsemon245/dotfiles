@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+set -u
+
+if ! command -v uv >/dev/null 2>&1; then
+    printf '%s\n' "fb-marketplace-scrape: missing required command: uv" >&2
+    printf '%s\n' "Install uv and make sure it is on PATH, then rerun this command." >&2
+    printf '%s\n' "See: https://docs.astral.sh/uv/getting-started/installation/" >&2
+    exit 127
+fi
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P) || exit 1
+script="$script_dir/../lib/dotfiles_py/dotfiles_tools/fb_marketplace_scrape.py"
+
+if [ ! -f "$script" ]; then
+    printf '%s\n' "fb-marketplace-scrape: internal script not found: $script" >&2
+    printf '%s\n' "Re-stow or reinstall the dotfiles tools package." >&2
+    exit 1
+fi
+
+exec uv run --script "$script" "$@"
