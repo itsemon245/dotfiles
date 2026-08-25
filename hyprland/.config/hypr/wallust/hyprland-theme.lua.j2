@@ -1,0 +1,9 @@
+-- Wallust template for lua/generated/theme.lua. Activate it only after the candidate config is tested.
+---@type Dotfiles.Theme
+return {
+  background = "rgb({{background | strip}})",
+  foreground = "rgb({{foreground | strip}})",
+  primary = "rgb({{color4 | strip}})",
+  secondary = "rgb({{color5 | strip}})",
+  primary_dim = "rgba({{color4 | strip}}80)",
+}

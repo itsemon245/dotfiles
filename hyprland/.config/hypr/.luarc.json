@@ -1,0 +1,19 @@
+{
+  "runtime": {
+    "version": "Lua 5.5",
+    "path": ["?.lua", "?/init.lua"]
+  },
+  "workspace": {
+    "checkThirdParty": false,
+    "library": [
+      "/usr/share/hypr/stubs",
+      "${workspaceFolder}/lua/types"
+    ]
+  },
+  "diagnostics": {
+    "globals": ["hl"]
+  },
+  "hint": {
+    "enable": true
+  }
+}

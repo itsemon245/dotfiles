@@ -10,7 +10,11 @@ LAUNCH_COMMAND="${2:-"uwsm-app -- $WINDOW_PATTERN"}"
 WINDOW_ADDRESS=$(hyprctl clients -j | jq -r --arg p "$WINDOW_PATTERN" '.[]|select((.class|test("\\b" + $p + "\\b";"i")) or (.title|test("\\b" + $p + "\\b";"i")))|.address' | head -n1)
 
 if [[ -n $WINDOW_ADDRESS ]]; then
-  hyprctl dispatch focuswindow "address:$WINDOW_ADDRESS"
+  if [[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprland.lua" ]]; then
+    hyprctl eval "hl.dispatch(hl.dsp.focus({ window = \"address:$WINDOW_ADDRESS\" }))"
+  else
+    hyprctl dispatch focuswindow "address:$WINDOW_ADDRESS"
+  fi
 else
   eval exec setsid $LAUNCH_COMMAND
 fi

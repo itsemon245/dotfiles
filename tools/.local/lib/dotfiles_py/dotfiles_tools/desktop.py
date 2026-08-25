@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 from textwrap import dedent
 
-from . import notify, process, rofi
+from . import hypr_runtime, notify, process, rofi
 from .cli import ToolError, add_dry_run
 from .paths import cache_dir, home, xdg_config_home
 
@@ -354,9 +354,9 @@ def main_rofi_monitor(argv: list[str] | None = None) -> int:
     chosen = chosen.strip()
 
     if "VRR" in chosen:
-        target = "0" if monitor.get("vrr") else "1"
-        status = process.run(["hyprctl", "keyword", "misc:vrr", target], dry_run=args.dry_run).returncode
-        notify.notify("Monitor", "VRR Disabled" if target == "0" else "VRR Enabled (Adaptive Sync)")
+        target = 0 if monitor.get("vrr") else 1
+        status = hypr_runtime.monitor(output=str(monitor.get("name")), vrr=target, dry_run=args.dry_run)
+        notify.notify("Monitor", "VRR Disabled" if target == 0 else "VRR Enabled (Adaptive Sync)")
         return status
 
     match = re.search(r"(\d+)Hz", chosen)
@@ -366,10 +366,13 @@ def main_rofi_monitor(argv: list[str] | None = None) -> int:
     name = str(monitor.get("name"))
     scale = str(monitor.get("scale"))
     position = f"{monitor.get('x')}x{monitor.get('y')}"
-    status = process.run(
-        ["hyprctl", "keyword", "monitor", f"{name},{resolution}@{rate},{position},{scale}"],
+    status = hypr_runtime.monitor(
+        output=name,
+        mode=f"{resolution}@{rate}",
+        position=position,
+        scale=scale,
         dry_run=args.dry_run,
-    ).returncode
+    )
     notify.notify("Monitor", f"Switched to {rate}Hz" if status == 0 else f"Failed to switch to {rate}Hz")
     return status
 
@@ -505,8 +508,28 @@ def main_readable_window(argv: list[str] | None = None) -> int:
             print(f"+ touch {lock}")
         else:
             lock.touch()
-        process.run(["hyprctl", "keyword", "windowrulev2", f"opacity 1 override 1 override, address:{address}"], dry_run=args.dry_run)
-        process.run(["hyprctl", "keyword", "windowrulev2", f"noblur, address:{address}"], dry_run=args.dry_run)
+        if hypr_runtime.uses_lua_config():
+            selector = f"address:{address}"
+            hypr_runtime.eval_lua(
+                "hl.dispatch(hl.dsp.window.set_prop({ "
+                "prop = 'opacity', value = '1.0 override 1.0 override', "
+                f"window = {json.dumps(selector)} "
+                "}))",
+                dry_run=args.dry_run,
+            )
+            hypr_runtime.eval_lua(
+                "hl.dispatch(hl.dsp.window.set_prop({ "
+                "prop = 'no_blur', value = true, "
+                f"window = {json.dumps(selector)} "
+                "}))",
+                dry_run=args.dry_run,
+            )
+        else:
+            process.run(
+                ["hyprctl", "keyword", "windowrulev2", f"opacity 1 override 1 override, address:{address}"],
+                dry_run=args.dry_run,
+            )
+            process.run(["hyprctl", "keyword", "windowrulev2", f"noblur, address:{address}"], dry_run=args.dry_run)
         notify.notify("Hyprland", "Active window is now solid.", icon="video-display", replace_id=9999)
         return 0
 
@@ -515,13 +538,20 @@ def main_readable_window(argv: list[str] | None = None) -> int:
         return completed.returncode
     enabled = json.loads(completed.stdout).get("int") == 1
     if enabled:
-        for command in (
-            ["hyprctl", "keyword", "decoration:blur:enabled", "false"],
-            ["hyprctl", "keyword", "decoration:active_opacity", "1.0"],
-            ["hyprctl", "keyword", "decoration:inactive_opacity", "1.0"],
-            ["hyprctl", "keyword", "general:col.active_border", "rgba(00ff00ee)"],
-        ):
-            process.run(command, dry_run=args.dry_run)
+        if hypr_runtime.uses_lua_config():
+            hypr_runtime.eval_lua(
+                "hl.config({ decoration = { blur = { enabled = false }, active_opacity = 1.0, inactive_opacity = 1.0 }, "
+                "general = { col = { active_border = 'rgba(00ff00ee)' } } })",
+                dry_run=args.dry_run,
+            )
+        else:
+            for command in (
+                ["hyprctl", "keyword", "decoration:blur:enabled", "false"],
+                ["hyprctl", "keyword", "decoration:active_opacity", "1.0"],
+                ["hyprctl", "keyword", "decoration:inactive_opacity", "1.0"],
+                ["hyprctl", "keyword", "general:col.active_border", "rgba(00ff00ee)"],
+            ):
+                process.run(command, dry_run=args.dry_run)
         notify.notify("Hyprland", "Opacity: 1.0 | Blur: 0", icon="video-display", replace_id=9999)
     else:
         process.run(["hyprctl", "reload"], dry_run=args.dry_run)

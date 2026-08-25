@@ -5,6 +5,8 @@ others/.local/share/nvim
 others/.local/state/nvim
 **/.DS_Store
 hyprland/.config/hypr/colors.conf
+hyprland/.config/hypr/lua/generated/theme.lua
+hyprland/.config/hypr/lua/local/machine.lua
 hyprland/.config/rofi/colors/wallust.rasi
 hyprland/.config/waybar/colors.css
 customization/.config/gtk-4.0/colors.css

@@ -1,0 +1,120 @@
+/**
+ * Keyboard shortcut manual, based on adi1090x's applets/type-1/style-1.
+ * It intentionally keeps that compact list aesthetic while leaving enough
+ * room for a full shortcut and its description.
+ */
+
+configuration {
+    show-icons: false;
+    matching: "fuzzy";
+    normalize-match: false;
+}
+
+@import "~/.config/rofi/applets/shared/colors.rasi"
+@import "~/.config/rofi/applets/shared/fonts.rasi"
+
+* {
+    match-highlight: bold #98C379FF;
+}
+
+window {
+    transparency: "real";
+    location: center;
+    anchor: center;
+    width: 780px;
+    border: 1px solid;
+    border-radius: 0px;
+    border-color: @selected;
+    background-color: @background;
+}
+
+mainbox {
+    spacing: 12px;
+    padding: 24px;
+    background-color: transparent;
+    children: [ "inputbar", "message", "listview" ];
+}
+
+inputbar {
+    spacing: 10px;
+    padding: 0px;
+    background-color: transparent;
+    text-color: @foreground;
+    children: [ "textbox-prompt-colon", "prompt", "entry" ];
+}
+
+textbox-prompt-colon {
+    expand: false;
+    str: "";
+    padding: 10px 13px;
+    border-radius: 0px;
+    background-color: @urgent;
+    text-color: @background;
+}
+
+prompt {
+    expand: false;
+    padding: 10px;
+    border-radius: 0px;
+    background-color: @active;
+    text-color: @background;
+}
+
+entry {
+    expand: true;
+    padding: 10px 14px;
+    border-radius: 0px;
+    background-color: @background-alt;
+    text-color: @foreground;
+    placeholder: "Search keys or actions…";
+    placeholder-color: @foreground;
+}
+
+message {
+    padding: 10px 12px;
+    border-radius: 0px;
+    background-color: @background-alt;
+    text-color: @foreground;
+}
+
+textbox {
+    background-color: inherit;
+    text-color: inherit;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+listview {
+    columns: 1;
+    lines: 13;
+    cycle: true;
+    scrollbar: true;
+    layout: vertical;
+    spacing: 5px;
+    background-color: transparent;
+}
+
+element {
+    padding: 10px 12px;
+    border-radius: 0px;
+    background-color: transparent;
+    text-color: @foreground;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    highlight: @match-highlight;
+    vertical-align: 0.5;
+}
+
+element normal.normal,
+element alternate.normal {
+    background-color: @background;
+    text-color: @foreground;
+}
+
+element selected.normal {
+    background-color: @selected;
+    text-color: @background;
+}

@@ -371,9 +371,7 @@ def _transition_flags(opts: Options) -> list[str]:
 def _reload_desktop(*, dry_run: bool) -> None:
     if process.pgrep("-x", "waybar"):
         process.pkill("-x", "waybar", dry_run=dry_run)
-        if process.command_exists("hyprctl"):
-            process.run(["hyprctl", "dispatch", "exec", "waybar"], dry_run=dry_run)
-        elif process.command_exists("waybar"):
+        if process.command_exists("waybar"):
             process.background(["waybar"], dry_run=dry_run)
     process.pkill("-x", "dunst", dry_run=dry_run)
     process.pkill("-USR1", "-x", "kitty", dry_run=dry_run)
@@ -395,6 +393,8 @@ def _update_system_theme(image: Path, opts: Options) -> None:
         completed = process.run(["wallust", "run", str(image), "-q"], dry_run=opts.dry_run)
         if completed.returncode != 0:
             _wally_notify("Wallust failed; wallpaper was still applied.", urgency="critical", dry_run=opts.dry_run)
+        elif process.command_exists("hyprctl"):
+            process.run(["hyprctl", "reload"], dry_run=opts.dry_run)
         _reload_desktop(dry_run=opts.dry_run)
     else:
         _wally_notify("Wallust is not installed; skipped color generation.", dry_run=opts.dry_run)
