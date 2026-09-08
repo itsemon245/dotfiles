@@ -13,7 +13,7 @@ return function(_settings)
   hl.monitor(fallback)
 
   -- A local profile is optional. Copy lua/local/machine.example.lua to
-  -- lua/local/machine.lua and replace its placeholder display description.
+  -- lua/local/machine.lua and set its output selector.
   local loaded, profile_or_error = pcall(require, "lua.local.machine")
   if not loaded then
     print(string.format("Hyprland monitor profile: using fallback (%s)", tostring(profile_or_error)))

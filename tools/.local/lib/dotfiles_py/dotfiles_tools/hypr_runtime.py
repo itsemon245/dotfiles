@@ -1,15 +1,12 @@
-"""Compatibility adapter for controlling legacy and Lua Hyprland sessions."""
+"""Runtime adapter for controlling the Lua Hyprland session."""
 
 from __future__ import annotations
 
+import argparse
 import json
 
 from . import process
-from .paths import xdg_config_home
-
-
-def uses_lua_config() -> bool:
-    return (xdg_config_home() / "hypr" / "hyprland.lua").is_file()
+from .cli import add_dry_run
 
 
 def eval_lua(code: str, *, dry_run: bool = False) -> int:
@@ -17,13 +14,7 @@ def eval_lua(code: str, *, dry_run: bool = False) -> int:
 
 
 def monitor(*, output: str, mode: str | None = None, position: str | None = None, scale: float | str | None = None, vrr: int | None = None, dry_run: bool = False) -> int:
-    if not uses_lua_config():
-        if vrr is not None:
-            return process.run(["hyprctl", "keyword", "misc:vrr", str(vrr)], dry_run=dry_run).returncode
-        assert mode is not None and position is not None and scale is not None
-        return process.run(["hyprctl", "keyword", "monitor", f"{output},{mode},{position},{scale}"], dry_run=dry_run).returncode
-
-    fields = {"output": output}
+    fields: dict[str, str | float | int] = {"output": output}
     if mode is not None:
         fields["mode"] = mode
     if position is not None:
@@ -37,11 +28,36 @@ def monitor(*, output: str, mode: str | None = None, position: str | None = None
 
 
 def move_window(*, workspace: str, selector: str, dry_run: bool = False) -> int:
-    if not uses_lua_config():
-        return process.run(["hyprctl", "dispatch", "movetoworkspacesilent", f"{workspace},{selector}"], dry_run=dry_run).returncode
     return eval_lua(
         "hl.dispatch(hl.dsp.window.move({ "
         f"workspace = {json.dumps(workspace)}, follow = false, window = {json.dumps(selector)} "
         "}))",
         dry_run=dry_run,
     )
+
+
+def session_uses_uwsm() -> bool:
+    """Return whether the current user manager owns a UWSM compositor unit."""
+    if not process.command_exists("systemctl"):
+        return False
+    return process.run(
+        ["systemctl", "--user", "is-active", "--quiet", "wayland-wm@*.service"],
+        quiet=True,
+    ).returncode == 0
+
+
+def logout(*, dry_run: bool = False) -> int:
+    """End the graphical session through its owning session manager."""
+    if session_uses_uwsm():
+        process.require("uwsm")
+        return process.run(["uwsm", "stop"], dry_run=dry_run).returncode
+
+    process.require("hyprctl")
+    return eval_lua("hl.dispatch(hl.dsp.exit())", dry_run=dry_run)
+
+
+def main_logout(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="hypr-logout", description="End the current Hyprland session cleanly.")
+    add_dry_run(parser)
+    args = parser.parse_args(argv)
+    return logout(dry_run=args.dry_run)

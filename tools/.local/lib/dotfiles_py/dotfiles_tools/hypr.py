@@ -164,7 +164,6 @@ class Startup:
             return
         code = r"""
 import json
-import os
 import subprocess
 import sys
 import time
@@ -176,16 +175,12 @@ deadline = time.monotonic() + float(timeout)
 while time.monotonic() <= deadline:
     for selector in selectors:
         with Path(log_file).open("ab") as handle:
-            config_home = Path(os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config")))
-            if (config_home / "hypr" / "hyprland.lua").is_file():
-                code = (
-                    "hl.dispatch(hl.dsp.window.move({ "
-                    f"workspace = {json.dumps(workspace)}, follow = false, window = {json.dumps(selector)} "
-                    "}))"
-                )
-                command = ["hyprctl", "eval", code]
-            else:
-                command = ["hyprctl", "dispatch", "movetoworkspacesilent", f"{workspace},{selector}"]
+            code = (
+                "hl.dispatch(hl.dsp.window.move({ "
+                f"workspace = {json.dumps(workspace)}, follow = false, window = {json.dumps(selector)} "
+                "}))"
+            )
+            command = ["hyprctl", "eval", code]
             result = subprocess.run(command, stdout=handle, stderr=subprocess.STDOUT)
         if result.returncode == 0:
             with Path(log_file).open("a", encoding="utf-8") as handle:

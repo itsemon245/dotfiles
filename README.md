@@ -5,6 +5,32 @@
 sh <(curl -sL https://itsemon245.github.io/dotfiles/install.sh)
 ```
 
+### System-wide WirePlumber device policy
+
+The WirePlumber device-priority rules are tracked in
+`wireplumber/system/wireplumber.conf.d/`. They are intentionally not stowed
+into a user's home directory: deploy them for every local user with:
+
+```sh
+./wireplumber/install-system-config.sh
+```
+
+Preview the deployment without administrator access:
+
+```sh
+./wireplumber/install-system-config.sh --dry-run
+```
+
+On a fresh installation, opt in to the same deployment with:
+
+```sh
+sh <(curl -sL https://itsemon245.github.io/dotfiles/install.sh) --system-audio
+```
+
+Users with an old `~/.config/wireplumber` stow symlink should remove that
+link once after deploying the system configuration, then restart their
+WirePlumber session or log out and back in.
+
 ### Safe stow
 
 `stow.sh` is non-destructive by default. When an existing target conflicts

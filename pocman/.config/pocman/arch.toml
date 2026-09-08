@@ -107,7 +107,6 @@ exfatprogs
 ntfs-3g
 polkit
 udisks2
-nwg-displays
 qt5-quickcontrols
 qt5-declarative
 qt5-svg
@@ -138,12 +137,12 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
-chatgpt-desktop-bin
+claude-code
 google-chrome
+chatgpt-desktop-bin
 bindfs
 sendmail
 openwhispr-bin
-claude-code
 sddm-silent-theme
 networkmanager-dmenu-git
 vencord-installer-bin

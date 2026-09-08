@@ -2,6 +2,36 @@
 
 set -uo pipefail
 
+INSTALL_SYSTEM_AUDIO=false
+
+usage() {
+    cat <<'EOF'
+Usage: ./install.sh [OPTIONS]
+
+Options:
+  --system-audio  Install the repository's WirePlumber device policy for all users.
+  -h, --help      Show this help.
+EOF
+}
+
+while (($# > 0)); do
+    case "$1" in
+        --system-audio)
+            INSTALL_SYSTEM_AUDIO=true
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            printf 'Unknown option: %s\n' "$1" >&2
+            usage >&2
+            exit 2
+            ;;
+    esac
+    shift
+done
+
 RED=$'\033[0;31m'
 GREEN=$'\033[0;32m'
 YELLOW=$'\033[0;33m'
@@ -76,4 +106,8 @@ fi
 
 if [[ -x "$DOTFILES_DIR/zsh-setup.sh" ]]; then
     "$DOTFILES_DIR/zsh-setup.sh"
+fi
+
+if [[ "$INSTALL_SYSTEM_AUDIO" == true ]]; then
+    "$DOTFILES_DIR/wireplumber/install-system-config.sh"
 fi

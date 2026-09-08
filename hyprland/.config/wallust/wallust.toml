@@ -23,7 +23,7 @@ check_contrast = true
 
 # template_name = { template = "source", target = "destination" }
 
-hyprland = { template = "hyprland-colors.conf", target = "~/.config/hypr/colors.conf" }
+hyprland = { template = "hyprland-theme.lua", target = "~/.config/hypr/lua/generated/theme.lua" }
 
 waybar = { template = "waybar-colors.template", target = "~/.config/waybar/colors.css" }
 

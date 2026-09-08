@@ -508,28 +508,21 @@ def main_readable_window(argv: list[str] | None = None) -> int:
             print(f"+ touch {lock}")
         else:
             lock.touch()
-        if hypr_runtime.uses_lua_config():
-            selector = f"address:{address}"
-            hypr_runtime.eval_lua(
-                "hl.dispatch(hl.dsp.window.set_prop({ "
-                "prop = 'opacity', value = '1.0 override 1.0 override', "
-                f"window = {json.dumps(selector)} "
-                "}))",
-                dry_run=args.dry_run,
-            )
-            hypr_runtime.eval_lua(
-                "hl.dispatch(hl.dsp.window.set_prop({ "
-                "prop = 'no_blur', value = true, "
-                f"window = {json.dumps(selector)} "
-                "}))",
-                dry_run=args.dry_run,
-            )
-        else:
-            process.run(
-                ["hyprctl", "keyword", "windowrulev2", f"opacity 1 override 1 override, address:{address}"],
-                dry_run=args.dry_run,
-            )
-            process.run(["hyprctl", "keyword", "windowrulev2", f"noblur, address:{address}"], dry_run=args.dry_run)
+        selector = f"address:{address}"
+        hypr_runtime.eval_lua(
+            "hl.dispatch(hl.dsp.window.set_prop({ "
+            "prop = 'opacity', value = '1.0 override 1.0 override', "
+            f"window = {json.dumps(selector)} "
+            "}))",
+            dry_run=args.dry_run,
+        )
+        hypr_runtime.eval_lua(
+            "hl.dispatch(hl.dsp.window.set_prop({ "
+            "prop = 'no_blur', value = true, "
+            f"window = {json.dumps(selector)} "
+            "}))",
+            dry_run=args.dry_run,
+        )
         notify.notify("Hyprland", "Active window is now solid.", icon="video-display", replace_id=9999)
         return 0
 
@@ -538,20 +531,11 @@ def main_readable_window(argv: list[str] | None = None) -> int:
         return completed.returncode
     enabled = json.loads(completed.stdout).get("int") == 1
     if enabled:
-        if hypr_runtime.uses_lua_config():
-            hypr_runtime.eval_lua(
-                "hl.config({ decoration = { blur = { enabled = false }, active_opacity = 1.0, inactive_opacity = 1.0 }, "
-                "general = { col = { active_border = 'rgba(00ff00ee)' } } })",
-                dry_run=args.dry_run,
-            )
-        else:
-            for command in (
-                ["hyprctl", "keyword", "decoration:blur:enabled", "false"],
-                ["hyprctl", "keyword", "decoration:active_opacity", "1.0"],
-                ["hyprctl", "keyword", "decoration:inactive_opacity", "1.0"],
-                ["hyprctl", "keyword", "general:col.active_border", "rgba(00ff00ee)"],
-            ):
-                process.run(command, dry_run=args.dry_run)
+        hypr_runtime.eval_lua(
+            "hl.config({ decoration = { blur = { enabled = false }, active_opacity = 1.0, inactive_opacity = 1.0 }, "
+            "general = { col = { active_border = 'rgba(00ff00ee)' } } })",
+            dry_run=args.dry_run,
+        )
         notify.notify("Hyprland", "Opacity: 1.0 | Blur: 0", icon="video-display", replace_id=9999)
     else:
         process.run(["hyprctl", "reload"], dry_run=args.dry_run)

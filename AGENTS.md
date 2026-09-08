@@ -51,7 +51,7 @@ Configured in: `~/.config/wallust/wallust.toml` (v3 syntax).
 
 *   **Backend:** `wal` (Dark16 palette)
 *   **Templates:**
-    *   `hyprland-colors.conf` → `~/.config/hypr/colors.conf`
+    *   `hyprland-theme.lua` → `~/.config/hypr/lua/generated/theme.lua`
     *   `waybar-colors.css` → `~/.config/waybar/colors.css`
     *   `dunstrc` → `~/.config/dunst/dunstrc`
     *   `rofi-colors.rasi` → `~/.config/rofi/colors.rasi`
@@ -65,10 +65,10 @@ Each directory in the root is a stow package that gets symlinked to `~`:
 
 #### Window Management & Desktop
 - **`hyprland/`** - Hyprland window manager config.
-  - `hyprland.conf` - Main config.
-  - `keybinds.conf` - Key definitions (includes `Super+W` for wally).
-  - `colors.conf` - **Auto-generated** color variables.
-  - `windowrules.conf` - Application rules.
+  - `hyprland.lua` - Main Lua configuration entry point.
+  - `lua/modules/` - Focused modules for bindings, rules, monitors, and startup.
+  - `lua/settings.lua` - Shared configuration values.
+  - `lua/generated/theme.lua` - **Auto-generated** Wallust theme.
 
 - **`waybar/`** - Status bar.
   - `config.jsonc` - Bar layout.

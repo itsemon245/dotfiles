@@ -1,8 +1,7 @@
 # Maintaining the Hyprland Lua configuration
 
-This directory is a candidate configuration. It is intentionally separate from
-the active legacy `~/.config/hypr` configuration, so editing or validating it
-cannot interrupt the current desktop session.
+This is the active Hyprland configuration. Changes take effect after
+`hyprctl reload` unless the module's setting requires a session restart.
 
 ## Start here
 
@@ -40,8 +39,9 @@ starting.
 
 The base monitor module always registers `preferred` mode with automatic
 placement first. Therefore an unfamiliar monitor or a new machine has a usable
-fallback. Add a local profile only after checking `hyprctl monitors all`; prefer
-a `desc:` selector rather than a connector such as `DP-2`.
+fallback. Add a local profile only after checking `hyprctl monitors all`; use a
+connector such as `DP-2` for a machine-local profile, or a `desc:` selector
+when the same monitor needs to follow a different connector.
 
 ## Modules and helpers
 
@@ -89,29 +89,25 @@ bind({
 })
 ```
 
-## External tools during migration
+## External tools
 
-The maintained desktop tools detect `~/.config/hypr/hyprland.lua`. While it is
-absent they issue legacy `hyprctl` commands; after activation they use Lua
-evaluation for monitor changes, window moves and focus, and readability mode.
-This keeps `Super + Shift + M` (`rofi-monitor`) useful on either side of the
-manual cutover. `wally` regenerates colours and reloads Hyprland in both modes.
+The maintained desktop tools use Lua evaluation for monitor changes, window
+moves, focus, and readability mode. This keeps `Super + Shift + M`
+(`rofi-monitor`) aligned with the configuration. `wally` regenerates the Lua
+theme and reloads Hyprland.
 
-## Checks and activation
+## Checks and recovery
 
-Before a manual activation:
+Before reloading a configuration change:
 
 ```sh
 find . -path './wallust/*' -prune -o -name '*.lua' -print0 | xargs -0 -r -n1 luac -p
 lua-language-server --check=. --check_format=pretty --checklevel=Information
 ```
 
-After moving this candidate into the live Hyprland location, keep
-`hyprland.rescue.lua` beside it. From a TTY, launch it with:
+Keep `hyprland.rescue.lua` beside the main configuration. From a TTY, launch it
+with:
 
 ```sh
 Hyprland --config ~/.config/hypr/hyprland.rescue.lua
 ```
-
-Only remove the legacy configuration after the Lua configuration has been
-tested on the intended display and on the fallback path.

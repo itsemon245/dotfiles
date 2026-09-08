@@ -1,4 +1,4 @@
--- Candidate Hyprland Lua configuration. This directory is intentionally not active.
+-- Hyprland Lua configuration entry point.
 
 ---@alias ApplyModule fun(settings: Dotfiles.Settings)
 

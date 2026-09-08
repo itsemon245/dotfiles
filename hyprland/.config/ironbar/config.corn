@@ -110,8 +110,8 @@ let {
   $workspace = {
     type = "workspaces"
     sort = "alphanumeric"
-    on_scroll_up = "hyprctl dispatch workspace -1"
-    on_scroll_down = "hyprctl dispatch workspace +1"
+    on_scroll_up = "hyprctl eval 'hl.dispatch(hl.dsp.focus({ workspace = \"e-1\" }))'"
+    on_scroll_down = "hyprctl eval 'hl.dispatch(hl.dsp.focus({ workspace = \"e+1\" }))'"
   }
   $wlogout = {
     type = "custom"

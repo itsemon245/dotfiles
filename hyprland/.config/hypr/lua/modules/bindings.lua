@@ -49,7 +49,7 @@ return function(settings)
   bind({ keys = mod("SPACE"), action = helper.exec(app.menu), desc = "Open application menu" })
   bind({ keys = mod("X"), action = hl.dsp.window.close(), desc = "Close active window" })
   bind({ keys = mod("Q"), action = hl.dsp.window.close(), desc = "Close active window" })
-  bind({ keys = mod("R"), action = hl.dsp.exit(), desc = "Exit Hyprland" })
+  bind({ keys = mod("R"), action = helper.exec("hypr-logout"), desc = "Log out" })
   bind({ keys = mod("SHIFT + T"), action = hl.dsp.window.float({ action = "toggle" }), desc = "Toggle floating" })
   bind({ keys = mod("F"), action = hl.dsp.window.fullscreen({ action = "toggle" }), desc = "Toggle fullscreen" })
 
