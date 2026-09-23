@@ -10,6 +10,27 @@ from . import process
 from .paths import home, xdg_cache_home, xdg_config_home
 
 
+_PRIVILEGED_IDS = {0, 65534}
+
+
+def _container_identity(working_directory: Path) -> tuple[int, int]:
+    uid = os.getuid()
+    gid = os.getgid()
+    if uid not in _PRIVILEGED_IDS and gid not in _PRIVILEGED_IDS:
+        return uid, gid
+
+    sudo_uid = os.environ.get("SUDO_UID", "")
+    sudo_gid = os.environ.get("SUDO_GID", "")
+    if sudo_uid.isdigit() and sudo_gid.isdigit():
+        return int(sudo_uid), int(sudo_gid)
+
+    owner = working_directory.stat()
+    if owner.st_uid not in _PRIVILEGED_IDS and owner.st_gid not in _PRIVILEGED_IDS:
+        return owner.st_uid, owner.st_gid
+
+    return uid, gid
+
+
 def _tool_help(name: str) -> str:
     if name == "composer":
         return "Usage: composer [COMPOSER_ARGS...]\nRuns Composer inside the configured PHP Docker image."
@@ -19,6 +40,8 @@ def _tool_help(name: str) -> str:
 
 
 def _base_args(tty_mode: str) -> tuple[list[str], str, str]:
+    working_directory = Path.cwd()
+    uid, gid = _container_identity(working_directory)
     php_version = os.environ.get("PHP_VERSION", "8.4")
     image = os.environ.get("PHP_IMAGE", f"my/php:{php_version}-dev")
     network = os.environ.get("PHP_NETWORK", "host")
@@ -32,11 +55,11 @@ def _base_args(tty_mode: str) -> tuple[list[str], str, str]:
         "run",
         "--rm",
         "-u",
-        f"{os.getuid()}:{os.getgid()}",
+        f"{uid}:{gid}",
         "--network",
         network,
         "-v",
-        f"{Path.cwd()}:/app",
+        f"{working_directory}:/app",
         "-w",
         "/app",
         "-v",
@@ -154,4 +177,3 @@ def main_sysphp(argv: list[str] | None = None) -> int:
     executable = "/usr/bin/php"
     os.execv(executable, [executable, *argv])
     return 127
-

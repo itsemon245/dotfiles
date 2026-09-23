@@ -13,6 +13,24 @@ It is optimized for Laravel + Vite workflows.
 - Clean access to Dockerized MySQL/Redis/Postgres
 - Explicit escape hatch for system PHP
 
+## Bind-mount ownership
+
+The `php` and `composer` wrappers run containers with the calling host user's
+UID and GID. If they are launched through `sudo` or privileged automation, they
+use the original user or the mounted working directory owner instead of writing
+root-owned files into the project.
+
+`php-build` also records that identity as the image's default user. This keeps a
+raw `docker run ... my/php:<version>-dev` invocation non-root even when the
+wrapper is bypassed. Rebuild the image after changing machines or host users:
+
+```bash
+php-build 8.4
+```
+
+Files created by an older root-running container still require a one-time
+ownership repair; the portable setup prevents new mismatched files afterward.
+
 ---
 
 ## Commands

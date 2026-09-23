@@ -97,5 +97,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends exiftool \
 
 # Defaults that help dev
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
-    REDIS_CLIENT=phpredis
+    REDIS_CLIENT=phpredis \
+    HOME=/tmp \
+    XDG_CONFIG_HOME=/tmp/.config \
+    COMPOSER_CACHE_DIR=/tmp/composer-cache
 WORKDIR /app
+
+# Keep raw docker runs safe for bind-mounted project directories. The wrappers
+# still pass --user at runtime, while php-build sets these defaults for the host.
+ARG PHP_UID=1000
+ARG PHP_GID=1000
+USER ${PHP_UID}:${PHP_GID}

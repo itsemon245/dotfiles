@@ -7,6 +7,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib" / "dotfiles_py"))
+
+from dotfiles_tools.php_docker import _container_identity
+
 
 def split_passthrough(argv):
     try:
@@ -89,11 +94,16 @@ def main():
 
     env = os.environ.copy()
     env["DOCKER_BUILDKIT"] = "1" if use_buildkit else "0"
+    uid, gid = _container_identity(Path.cwd())
     command = [
         "docker",
         "build",
         "--build-arg",
         f"PHP_VERSION={version}",
+        "--build-arg",
+        f"PHP_UID={uid}",
+        "--build-arg",
+        f"PHP_GID={gid}",
         "--cache-from",
         tag,
         "-t",
