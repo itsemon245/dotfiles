@@ -137,6 +137,7 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+claude-desktop
 claude-code
 google-chrome
 chatgpt-desktop-bin
