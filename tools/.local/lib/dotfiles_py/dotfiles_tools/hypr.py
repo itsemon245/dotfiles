@@ -213,6 +213,7 @@ with Path(log_file).open("a", encoding="utf-8") as handle:
         self.spawn("Waybar", "waybar", ["waybar"])
         if not self.dry_run:
             time.sleep(1)
+        self.spawn("NetBird tray", "netbird-ui", ["netbird-ui"])
         self.start_ibus()
         self.sync_openrgb_theme()
         self.spawn("Slack", "slack", ["slack", "-u"])

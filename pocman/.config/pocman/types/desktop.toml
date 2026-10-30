@@ -1,4 +1,6 @@
 [desktop]
+netbird-ui-bin
+netbird
 claude-desktop
 chatgpt-desktop-bin
 samba
