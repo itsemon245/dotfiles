@@ -20,6 +20,7 @@ class Startup:
         self.log_dir = xdg_cache_home() / "hypr"
         self.log_file = self.log_dir / "startup.log"
         self.title = "Hyprland startup"
+        self.notify_relay = Path(__file__).resolve().parents[3] / "bin" / "notify-relay"
         self.default_wallpaper = Path(os.environ.get("DEFAULT_WALLPAPER", str(home() / "Wallpapers" / "default.png"))).expanduser()
         self.openrgb_script = Path(os.environ.get("OPENRGB_SCRIPT", str(home() / ".config/OpenRGB/scripts/wallust-colors.sh"))).expanduser()
         self.polkit_agent = Path(os.environ.get("POLKIT_AGENT", "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"))
@@ -207,6 +208,7 @@ with Path(log_file).open("a", encoding="utf-8") as handle:
     def run(self) -> int:
         self.setup_log()
         self.start_dunst()
+        self.spawn_path("queued notifications", self.notify_relay, "--wait", "10")
         self.spawn_path("polkit authentication agent", self.polkit_agent)
         self.set_wallpaper()
         self.spawn("NetworkManager applet", "nm-applet", ["nm-applet", "--indicator"])

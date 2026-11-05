@@ -1,0 +1,6 @@
+[Unit]
+Description=Deliver queued notifications to the desktop
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/notify-relay --wait 15

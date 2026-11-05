@@ -18,6 +18,10 @@ def xdg_config_home() -> Path:
     return Path(os.environ.get("XDG_CONFIG_HOME", home() / ".config")).expanduser()
 
 
+def xdg_state_home() -> Path:
+    return Path(os.environ.get("XDG_STATE_HOME", home() / ".local/state")).expanduser()
+
+
 def cache_dir(name: str) -> Path:
     path = xdg_cache_home() / name
     path.mkdir(parents=True, exist_ok=True)
