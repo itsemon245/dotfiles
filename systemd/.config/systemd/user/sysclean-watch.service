@@ -1,0 +1,7 @@
+[Unit]
+Description=Warn when disk space is low
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/sysclean watch
+Nice=10

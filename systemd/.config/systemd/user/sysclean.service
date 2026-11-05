@@ -1,0 +1,8 @@
+[Unit]
+Description=Preview the safe disk cleanup and report it
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/sysclean clean --level 1 --notify
+Nice=10
+IOSchedulingClass=idle
