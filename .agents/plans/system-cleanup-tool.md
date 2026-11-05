@@ -217,9 +217,20 @@ Each phase is reviewable and usable alone.
 5. **Automation.** Enable the weekly Level 1 timer after a few clean manual runs.
 6. **System config.** Apply the pacman and coredump settings.
 
-## Open Decisions
+## Decisions
 
-- Final command name.
-- Whether the weekly timer deletes Level 1 data, or only notifies.
-- Age limits, for example keeping AUR build files newer than 30 days.
-- Whether `/etc` configuration gets its own package or stays documented.
+- The command is `sysclean`.
+- The weekly timer previews and notifies. To let it delete, add `--apply` to
+  `ExecStart` in `sysclean.service` after a few clean manual runs.
+- Level 1 keeps AUR build folders and dangling images newer than 30 days.
+- Warnings fire at 30G free, and critical notifications at 10G.
+- `/etc` settings stay manual, and `report` shows when they are missing.
+
+## Differences From the Plan Above
+
+- Cache rules remove a directory's contents, not the directory. Docker bind
+  mounts such as the Composer cache would otherwise be recreated as root-owned.
+- Level 1 has no thumbnail rule, because that cache stays in constant use.
+- Level 3 leftovers come from `rules` in `local.toml`, since removed apps cannot
+  be found safely by searching.
+- A preview with nothing to do posts no notification.
