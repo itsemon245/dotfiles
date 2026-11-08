@@ -95,6 +95,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
 RUN apt-get update && apt-get install -y --no-install-recommends exiftool \
     && rm -rf /var/lib/apt/lists/*
 
+# redis-cli, for code that shells out to it (artistly's AccumulatorService scans keys with it).
+RUN apt-get update && apt-get install -y --no-install-recommends redis-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# OPcache for the CLI too (artisan, workers, test runs); see opcache-cli.ini. Loaded after
+# custom.ini (zz-), so its settings win. At the end to keep the layers above cached.
+COPY opcache-cli.ini /usr/local/etc/php/conf.d/zz-opcache-cli.ini
+
 # Defaults that help dev
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     REDIS_CLIENT=phpredis \
