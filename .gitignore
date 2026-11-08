@@ -20,3 +20,11 @@ kitty/.config/kitty/colors.conf
 .gemini
 .ai
 .opencode
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# App-generated icons: ~/.local/share/icons is folded into this package, so
+# AppImage, Wine and Lutris write their launcher icons (and the cache) here.
+customization/.local/share/icons/hicolor/

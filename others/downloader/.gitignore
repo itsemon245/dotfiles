@@ -35,3 +35,7 @@ qb_config/qBittorrent/BT_backup/
 qb_config/qBittorrent/GeoDB/
 qb_config/qBittorrent/rss/
 qb_config/qBittorrent/qBittorrent-data.conf
+qb_config/.ash_history
+qb_config/qBittorrent/lockfile
+qb_config/qBittorrent/ipc-socket
+qb_config/qBittorrent/*.bak.*
