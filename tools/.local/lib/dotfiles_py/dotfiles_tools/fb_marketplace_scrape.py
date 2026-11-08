@@ -40,6 +40,12 @@ FIELDS = [
     "description",
     "description_scraped_at",
     "description_error",
+    "listed_age",
+    "listed_location",
+    "image_count",
+    "image_urls",
+    "details_scraped_at",
+    "details_error",
 ]
 
 REJECTED_FIELDS = [
@@ -64,6 +70,19 @@ DESCRIPTION_FIELDS = [
     "description_scraped_at",
     "description_error",
 ]
+
+DETAIL_FIELDS = [
+    "listed_age",
+    "listed_location",
+    "image_count",
+    "image_urls",
+    "details_scraped_at",
+    "details_error",
+]
+IMAGE_URL_SEPARATOR = "|"
+ENRICH_CHECKPOINT_EVERY = 10
+# Facebook's single-page app leaks memory across navigations (GBs per tab); open a fresh tab periodically.
+ENRICH_PAGE_RECYCLE_EVERY = 10
 
 PRICE_MARKER_RE = re.compile(
     r"(৳|\$|£|€|\bfree\b|(?<![A-Za-z])(?:Tk|BDT|Rs)\s*\d|\b(?:Tk|BDT|Rs)\b)",
@@ -196,6 +215,158 @@ DETAIL_TITLE_SCRIPT = r"""
   }
 
   return candidates[0] || "";
+}
+"""
+
+LISTED_SCRIPT = r"""
+() => {
+  const clean = text => (text || "").replace(/\s+/g, " ").trim();
+  const listedRe = /^Listed\s+(.+?)(?:\s+in\s+(.+))?$/i;
+  const root = document.querySelector('[role="main"]') || document.body;
+  let best = null;
+
+  for (const node of root.querySelectorAll("span, div, abbr")) {
+    const text = clean(node.innerText || node.textContent || "");
+    if (!text || text.length > 140) continue;
+    const match = text.match(listedRe);
+    if (!match) continue;
+    if (!best || text.length < best.text.length) {
+      best = { text, age: clean(match[1]), location: clean(match[2] || "") };
+    }
+  }
+
+  return best;
+}
+"""
+
+GALLERY_IMAGE_JS_HELPERS = r"""
+  const mediaRe = /(scontent|fbcdn|fbsbx|lookaside)/i;
+  const badAltRe = /(profile picture|avatar|map|emoji|sticker|icon)/i;
+  const clean = value => (value || "").replace(/\s+/g, " ").trim();
+  const srcsetBest = srcset => {
+    if (!srcset) return "";
+    const parsed = srcset.split(",")
+      .map(item => {
+        const parts = item.trim().split(/\s+/);
+        const url = parts[0] || "";
+        const descriptor = parts[1] || "";
+        const width = descriptor.endsWith("w") ? Number.parseInt(descriptor, 10) : 0;
+        const scale = descriptor.endsWith("x") ? Number.parseFloat(descriptor) * 1000 : 0;
+        return { url, score: width || scale || 1 };
+      })
+      .filter(item => item.url);
+    parsed.sort((a, b) => b.score - a.score);
+    return parsed[0]?.url || "";
+  };
+  const absolutize = value => {
+    try {
+      return new URL(value, document.location.href).href;
+    } catch (_) {
+      return "";
+    }
+  };
+  const imageInfo = (img, rect, source) => ({
+    url: absolutize(srcsetBest(img.srcset) || img.currentSrc || img.src || ""),
+    alt: clean(img.alt || img.getAttribute("aria-label") || ""),
+    area: Math.max(rect.width * rect.height, (img.naturalWidth || 0) * (img.naturalHeight || 0)),
+    source,
+  });
+  const usable = info => (
+    info.url && mediaRe.test(info.url) && !badAltRe.test(info.alt) &&
+    !info.url.startsWith("blob:") && !info.url.startsWith("data:")
+  );
+"""
+
+MAIN_IMAGE_SCRIPT = r"""
+() => {
+""" + GALLERY_IMAGE_JS_HELPERS + r"""
+  const visible = rect => (
+    rect.width >= 80 && rect.height >= 80 && rect.bottom > 90 &&
+    rect.right > 0 && rect.top < window.innerHeight && rect.left < window.innerWidth
+  );
+  const candidates = [];
+
+  for (const img of document.querySelectorAll("img")) {
+    const rect = img.getBoundingClientRect();
+    if (!visible(rect)) continue;
+    const info = imageInfo(img, rect, "main_carousel");
+    if (!usable(info)) continue;
+
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const leftMediaBonus = centerX < window.innerWidth * 0.78 ? 2 : 0.65;
+    const upperPageBonus = centerY < window.innerHeight * 0.85 ? 1.4 : 0.4;
+    info.score = rect.width * rect.height * leftMediaBonus * upperPageBonus + info.area / 100;
+    candidates.push(info);
+  }
+
+  candidates.sort((a, b) => b.score - a.score);
+  return candidates[0] || null;
+}
+"""
+
+GALLERY_THUMBNAILS_SCRIPT = r"""
+() => {
+""" + GALLERY_IMAGE_JS_HELPERS + r"""
+  const images = [];
+
+  for (const img of document.querySelectorAll("img")) {
+    const rect = img.getBoundingClientRect();
+    if (rect.width < 70 || rect.height < 70) continue;
+    if (rect.bottom < 90 || rect.top > window.innerHeight * 0.94) continue;
+    if (rect.left > window.innerWidth * 0.82) continue;
+    const info = imageInfo(img, rect, "dom_fallback");
+    if (usable(info)) images.push(info);
+  }
+
+  return images;
+}
+"""
+
+CLICK_NEXT_IMAGE_SCRIPT = r"""
+() => {
+  const labelRe = /(next|next photo|পরবর্তী|আগামী|ডান)/i;
+  const visible = rect => (
+    rect.width >= 20 && rect.height >= 20 && rect.bottom > 90 &&
+    rect.top < window.innerHeight * 0.92 && rect.right > 0 && rect.left < window.innerWidth
+  );
+  const textOf = node => [
+    node.getAttribute("aria-label") || "",
+    node.getAttribute("title") || "",
+    node.innerText || "",
+    node.textContent || "",
+  ].join(" ").replace(/\s+/g, " ").trim();
+
+  const controls = [...document.querySelectorAll('button, [role="button"], [aria-label]')]
+    .map(node => ({ node, rect: node.getBoundingClientRect(), text: textOf(node) }))
+    .filter(item => visible(item.rect));
+
+  let candidates = controls.filter(item => labelRe.test(item.text));
+
+  if (!candidates.length) {
+    const images = [...document.querySelectorAll("img")]
+      .map(node => ({ node, rect: node.getBoundingClientRect() }))
+      .filter(item => item.rect.width >= 180 && item.rect.height >= 180)
+      .sort((a, b) => (b.rect.width * b.rect.height) - (a.rect.width * a.rect.height));
+    const main = images[0]?.rect;
+    if (main) {
+      candidates = controls.filter(item => {
+        const centerX = item.rect.left + item.rect.width / 2;
+        const centerY = item.rect.top + item.rect.height / 2;
+        return (
+          centerX >= main.left + main.width * 0.62 && centerX <= main.right + 90 &&
+          centerY >= main.top && centerY <= main.bottom
+        );
+      });
+    }
+  }
+
+  candidates.sort((a, b) => b.rect.left - a.rect.left);
+  const next = candidates[0];
+  if (!next) return { clicked: false };
+
+  next.node.click();
+  return { clicked: true };
 }
 """
 
@@ -853,12 +1024,81 @@ def extract_listing_title(page) -> str:
     return title if is_detail_title_candidate(title) else ""
 
 
+HEAVY_RESOURCE_TYPES = {"image", "media", "font"}
+
+
+def block_heavy_resources(route) -> None:
+    if route.request.resource_type in HEAVY_RESOURCE_TYPES:
+        route.abort()
+    else:
+        route.continue_()
+
+
+def extract_listed_info(page) -> tuple[str, str]:
+    info = page.evaluate(LISTED_SCRIPT)
+    if not isinstance(info, dict):
+        return "", ""
+    return clean_text(info.get("age", "")), clean_text(info.get("location", ""))
+
+
+def image_fingerprint(url: str) -> str:
+    parsed = urlparse(url)
+    return f"{parsed.netloc}{parsed.path}"
+
+
+def add_gallery_image(images: dict[str, dict], candidate: object) -> bool:
+    if not isinstance(candidate, dict) or not candidate.get("url"):
+        return False
+
+    fingerprint = image_fingerprint(candidate["url"])
+    existing = images.get(fingerprint)
+    if existing and existing.get("area", 0) >= candidate.get("area", 0):
+        return False
+
+    images[fingerprint] = candidate
+    return True
+
+
+def extract_gallery_image_urls(page, *, max_images: int, step_delay: float) -> list[str]:
+    """Walk the listing photo carousel and return each distinct image URL once."""
+    images: dict[str, dict] = {}
+    first_seen = ""
+    unchanged_clicks = 0
+
+    for step in range(max_images):
+        candidate = page.evaluate(MAIN_IMAGE_SCRIPT)
+        added = add_gallery_image(images, candidate)
+        current = image_fingerprint(candidate["url"]) if candidate else ""
+        if step == 0:
+            first_seen = current
+
+        if not page.evaluate(CLICK_NEXT_IMAGE_SCRIPT).get("clicked"):
+            break
+
+        page.wait_for_timeout(int(step_delay * 1000))
+        next_candidate = page.evaluate(MAIN_IMAGE_SCRIPT)
+        next_seen = image_fingerprint(next_candidate["url"]) if next_candidate else ""
+        if next_seen == first_seen and len(images) > 1:
+            break
+
+        unchanged_clicks = unchanged_clicks + 1 if not next_seen or next_seen == current else 0
+        if unchanged_clicks >= 2 and not added:
+            break
+
+    for candidate in page.evaluate(GALLERY_THUMBNAILS_SCRIPT):
+        add_gallery_image(images, candidate)
+
+    return [image["url"] for image in images.values()]
+
+
 def selected_enrichment_rows(
     rows: list[dict[str, str]],
     *,
     force: bool,
     repair_titles: bool,
     limit: int | None,
+    details: bool = True,
+    images: bool = True,
 ) -> tuple[list[dict[str, str]], int, int]:
     selected = []
     skipped_existing = 0
@@ -867,8 +1107,13 @@ def selected_enrichment_rows(
     for row in rows:
         needs_description = force or not clean_text(row.get("description", ""))
         needs_title = repair_titles and is_repairable_bad_title(row.get("title", ""))
+        needs_details = details and (
+            force
+            or not clean_text(row.get("details_scraped_at", ""))
+            or (images and not clean_text(row.get("image_urls", "")))
+        )
 
-        if not needs_description and not needs_title:
+        if not needs_description and not needs_title and not needs_details:
             skipped_existing += 1
             continue
 
@@ -1172,6 +1417,30 @@ def add_enrich_arguments(parser: argparse.ArgumentParser) -> None:
         default=True,
         help="Repair blank, badge, or price-like titles from detail pages. Enabled by default.",
     )
+    parser.add_argument(
+        "--details",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Collect the 'Listed ... ago' age/location and all gallery image URLs. Enabled by default.",
+    )
+    parser.add_argument(
+        "--images",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="With --details, also walk the photo carousel for all image URLs (slowest part). Enabled by default.",
+    )
+    parser.add_argument(
+        "--max-images",
+        type=int,
+        default=20,
+        help="Maximum photo carousel steps per listing. Default: 20.",
+    )
+    parser.add_argument(
+        "--image-delay",
+        type=float,
+        default=0.8,
+        help="Seconds to wait after each photo carousel click. Default: 0.8.",
+    )
     parser.add_argument("--limit", type=int, help="Maximum rows to enrich in this run.")
     parser.add_argument("--delay", type=float, default=1.0, help="Seconds to wait after each page load.")
     parser.add_argument("--timeout", type=float, default=30.0, help="Page load timeout in seconds.")
@@ -1433,6 +1702,10 @@ def run_enrich(args, parser: argparse.ArgumentParser) -> None:
         parser.error("--delay must be greater than or equal to 0")
     if args.timeout <= 0:
         parser.error("--timeout must be greater than 0")
+    if args.max_images < 1:
+        parser.error("--max-images must be at least 1")
+    if args.image_delay < 0:
+        parser.error("--image-delay must be greater than or equal to 0")
     validate_browser_arguments(args, parser)
 
     input_path = args.input or args.csv_path
@@ -1447,11 +1720,15 @@ def run_enrich(args, parser: argparse.ArgumentParser) -> None:
         parser.error(f"{input_path} does not look like a CSV with a header")
 
     fieldnames = extend_fieldnames(fieldnames, DESCRIPTION_FIELDS)
+    if args.details:
+        fieldnames = extend_fieldnames(fieldnames, DETAIL_FIELDS)
     selected, skipped_existing, missing_url = selected_enrichment_rows(
         rows,
         force=args.force,
         repair_titles=args.repair_titles,
         limit=args.limit,
+        details=args.details,
+        images=args.images,
     )
 
     print(f"Loaded rows: {len(rows)}")
@@ -1471,6 +1748,7 @@ def run_enrich(args, parser: argparse.ArgumentParser) -> None:
     title_repaired = 0
     not_found = 0
     errors = 0
+    details_found = 0
 
     with sync_playwright() as p:
         try:
@@ -1487,12 +1765,23 @@ def run_enrich(args, parser: argparse.ArgumentParser) -> None:
             )
 
         try:
+            if not args.images:
+                # Photos aren't needed: skip heavy resources to save memory and page-load time.
+                context.route("**/*", block_heavy_resources)
             page = context.pages[0] if context.pages else context.new_page()
             for index, row in enumerate(selected, start=1):
+                if index > 1 and (index - 1) % ENRICH_PAGE_RECYCLE_EVERY == 0:
+                    page.close()
+                    page = context.new_page()
                 url = canonical_url(row.get("url", ""))
                 title = clean_text(row.get("title", "")) or row.get("id", "") or url
                 needs_description = args.force or not clean_text(row.get("description", ""))
                 needs_title = args.repair_titles and is_repairable_bad_title(row.get("title", ""))
+                needs_details = args.details and (
+                    args.force
+                    or not clean_text(row.get("details_scraped_at", ""))
+                    or (args.images and not clean_text(row.get("image_urls", "")))
+                )
                 timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
                 try:
@@ -1501,10 +1790,23 @@ def run_enrich(args, parser: argparse.ArgumentParser) -> None:
                         page.wait_for_timeout(int(args.delay * 1000))
                     detail_title = extract_listing_title(page) if needs_title else ""
                     description = extract_listing_description(page)
+                    if needs_details:
+                        listed_age, listed_location = extract_listed_info(page)
+                        if args.images:
+                            image_urls = extract_gallery_image_urls(
+                                page,
+                                max_images=args.max_images,
+                                step_delay=args.image_delay,
+                            )
+                        else:
+                            image_urls = [u for u in row.get("image_urls", "").split(IMAGE_URL_SEPARATOR) if u]
                 except PlaywrightError as exc:
+                    error = clean_text(str(exc).splitlines()[0])[:300]
                     if needs_description:
                         row["description_scraped_at"] = timestamp
-                        row["description_error"] = clean_text(str(exc).splitlines()[0])[:300]
+                        row["description_error"] = error
+                    if needs_details:
+                        row["details_error"] = error
                     errors += 1
                     print(f"{index}/{len(selected)}: error - {title}")
                     continue
@@ -1528,22 +1830,40 @@ def run_enrich(args, parser: argparse.ArgumentParser) -> None:
                     row["description_error"] = "description_not_found"
                     not_found += 1
 
+                if needs_details:
+                    row["listed_age"] = listed_age
+                    row["listed_location"] = listed_location
+                    row["image_count"] = str(len(image_urls))
+                    row["image_urls"] = IMAGE_URL_SEPARATOR.join(image_urls)
+                    row["details_scraped_at"] = timestamp
+                    checks = [("listed", listed_age)] + ([("images", image_urls)] if args.images else [])
+                    missing = [name for name, value in checks if not value]
+                    row["details_error"] = ",".join(f"{name}_not_found" for name in missing)
+                    details_found += 1
+
                 status = []
                 if repaired_title:
                     status.append("title")
                 if needs_description:
                     status.append("description" if found_description else "missing-description")
+                if needs_details:
+                    status.append(f"listed={row['listed_age'] or '?'} images={row['image_count']}")
                 if not status:
                     status.append("checked")
                 print(f"{index}/{len(selected)}: {','.join(status)} - {title}")
+                if index % ENRICH_CHECKPOINT_EVERY == 0:
+                    write_csv_rows(output_path, rows, fieldnames)
         finally:
             context.close()
+            # Checkpoint on interrupt too, so a rerun resumes instead of refetching.
+            write_csv_rows(output_path, rows, fieldnames)
 
-    write_csv_rows(output_path, rows, fieldnames)
     print()
     if title_repaired:
         print(f"Titles repaired: {title_repaired}")
     print(f"Descriptions added/updated: {enriched}")
+    if args.details:
+        print(f"Listing details (age/images) collected: {details_found}")
     if not_found:
         print(f"Descriptions not found: {not_found}")
     if errors:
