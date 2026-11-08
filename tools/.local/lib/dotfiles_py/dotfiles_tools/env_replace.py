@@ -2,6 +2,10 @@
 
 Roots are walked for .env files. Every Git repository found there also reports
 its linked worktrees, so worktrees that live outside the roots are covered too.
+
+Never touched: template files (.env.example, .env.sample, ...) and any file
+inside a repository that git does not ignore, since a change there could be
+committed. Skipped unless --file names them: .env.testing and .env.localtest.
 """
 
 from __future__ import annotations
@@ -22,7 +26,9 @@ from .paths import home, xdg_state_home
 
 DEFAULT_ROOTS = ("Work",)
 SKIP_DIRECTORIES = {"node_modules", "vendor", ".git", ".venv", "venv", "__pycache__", ".cache", ".next", "storage"}
-TEMPLATE_SUFFIXES = (".example", ".sample", ".dist", ".template", ".tpl", ".bak", ".orig", ".swp")
+TEMPLATE_SUFFIXES = (".example", ".exmaple", ".sample", ".dist", ".template", ".tpl", ".bak", ".orig", ".swp")
+# Skipped unless --file names them: test environments should not follow local changes.
+DEFAULT_SKIPPED_NAMES = {".env.testing", ".env.localtest"}
 KEY_PATTERN = re.compile(r"[A-Za-z_][A-Za-z0-9_.]*")
 GIT_ENV = {**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_TERMINAL_PROMPT": "0"}
 
@@ -117,6 +123,44 @@ def discover(roots: list[Path]) -> list[Path]:
     return sorted(resolved)
 
 
+def _git_run(directory: Path, *args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str] | None:
+    try:
+        return subprocess.run(
+            ["git", "-C", str(directory), *args],
+            input=stdin,
+            capture_output=True,
+            text=True,
+            errors="surrogateescape",
+            env=GIT_ENV,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+
+
+def committable(paths: list[Path]) -> set[Path]:
+    """Files git could commit: inside a work tree and tracked or not ignored.
+
+    A file outside any repository is safe. If git cannot answer for a file inside
+    a repository, the file counts as committable, so it is left alone.
+    """
+    by_directory: dict[Path, list[Path]] = {}
+    for path in paths:
+        by_directory.setdefault(path.parent, []).append(path)
+    risky: set[Path] = set()
+    for directory, files in by_directory.items():
+        names = "".join(f"{path.name}\0" for path in files)
+        result = _git_run(directory, "check-ignore", "--stdin", "-z", stdin=names)
+        if result is not None and result.returncode in (0, 1):
+            ignored = set(result.stdout.split("\0"))
+            risky.update(path for path in files if path.name not in ignored)
+            continue
+        inside = _git_run(directory, "rev-parse", "--is-inside-work-tree")
+        if inside is None or inside.returncode == 0:
+            risky.update(files)
+    return risky
+
+
 def plan(paths: list[Path], key: str, value: str | None) -> list[Match]:
     pattern = _line_pattern(key)
     matches = []
@@ -198,9 +242,17 @@ def main(argv: list[str] | None = None) -> int:
     paths = discover(roots)
     if args.file:
         paths = [path for path in paths if any(fnmatch.fnmatchcase(path.name, glob) for glob in args.file)]
-    matches = plan(paths, args.key, args.value)
+    else:
+        paths = [path for path in paths if path.name not in DEFAULT_SKIPPED_NAMES]
+    risky = committable(paths)
+    skipped = plan(sorted(risky), args.key, None)
+    for match in skipped:
+        print(f"{'skipped':13} {_display(match.path)}  (not ignored by git, a change could be committed)")
+    if skipped:
+        print()
+    matches = plan([path for path in paths if path not in risky], args.key, args.value)
     if not matches:
-        print(f"No .env file sets {args.key}.")
+        print(f"No other .env file sets {args.key}." if skipped else f"No .env file sets {args.key}.")
         return 0
 
     show = (lambda value: value) if args.show_values else mask

@@ -56,7 +56,7 @@ class TempHome(unittest.TestCase):
 class DiscoveryTest(TempHome):
     def test_finds_env_variants_and_skips_templates_and_dependencies(self) -> None:
         keep = [self.put("Work/a/.env", "K=1\n"), self.put("Work/a/.env.local", "K=1\n"), self.put("Work/b/sub/.env.testing", "K=1\n")]
-        for skipped in ("Work/a/.env.example", "Work/a/.env.bak", "Work/a/node_modules/x/.env", "Work/a/vendor/y/.env", "Work/a/env", "Work/a/.envrc"):
+        for skipped in ("Work/a/.env.example", "Work/a/.env.exmaple", "Work/a/.env.bak", "Work/a/node_modules/x/.env", "Work/a/vendor/y/.env", "Work/a/env", "Work/a/.envrc"):
             self.put(skipped, "K=1\n")
         self.assertEqual(env_replace.discover([self.base / "Work"]), sorted(keep))
 
@@ -154,6 +154,56 @@ class ReplaceTest(TempHome):
         for argv in (["BAD KEY", "x"], ["K", "two\nlines"], ["K", "--apply"], ["K", "x", "--root", str(self.base / "missing")]):
             with self.subTest(argv=argv), self.assertRaises(ToolError):
                 self.run_tool(*argv)
+
+class SafetyTest(TempHome):
+    def repo(self, relative: str, gitignore: str) -> Path:
+        repo = self.base / relative
+        repo.mkdir(parents=True)
+        self.git(repo, "init")
+        (repo / ".gitignore").write_text(gitignore)
+        return repo
+
+    def test_test_environments_are_skipped_unless_named(self) -> None:
+        testing = self.put("Work/a/.env.testing", "K=old\n")
+        localtest = self.put("Work/a/.env.localtest", "K=old\n")
+        self.run_tool("K", "new", "--apply")
+        self.assertEqual(testing.read_text(), "K=old\n")
+        self.assertEqual(localtest.read_text(), "K=old\n")
+        self.run_tool("K", "new", "--apply", "--file", ".env.testing")
+        self.assertEqual(testing.read_text(), "K=new\n")
+        self.assertEqual(localtest.read_text(), "K=old\n")
+
+    def test_only_git_ignored_files_change_inside_a_repo(self) -> None:
+        repo = self.repo("Work/app", ".env\n")
+        ignored = self.put("Work/app/.env", "K=old\n")
+        visible = self.put("Work/app/.env.production", "K=old\n")
+        output = self.run_tool("K", "new", "--apply")
+        self.assertEqual(ignored.read_text(), "K=new\n")
+        self.assertEqual(visible.read_text(), "K=old\n")
+        self.assertIn("skipped", output)
+        self.assertIn(".env.production", output)
+        self.assertTrue(repo.is_dir())
+
+    def test_tracked_file_is_skipped_even_when_ignore_rules_match(self) -> None:
+        repo = self.repo("Work/app", ".env*\n")
+        tracked = self.put("Work/app/.env.staging", "K=old\n")
+        self.git(repo, "add", "-f", ".env.staging")
+        self.run_tool("K", "new", "--apply")
+        self.assertEqual(tracked.read_text(), "K=old\n")
+
+    def test_ignored_by_parent_directory_rule(self) -> None:
+        self.repo("Work/app", "config/\n")
+        nested = self.put("Work/app/config/.env", "K=old\n")
+        self.run_tool("K", "new", "--apply")
+        self.assertEqual(nested.read_text(), "K=new\n")
+
+    def test_listing_shows_skipped_files_without_changing_them(self) -> None:
+        self.repo("Work/app", "")
+        visible = self.put("Work/app/.env", "K=old\n")
+        output = self.run_tool("K", "new", "--apply")
+        self.assertIn("skipped", output)
+        self.assertIn("No other .env file sets K.", output)
+        self.assertEqual(visible.read_text(), "K=old\n")
 
 
 if __name__ == "__main__":
