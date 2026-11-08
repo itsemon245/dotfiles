@@ -103,6 +103,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends redis-tools \
 # custom.ini (zz-), so its settings win. At the end to keep the layers above cached.
 COPY opcache-cli.ini /usr/local/etc/php/conf.d/zz-opcache-cli.ini
 
+# SSH for Composer packages from private GitHub repositories. The wrappers pass
+# the host's SSH agent in, so no key lives in the image. GitHub's published
+# ed25519 host key is pinned system-wide because HOME (/tmp) is not persistent.
+RUN apt-get update && apt-get install -y --no-install-recommends openssh-client \
+    && rm -rf /var/lib/apt/lists/* \
+    && echo 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > /etc/ssh/ssh_known_hosts
+
 # Defaults that help dev
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     REDIS_CLIENT=phpredis \
@@ -115,4 +122,7 @@ WORKDIR /app
 # still pass --user at runtime, while php-build sets these defaults for the host.
 ARG PHP_UID=1000
 ARG PHP_GID=1000
+# OpenSSH refuses to run as a uid with no passwd entry ("No user exists for uid").
+RUN (getent group "${PHP_GID}" || groupadd -g "${PHP_GID}" dev) \
+    && (getent passwd "${PHP_UID}" || useradd -u "${PHP_UID}" -g "${PHP_GID}" -d /tmp -M -s /bin/bash dev)
 USER ${PHP_UID}:${PHP_GID}

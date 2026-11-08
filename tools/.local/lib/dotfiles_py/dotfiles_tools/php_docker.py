@@ -80,6 +80,14 @@ def _base_args(tty_mode: str) -> tuple[list[str], str, str]:
     return args, image, network
 
 
+def _add_ssh_agent(args: list[str]) -> None:
+    # Only Composer gets the host's SSH agent, to clone private GitHub packages;
+    # php runs app code all day and doesn't need it.
+    ssh_auth_sock = os.environ.get("SSH_AUTH_SOCK", "")
+    if ssh_auth_sock and Path(ssh_auth_sock).is_socket():
+        args.extend(["-v", f"{ssh_auth_sock}:/tmp/ssh-agent.sock", "-e", "SSH_AUTH_SOCK=/tmp/ssh-agent.sock"])
+
+
 def _add_bridge_host(args: list[str], network: str) -> None:
     if network != "host":
         args.append("--add-host=host.docker.internal:host-gateway")
@@ -166,6 +174,7 @@ def main_composer(argv: list[str] | None = None) -> int:
     process.require("docker")
     args, image, network = _base_args("tty")
     _add_bridge_host(args, network)
+    _add_ssh_agent(args)
     return _exec([*args, image, "composer", *argv])
 
 
