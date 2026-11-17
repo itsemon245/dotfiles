@@ -118,6 +118,7 @@ Each directory in the root is a stow package that gets symlinked to `~`:
 - **`tools/`** - Maintained user commands and helper libraries.
   - `.local/bin/` - Canonical command entrypoints such as `wally`, `rofi-vpn`, `rofi-cast`, `rofi-monitor`, `hypr-startup`, `php`, and `composer`.
   - `.local/bin/env-replace` - Find or replace one variable across every project's `.env*` files under `~/Work`, plus worktrees of those repos wherever they live. Previews by default; `--apply` writes and backs up to `~/.local/state/dotfiles/backups/env-replace/<timestamp>/`. `--file .env` limits which files are touched. Never touches template files or any file git does not ignore (tracked or unignored files could be committed); skips `.env.testing` and `.env.localtest` unless `--file` names them.
+  - `.local/bin/warpgate-ssh` - Generates SSH aliases for Warpgate targets. Reads `~/.ssh/warpgate/hosts.toml` (kept in the private secrets repo, never in dotfiles) and writes `~/.ssh/warpgate/hosts.conf`, which `~/.ssh/config` includes. `--list` previews aliases, `--check` reports drift, `add` reads pasted `ssh 'user:target@gate'` lines. Tests use made-up names only, since this repo is public.
   - `.local/lib/dotfiles/shell/` - Startup-safe shell helpers for `.zshrc`, `exports.sh`, aliases, and sourced files.
   - `.local/lib/dotfiles_py/dotfiles_tools/` - Python modules for maintained tools. The removed `tools/.local/lib/dotfiles/tool/` Bash helper layer should not be reintroduced.
 - **`pocman/`** - Custom package manager.
