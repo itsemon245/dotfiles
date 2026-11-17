@@ -138,8 +138,8 @@ brightnessctl
 
 [desktop:yay]
 claude-desktop
-netbird-ui-bin
 netbird
+netbird-ui-bin
 google-chrome
 claude-code
 chatgpt-desktop-bin
