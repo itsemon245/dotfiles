@@ -52,7 +52,7 @@ COLORS = {
 }
 
 TOP_KEYS = {"gateway", "vpn", "projects", "rules", "banners", "overrides", "targets"}
-GATEWAY_KEYS = {"host", "port", "user", "identity_file", "prefix"}
+GATEWAY_KEYS = {"host", "port", "user", "identity_file", "prefix", "connect_timeout"}
 VPN_KEYS = {"interface"}
 PROJECT_KEYS = {"name", "match", "user", "port", "identity_file"}
 RULE_KEYS = {"default_env", "default_role", "envs", "ignore"}
@@ -90,6 +90,7 @@ class Config:
     user: str
     identity_file: str
     prefix: str
+    connect_timeout: int
     interface: str
     projects: tuple[Project, ...]
     default_env: str
@@ -230,6 +231,7 @@ def load_config(path: Path) -> Config:
         user=gateway["user"],
         identity_file=gateway["identity_file"],
         prefix=gateway.get("prefix", ""),
+        connect_timeout=_port(gateway.get("connect_timeout", 10), f"{where} [gateway] connect_timeout") or 10,
         interface=vpn.get("interface", ""),
         projects=tuple(projects),
         default_env=rules.get("default_env", "prod"),
@@ -359,13 +361,15 @@ def full_alias(alias: str, config: Config) -> str:
 def _banner_command(label: str, rgb: tuple[int, int, int]) -> str:
     red, green, blue = rgb
     text = "0;0;0" if (0.299 * red + 0.587 * green + 0.114 * blue) > 150 else "255;255;255"
-    return f"printf '\\033[1;38;2;{text};48;2;{red};{green};{blue}m  {label}: %n  \\033[0m\\n'"
+    # Only when ssh's stdout is a terminal (an interactive login). For scp, rsync, git, IDEs
+    # and `ssh host cmd | ...` stdout is the data stream, and the banner would corrupt it.
+    return f"test -t 1 && printf '\\033[1;38;2;{text};48;2;{red};{green};{blue}m  {label}: %n  \\033[0m\\n'"
 
 
-def _vpn_check(config: Config) -> str:
+def _vpn_down_proxy(config: Config) -> str:
+    """A ProxyCommand that prints the warning and fails, so ssh stops instead of hanging."""
     warning = f"  NetBird VPN is not connected ({config.interface} is down). Connect first: netbird up  "
-    test = f"test -d /sys/class/net/{shlex.quote(config.interface)}"
-    return f"{test} || printf '\\033[1;38;2;0;0;0;48;2;230;200;40m{warning}\\033[0m\\n' >&2"
+    return f"""sh -c 'printf "\\033[1;38;2;0;0;0;48;2;230;200;40m{warning}\\033[0m\\n" >&2; exit 1'"""
 
 
 def _banner_patterns(config: Config) -> list[tuple[str, list[str]]]:
@@ -429,9 +433,14 @@ def render(config: Config, servers: list[Server]) -> str:
     ]
     if config.interface:
         lines += [
-            "# Warns when the VPN is down. The check runs while ssh reads its config and always",
-            "# evaluates false, so it only prints the warning and changes nothing.",
-            f'Match host {config.host} exec "{_vpn_check(config)}; false"',
+            "# Fails fast when the VPN is down: instead of connecting (which would hang until the",
+            "# TCP timeout), print the warning and exit 255, for ssh, scp, rsync and git alike.",
+            "# LogLevel ERROR only hides ssh's info-level \"Connection closed\" line after it; real errors still show.",
+            "# ControlPersist no: with persist on, ssh sends the proxy's stderr (the warning) to /dev/null.",
+            f'Match host {config.host} !exec "test -d /sys/class/net/{shlex.quote(config.interface)}"',
+            f"  ProxyCommand {_vpn_down_proxy(config)}",
+            "  LogLevel ERROR",
+            "  ControlPersist no",
             "",
         ]
     lines += [
@@ -441,6 +450,7 @@ def render(config: Config, servers: list[Server]) -> str:
         f"  Port {config.port}",
         f"  IdentityFile {config.identity_file}",
         "  IdentitiesOnly yes",
+        f"  ConnectTimeout {config.connect_timeout}",
         "  PermitLocalCommand yes",
         "  ControlMaster auto",
         "  ControlPath ~/.ssh/warpgate/cm-%C",

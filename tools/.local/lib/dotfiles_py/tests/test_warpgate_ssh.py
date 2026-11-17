@@ -189,6 +189,27 @@ class RenderTests(TempHome):
             with self.subTest(alias=alias):
                 self.assertIn(f"{label}: %n", self.ssh_g(output, alias)["localcommand"])
 
+    def test_banner_only_prints_to_a_terminal(self) -> None:
+        output = self.render(["acme-corp-backend-01"])
+        self.assertIn("test -t 1 && printf", self.ssh_g(output, "acme-prod1")["localcommand"])
+
+    def test_vpn_down_fails_fast_with_the_warning(self) -> None:
+        output = self.render(["acme-corp-backend-01"])
+        output.write_text(output.read_text().replace("/sys/class/net/wt0", "/sys/class/net/wt-test-missing"))
+        if not which("ssh"):
+            self.skipTest("ssh not installed")
+        # ControlPath=none: ssh expands ~ from the password database, not $HOME, so keep sockets out of the real ~/.ssh
+        result = subprocess.run(
+            ["ssh", "-F", str(output), "-o", "ControlPath=none", "acme-prod1", "true"],
+            capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=20,
+        )
+        self.assertEqual(result.returncode, 255)
+        self.assertIn("NetBird VPN is not connected", result.stderr)
+        self.assertNotIn("Connection closed", result.stderr)
+        up = self.render(["acme-corp-backend-01"])
+        up.write_text(up.read_text().replace("/sys/class/net/wt0", "/sys/class/net/lo"))  # lo always exists
+        self.assertNotIn("proxycommand", self.ssh_g(up, "acme-prod1"))
+
     def test_prefix_is_added_to_every_alias(self) -> None:
         path = self.config(["acme-corp-backend-01"])
         path.write_text(path.read_text().replace('identity_file = "~/.ssh/gate_key"', 'identity_file = "~/.ssh/gate_key"\nprefix = "wg"'))
