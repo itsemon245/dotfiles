@@ -96,7 +96,9 @@ services:
             PORT: 4000
         volumes:
             - dbgate_data:/root/.dbgate
-            - ~/.ssh/default:/root/.ssh/default
+            - ~/.ssh/dbgate:/root/.ssh/keys:ro
+            # Use the host's systemd-resolved stub so NetBird DNS names resolve to VPN IPs
+            - /run/systemd/resolve/stub-resolv.conf:/etc/resolv.conf:ro
 
 volumes:
     redis_data:
