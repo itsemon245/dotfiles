@@ -67,11 +67,12 @@ Each directory in the root is a stow package that gets symlinked to `~`:
 - **`hyprland/`** - Hyprland window manager config.
   - `hyprland.lua` - Main Lua configuration entry point.
   - `lua/modules/` - Focused modules for bindings, rules, monitors, and startup.
+    `rules.lua` ignores maximize requests from every app, so remembered states (kitty) cannot cover the tiled layout.
   - `lua/settings.lua` - Shared configuration values.
   - `lua/generated/theme.lua` - **Auto-generated** Wallust theme.
 
 - **`waybar/`** - Status bar.
-  - `config.jsonc` - Bar layout.
+  - `config.jsonc` - Bar layout. The power button opens `power-menu`.
   - `style.css` - Stylesheet (Imports `colors.css`).
   - `colors.css` - **Auto-generated** color definitions.
 
@@ -94,6 +95,8 @@ Each directory in the root is a stow package that gets symlinked to `~`:
 - **`zsh/`** - Zsh shell configuration.
   - `aliases/` - Modular alias files.
   - `zsh_utils/helpers.sh` - Utility functions.
+  - `.zprofile` - Login-shell PATH. SDDM starts Hyprland through `zsh --login`, so this is where `~/.local/bin` reaches Hyprland, Waybar and keybindings (and, via `systemctl --user import-environment`, user services). Keep it dependency-free.
+  - `ssh-agent.sh` - Starts an agent and loads the GitHub key from `~/.ssh/keys/` (the secrets repo).
 
 - **`nvim/`** - Neovim configuration.
 - **`tmux/`** - Tmux configuration.
@@ -117,6 +120,9 @@ Each directory in the root is a stow package that gets symlinked to `~`:
 #### Development Tools
 - **`tools/`** - Maintained user commands and helper libraries.
   - `.local/bin/` - Canonical command entrypoints such as `wally`, `rofi-vpn`, `rofi-cast`, `rofi-monitor`, `hypr-startup`, `php`, and `composer`.
+  - `.local/bin/power-menu` - Rofi power menu (lock, suspend, hibernate, log out, reboot, shut down) using the wallust-themed `rofi/powermenu/type-4` theme; confirms the disruptive actions. Log out, reboot and shut down go through `hyprshutdown` when installed so apps close cleanly. `power-menu ACTION` skips the menu; `--dry-run` prints commands. Replaces wlogout.
+  - `.local/bin/hypr-logout` - Ends the session: `uwsm stop` under UWSM, else `hyprshutdown`, else Hyprland's exit dispatcher. Bound to `Super + Shift + R`.
+  - `.local/bin/barr` - Restarts the active bar (`Super + Shift + B`); `--toggle` hides/shows it. Waybar needs no compile step; ironbar still compiles its SCSS variables.
   - `.local/bin/env-replace` - Find or replace one variable across every project's `.env*` files under `~/Work`, plus worktrees of those repos wherever they live. Previews by default; `--apply` writes and backs up to `~/.local/state/dotfiles/backups/env-replace/<timestamp>/`. `--file .env` limits which files are touched. Never touches template files or any file git does not ignore (tracked or unignored files could be committed); skips `.env.testing` and `.env.localtest` unless `--file` names them.
   - `.local/bin/warpgate-ssh` - Generates SSH aliases for Warpgate targets. Reads `~/.ssh/warpgate/hosts.toml` (kept in the private secrets repo, never in dotfiles) and writes `~/.ssh/warpgate/hosts.conf`, which `~/.ssh/config` includes. `--list` previews aliases, `--check` reports drift, `add` reads pasted `ssh 'user:target@gate'` lines. Tests use made-up names only, since this repo is public.
   - `.local/bin/agecrypt` - Encrypts/decrypts files with `age`. Encrypting needs only the public recipient (`-r`, `-R`, `$AGECRYPT_RECIPIENTS`, or the nearest `.age-recipients` file above the output); decrypting uses `~/.config/age/identity.txt` or asks once per run for a pasted identity, piped to age and never written to disk. Never overwrites outputs without `--force`; `keygen` never replaces an identity.

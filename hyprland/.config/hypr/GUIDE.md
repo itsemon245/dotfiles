@@ -96,6 +96,27 @@ moves, focus, and readability mode. This keeps `Super + Shift + M`
 (`rofi-monitor`) aligned with the configuration. `wally` regenerates the Lua
 theme and reloads Hyprland.
 
+Bindings call tools in `~/.local/bin` by bare name (`hypr-logout`), which only
+works because `~/.zprofile` puts that folder on the login PATH that Hyprland
+inherits from SDDM. When adding a binding, either rely on that or use the full
+`~/.local/bin/...` path; a change to `.zprofile` needs a new login.
+
+## Session, power and recovery keys
+
+| Keys | Action |
+| --- | --- |
+| `Super + Shift + R` | Log out (`hypr-logout`, through `hyprshutdown` when installed). Deliberately not `Super + R`, which sits next to `Super + T`. |
+| Waybar power button | `power-menu`: lock, suspend, hibernate, log out, reboot, shut down. |
+| `Super + Shift + B` | Restart Waybar (`barr`). |
+| `Super + Ctrl + Escape` | Kill a stuck rofi layer and restart IBus. IBus runs as the Wayland input method for Bangla input and takes the keyboard grab whenever rofi opens; if that handover breaks, rofi stops taking keys. Compositor bindings are matched before keys reach the input method, so this still works. Last resort: `Ctrl + Alt + F3`, log in, `pkill -x rofi; ibus restart`. |
+
+## Window rules
+
+`rules.lua` starts with a rule that ignores maximize requests from every app
+(the same rule Hyprland's default config ships). Without it, kitty restores a
+remembered "maximized" state on launch and covers the tiled windows until
+fullscreen is toggled.
+
 ## Checks and recovery
 
 Before reloading a configuration change:
