@@ -96,10 +96,10 @@ moves, focus, and readability mode. This keeps `Super + Shift + M`
 (`rofi-monitor`) aligned with the configuration. `wally` regenerates the Lua
 theme and reloads Hyprland.
 
-Bindings call tools in `~/.local/bin` by bare name (`hypr-logout`), which only
-works because `~/.zprofile` puts that folder on the login PATH that Hyprland
-inherits from SDDM. When adding a binding, either rely on that or use the full
-`~/.local/bin/...` path; a change to `.zprofile` needs a new login.
+Bindings and bar buttons call tools in `~/.local/bin` by full path
+(`~/.local/bin/hypr-logout`). `~/.zprofile` also puts that folder on the login
+PATH Hyprland inherits from SDDM, but only from the next login, and a bare name
+silently does nothing in a session that started before it. Keep using full paths.
 
 ## Session, power and recovery keys
 

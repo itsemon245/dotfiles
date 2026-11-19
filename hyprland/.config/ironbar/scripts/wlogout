@@ -1,3 +1,3 @@
 #!/bin/bash
 
-exec power-menu
+exec "$HOME/.local/bin/power-menu"

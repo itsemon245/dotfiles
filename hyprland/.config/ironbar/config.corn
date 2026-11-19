@@ -121,7 +121,7 @@ let {
         name = "wlogout"
         class = "wlogout"
         label = ""
-        on_click = "power-menu"
+        on_click = "~/.local/bin/power-menu"
       }
     ]
   }

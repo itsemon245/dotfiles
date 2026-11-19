@@ -186,7 +186,7 @@
   },
   "custom/power": {
     "tooltip": false,
-    "on-click": "power-menu",
+    "on-click": "~/.local/bin/power-menu",
     "format": "󰐥 "
   }
 }
