@@ -1,6 +1,14 @@
 ---@param _settings Dotfiles.Settings
 ---@return nil
 return function(_settings)
+  -- Apps such as kitty restore a remembered "maximized" state on launch, which
+  -- covers the tiled layout until fullscreen is toggled. Tiling decides sizes.
+  hl.window_rule({
+    name = "suppress-maximize-events",
+    match = { class = ".*" },
+    suppress_event = "maximize",
+  })
+
   hl.window_rule({
     name = "xdm-main-window",
     match = { class = "xdm-app" },
