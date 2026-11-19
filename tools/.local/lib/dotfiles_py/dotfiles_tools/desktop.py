@@ -389,13 +389,10 @@ def _active_bar() -> str | None:
 def _bar_configs() -> dict[str, dict[str, list[str]]]:
     config_home = os.environ.get("XDG_CONFIG_HOME", str(home() / ".config"))
     return {
+        # Waybar's style.css is plain CSS importing the wallust-generated colors.css,
+        # so there is nothing to compile before restarting it.
         "waybar": {
-            "compile": [
-                "sass",
-                "--style=compressed",
-                f"{config_home}/waybar/style.scss",
-                f"{config_home}/waybar/style.css",
-            ],
+            "compile": [],
             "cmd": ["waybar"],
         },
         "ironbar": {
