@@ -138,11 +138,11 @@ brightnessctl
 [cli:yay]
 
 [desktop:yay]
+claude-code
 claude-desktop
 netbird
 netbird-ui-bin
 google-chrome
-claude-code
 chatgpt-desktop-bin
 bindfs
 sendmail
