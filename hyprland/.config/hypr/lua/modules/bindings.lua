@@ -49,7 +49,7 @@ return function(settings)
   bind({ keys = mod("SPACE"), action = helper.exec(app.menu), desc = "Open application menu" })
   bind({ keys = mod("X"), action = hl.dsp.window.close(), desc = "Close active window" })
   bind({ keys = mod("Q"), action = hl.dsp.window.close(), desc = "Close active window" })
-  bind({ keys = mod("R"), action = helper.exec("hypr-logout"), desc = "Log out" })
+  bind({ keys = mod("SHIFT + R"), action = helper.exec("hypr-logout"), desc = "Log out" })
   bind({ keys = mod("SHIFT + T"), action = hl.dsp.window.float({ action = "toggle" }), desc = "Toggle floating" })
   bind({ keys = mod("F"), action = hl.dsp.window.fullscreen({ action = "toggle" }), desc = "Toggle fullscreen" })
 
@@ -62,6 +62,9 @@ return function(settings)
   bind({ keys = mod("SHIFT + W"), action = helper.exec(command.toggle_bar), desc = "Toggle status bar" })
   bind({ keys = mod("SHIFT + C"), action = helper.exec(command.regenerate_theme), desc = "Regenerate colors" })
   bind({ keys = mod("SLASH"), action = show_manual, desc = "Show binding manual" })
+  -- Recovery when a rofi layer stops taking keys (IBus input-method grab gone stale).
+  -- Compositor bindings are matched before keys reach the input method, so this still fires.
+  bind({ keys = mod("CTRL + ESCAPE"), action = helper.exec("pkill -x rofi; ibus restart"), desc = "Unstick rofi and IBus" })
 
   local directions = { h = "l", j = "d", k = "u", l = "r" }
   for key, direction in pairs(directions) do
