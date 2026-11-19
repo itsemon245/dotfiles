@@ -39,6 +39,7 @@ php-imagick
 
 # Desktop packages
 [desktop:pacman]
+age
 samba
 libreoffice-fresh
 vlc
