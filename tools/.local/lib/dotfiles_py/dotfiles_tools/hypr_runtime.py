@@ -52,6 +52,10 @@ def logout(*, dry_run: bool = False) -> int:
         process.require("uwsm")
         return process.run(["uwsm", "stop"], dry_run=dry_run).returncode
 
+    if process.command_exists("hyprshutdown"):
+        # Asks apps to close gracefully instead of killing them with the compositor.
+        return process.run(["hyprshutdown"], dry_run=dry_run).returncode
+
     process.require("hyprctl")
     return eval_lua("hl.dispatch(hl.dsp.exit())", dry_run=dry_run)
 

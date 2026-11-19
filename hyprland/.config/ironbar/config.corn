@@ -121,7 +121,7 @@ let {
         name = "wlogout"
         class = "wlogout"
         label = ""
-        on_click = "wlogout"
+        on_click = "power-menu"
       }
     ]
   }

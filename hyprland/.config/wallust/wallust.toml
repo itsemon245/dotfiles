@@ -39,8 +39,6 @@ gtk4 = { template = "gtk.template", target = "~/.config/gtk-4.0/colors.css" }
 # GTK 3
 gtk3 = { template = "gtk.template", target = "~/.config/gtk-3.0/colors.css" }
 
-# wlogout
-wlogout = { template = "wlogout.template", target = "~/.config/wlogout/style.css" }
 
 # Qt (qt5ct/qt6ct)
 qt = { template = "qt-colors.conf", target = "~/.config/qt5ct/colors/wally.conf" }

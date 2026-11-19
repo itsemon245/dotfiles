@@ -131,6 +131,7 @@ kitty
 rofi
 swww
 hyprshot
+hyprshutdown
 qt5ct
 brightnessctl
 
@@ -156,7 +157,6 @@ realesrgan-ncnn-vulkan-bin
 ironbar-bin
 xdman-beta-bin
 cloudflare-warp-bin
-wlogout
 greenclip
 openrgb-bin
 

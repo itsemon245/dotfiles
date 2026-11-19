@@ -186,7 +186,7 @@
   },
   "custom/power": {
     "tooltip": false,
-    "on-click": "wlogout",
+    "on-click": "power-menu",
     "format": "󰐥 "
   }
 }

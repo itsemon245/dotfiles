@@ -45,7 +45,7 @@ return function(_settings)
   hl.window_rule({ name = "overwatch-immediate", match = { title = "Overwatch" }, immediate = true })
   hl.layer_rule({
     name = "glassy-blur",
-    match = { namespace = "rofi|waybar|notifications|logout_dialog|wlogout|tooltip" },
+    match = { namespace = "rofi|waybar|notifications|tooltip" },
     blur = true,
     ignore_alpha = 0.005,
   })
