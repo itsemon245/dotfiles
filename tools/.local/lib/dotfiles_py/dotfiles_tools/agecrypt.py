@@ -41,7 +41,9 @@ def expand_inputs(patterns: list[str]) -> list[Path]:
     """Expand globs that the shell left alone (quoted patterns) and keep order, without duplicates."""
     paths: list[Path] = []
     for pattern in patterns:
-        matches = sorted(glob.glob(os.path.expanduser(pattern))) if glob.has_magic(pattern) else [os.path.expanduser(pattern)]
+        expanded = os.path.expanduser(pattern)
+        # `**` descends into folders, hidden ones included (secrets live under .ssh/).
+        matches = sorted(glob.glob(expanded, recursive=True, include_hidden=True)) if glob.has_magic(pattern) else [expanded]
         if not matches:
             raise ToolError(f"no files match {pattern}")
         for match in matches:

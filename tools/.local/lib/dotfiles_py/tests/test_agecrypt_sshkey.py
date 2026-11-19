@@ -18,11 +18,11 @@ class TempHome(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = Path(tempfile.mkdtemp(prefix="agecrypt-test-"))
         env = {"HOME": str(self.tmp), "XDG_CONFIG_HOME": str(self.tmp / ".config")}
-        for name in ("AGECRYPT_IDENTITY", "AGECRYPT_RECIPIENTS", "SSHKEY_DIR", "SSHKEY_ENCRYPTED_DIR"):
+        for name in ("AGECRYPT_IDENTITY", "AGECRYPT_RECIPIENTS", "SSHKEY_DIR"):
             env[name] = ""
         self.env = patch.dict(os.environ, env)
         self.env.start()
-        for name in ("AGECRYPT_IDENTITY", "AGECRYPT_RECIPIENTS", "SSHKEY_DIR", "SSHKEY_ENCRYPTED_DIR"):
+        for name in ("AGECRYPT_IDENTITY", "AGECRYPT_RECIPIENTS", "SSHKEY_DIR"):
             del os.environ[name]
 
     def tearDown(self) -> None:
@@ -48,6 +48,14 @@ class NamingTest(TempHome):
         with self.assertRaises(ToolError):
             agecrypt.expand_inputs([str(self.tmp / "missing*")])
 
+    def test_double_star_descends_into_hidden_folders(self) -> None:
+        for rel in (".ssh/keys/a.age", ".ssh/dbgate/b.age", "certs/x/c.key.age", "top.age"):
+            (self.tmp / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.tmp / rel).write_text("x")
+        found = agecrypt.expand_inputs([str(self.tmp / "**" / "*.age")])
+        self.assertEqual({p.relative_to(self.tmp).as_posix() for p in found},
+                         {".ssh/keys/a.age", ".ssh/dbgate/b.age", "certs/x/c.key.age", "top.age"})
+
     def test_recipients_file_is_found_by_walking_up(self) -> None:
         nested = self.tmp / "repo" / ".ssh" / "encrypted"
         nested.mkdir(parents=True)
@@ -70,10 +78,13 @@ class SshKeyTest(TempHome):
         self.assertEqual(sshkey.key_path("~/elsewhere/k", None), self.tmp / "elsewhere" / "k")
         self.assertEqual(sshkey.key_path("k", self.tmp / "d"), self.tmp / "d" / "k")
 
-    def test_only_default_dir_keys_are_encrypted_by_default(self) -> None:
+    def test_keys_under_a_recipients_file_are_encrypted_by_default(self) -> None:
         (self.tmp / ".ssh" / "keys").mkdir(parents=True)
-        self.assertTrue(sshkey.in_default_dir(sshkey.key_path("homelab", None)))
-        self.assertFalse(sshkey.in_default_dir(self.tmp / "elsewhere" / "k"))
+        (self.tmp / "elsewhere").mkdir()
+        self.assertFalse(sshkey.encrypts_by_default(sshkey.key_path("homelab", None)))
+        (self.tmp / ".ssh" / agecrypt.RECIPIENTS_FILENAME).write_text("age1example\n")
+        self.assertTrue(sshkey.encrypts_by_default(sshkey.key_path("homelab", None)))
+        self.assertFalse(sshkey.encrypts_by_default(self.tmp / "elsewhere" / "k"))
 
     def test_keygen_command(self) -> None:
         command = sshkey.keygen_command(Path("/k"), key_type="ed25519", comment="c", no_passphrase=True)
@@ -90,19 +101,23 @@ class RoundTripTest(TempHome):
         with self.assertRaises(ToolError):
             agecrypt.keygen(identity)  # never replaced
 
+        (self.tmp / ".ssh").mkdir()
+        (self.tmp / ".ssh" / agecrypt.RECIPIENTS_FILENAME).write_text(recipient + "\n")
         with patch("builtins.print"):
             sshkey.main(["demo", "-N"])
         keys = self.tmp / ".ssh" / "keys"
-        encrypted = self.tmp / ".ssh" / "encrypted"
-        self.assertEqual(sorted(p.name for p in encrypted.iterdir()), ["demo.age", "demo.pub.age"])
-        self.assertNotIn(b"PRIVATE KEY", (encrypted / "demo.age").read_bytes())
+        # Only the private key gets an encrypted copy, beside it; the .pub stays plain.
+        self.assertEqual(sorted(p.name for p in keys.iterdir()), ["demo", "demo.age", "demo.pub"])
+        self.assertNotIn(b"PRIVATE KEY", (keys / "demo.age").read_bytes())
 
         restored = self.tmp / "restored"
-        agecrypt.decrypt(sorted(encrypted.iterdir()), out_dir=restored)
+        agecrypt.decrypt([keys / "demo.age"], out_dir=restored)
         self.assertEqual((restored / "demo").read_bytes(), (keys / "demo").read_bytes())
         self.assertEqual((restored / "demo").stat().st_mode & 0o777, 0o600)
         with self.assertRaises(ToolError):
-            agecrypt.decrypt([encrypted / "demo.age"], out_dir=restored)  # refuses to overwrite
+            agecrypt.decrypt([keys / "demo.age"], out_dir=restored)  # refuses to overwrite
+        with self.assertRaises(ToolError):
+            agecrypt.decrypt([keys / "demo.age"])  # the plain key beside it already exists
 
     def test_pasted_identity_is_used_when_no_identity_file_exists(self) -> None:
         identity = self.tmp / "vault-copy.txt"
