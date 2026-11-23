@@ -9,7 +9,8 @@ this reads `HubstaffCLI status` and prints Waybar's custom-module JSON:
   hubstaff-waybar open      open the Hubstaff main window
 
 `watch` keeps the timer live without polling Hubstaff every second: it asks the CLI
-for the real time every RESYNC_SECONDS (and right away on SIGUSR1, which toggle/open
+for the real time every RESYNC_SECONDS and samples the backdrop tone every
+TONE_SECONDS (and resyncs right away on SIGUSR1, which toggle/open
 send to the PIDs that watchers register under $XDG_RUNTIME_DIR/hubstaff-waybar/),
 and counts seconds locally in between. While stopped it prints nothing new,
 so Waybar has nothing to redraw. When Hubstaff is not running, the text is empty,
@@ -29,10 +30,16 @@ import threading
 import time
 from pathlib import Path
 
+from . import bar_tone
 from .paths import home
 
 TIMEOUT = 5
 RESYNC_SECONDS = 30
+TONE_SECONDS = 2  # backdrop check: one ~17ms grim capture, so it can run far more often
+# Where the pill sits, as fractions of the monitor width (first in modules-right, measured
+# from a screenshot). Sampling only this span keeps a split wallpaper from misleading it;
+# update it if the module moves.
+TONE_SPAN = (0.62, 0.72)
 
 
 def watcher_dir() -> Path:
@@ -105,10 +112,13 @@ def format_duration(seconds: int) -> str:
     return f"{hours}:{minutes:02d}:{secs:02d}"
 
 
-def render(status: dict | None, extra_seconds: int = 0) -> dict[str, str]:
-    """Waybar JSON. `extra_seconds` is time counted locally since `status` was read."""
+def render(status: dict | None, extra_seconds: int = 0, tone: str = "dark") -> dict:
+    """Waybar JSON. `extra_seconds` is time counted locally since `status` was read.
+
+    `class` is [state, "bg-light" | "bg-dark"], so CSS can pick styles per wallpaper.
+    """
     if not status:
-        return {"text": "", "tooltip": "Hubstaff is not running", "class": "offline"}
+        return {"text": "", "tooltip": "Hubstaff is not running", "class": ["offline", f"bg-{tone}"]}
     project = status.get("active_project") or {}
     tracking = bool(status.get("tracking"))
     name = project.get("name") or "No project"
@@ -120,11 +130,11 @@ def render(status: dict | None, extra_seconds: int = 0) -> dict[str, str]:
     return {
         "text": f"{icon} {today}",
         "tooltip": f"{'Tracking' if tracking else 'Stopped'}: {name}\nToday on this project: {today}\nLeft-click: {action} · Right-click: open Hubstaff",
-        "class": "tracking" if tracking else "stopped",
+        "class": ["tracking" if tracking else "stopped", f"bg-{tone}"],
     }
 
 
-def emit(payload: dict[str, str]) -> None:
+def emit(payload: dict) -> None:
     sys.stdout.write(json.dumps(payload, ensure_ascii=False) + "\n")
     sys.stdout.flush()
 
@@ -135,7 +145,9 @@ def watch() -> int:
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))  # run atexit cleanup
     register_watcher()
     status: dict | None = None
+    tone = "dark"
     synced_at = 0.0
+    toned_at = float("-inf")
     last_line = None
     while True:
         now = time.monotonic()
@@ -143,7 +155,11 @@ def watch() -> int:
             resync_now.clear()
             status = read_status()
             synced_at = now = time.monotonic()
-        payload = render(status, int(now - synced_at))
+        if now - toned_at >= TONE_SECONDS:
+            # A wallpaper change (or its fade-in) shows within TONE_SECONDS, not at the next resync.
+            tone = bar_tone.current(TONE_SPAN)
+            toned_at = now
+        payload = render(status, int(now - synced_at), tone)
         line = json.dumps(payload, ensure_ascii=False)
         if line != last_line:
             try:
@@ -176,7 +192,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.action == "status":
-        emit(render(read_status()))
+        emit(render(read_status(), tone=bar_tone.current(TONE_SPAN)))
         return 0
     if args.action == "watch":
         return watch()

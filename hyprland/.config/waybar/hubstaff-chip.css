@@ -1,0 +1,16 @@
+/* Hubstaff chips on light wallpapers: a translucent green/amber glass, so the
+   wallpaper shows through like every other pill, with deep text in the same hue.
+   Enabled by the @import at the top of style.css; `window#waybar` makes these win
+   over style.css whatever the order. */
+
+window#waybar #custom-hubstaff.bg-light.tracking {
+  background-color: alpha(#4caf6e, 0.30);
+  border: 1px solid alpha(#2f7d4a, 0.45);
+  color: #0f3d22;
+}
+
+window#waybar #custom-hubstaff.bg-light.stopped {
+  background-color: alpha(#f5c542, 0.35);
+  border: 1px solid alpha(#b7860b, 0.55);
+  color: #5a3d00;
+}

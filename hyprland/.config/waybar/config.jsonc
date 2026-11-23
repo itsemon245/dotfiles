@@ -9,11 +9,11 @@
     "custom/music"
   ],
   "modules-right": [
+    "custom/hubstaff",
     "group/stats",
     "group/connections",
     "pulseaudio",
     "battery",
-    "custom/hubstaff",
     "tray",
     "clock",
     "custom/power"

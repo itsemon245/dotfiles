@@ -14,7 +14,7 @@ from dotfiles_tools import hubstaff_waybar
 class RenderTest(unittest.TestCase):
     def test_tracking_shows_hours_and_minutes(self) -> None:
         out = hubstaff_waybar.render({"active_project": {"name": "Support", "tracked_today": "2:43:14"}, "tracking": True})
-        self.assertEqual(out["class"], "tracking")
+        self.assertEqual(out["class"], ["tracking", "bg-dark"])
         self.assertTrue(out["text"].endswith(" 2:43:14"))
         self.assertIn("Tracking: Support", out["tooltip"])
         self.assertIn("2:43:14", out["tooltip"])
@@ -27,8 +27,12 @@ class RenderTest(unittest.TestCase):
 
     def test_stopped(self) -> None:
         out = hubstaff_waybar.render({"active_project": {"name": "Support", "tracked_today": "0:05:00"}, "tracking": False})
-        self.assertEqual(out["class"], "stopped")
+        self.assertEqual(out["class"], ["stopped", "bg-dark"])
         self.assertIn("resume", out["tooltip"])
+
+    def test_tone_class_follows_the_wallpaper(self) -> None:
+        status = {"active_project": {"name": "S", "tracked_today": "0:01:00"}, "tracking": True}
+        self.assertEqual(hubstaff_waybar.render(status, tone="light")["class"], ["tracking", "bg-light"])
 
     def test_not_running_hides_the_module(self) -> None:
         self.assertEqual(hubstaff_waybar.render(None)["text"], "")

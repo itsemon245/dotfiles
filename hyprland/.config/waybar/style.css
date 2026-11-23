@@ -1,4 +1,7 @@
 @import "colors.css";
+/* Hubstaff timer on light wallpapers: solid green/amber chips. Comment out the next
+   line for the subtle style (@foreground text with a coloured outline). */
+@import "hubstaff-chip.css";
 
 * {
   font-family: "CaskaydiaCove Nerd Font";
@@ -164,25 +167,41 @@ tooltip label {
 }
 
 #custom-hubstaff {
-  /* Waybar puts no gap between modules: the volume pill only has a left margin
-     and the tray brings its own, so this pill needs the gap on its left. */
-  margin-left: .5rem;
+  /* First in modules-right. Waybar puts no gap between modules and the memory pill
+     only has a right margin, so this pill brings the gap on its right. */
+  margin-right: .5rem;
   border-radius: .8rem;
   color: @foreground;
   transition: all 0.2s ease;
 }
 
-/* Fixed green (not a wallust colour) so "tracking" reads the same on any wallpaper. */
+/* The module adds bg-dark or bg-light from what shows behind the bar
+   (tools: dotfiles_tools/bar_tone.py). On dark backdrops the green/amber text
+   carries the state. */
 #custom-hubstaff.tracking {
   color: #8fd694;
   border-color: alpha(#8fd694, 0.5);
 }
 
-/* Paused should catch the eye: amber reads better than orange on the dark bar. */
 #custom-hubstaff.stopped {
   color: #f5c542;
   border-color: alpha(#f5c542, 0.6);
   background-color: alpha(#f5c542, 0.12);
+}
+
+/* Light backdrops wash out green/amber text, so the text uses @foreground like
+   every other module and a coloured outline carries the state. */
+#custom-hubstaff.bg-light {
+  color: @foreground;
+}
+
+#custom-hubstaff.bg-light.tracking {
+  border: 1.5px solid #3f9c5e;
+}
+
+#custom-hubstaff.bg-light.stopped {
+  border: 1.5px solid #d9a514;
+  background-color: alpha(#f5c542, 0.25);
 }
 
 #custom-hubstaff:hover {
