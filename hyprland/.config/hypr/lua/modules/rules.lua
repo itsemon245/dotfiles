@@ -41,6 +41,16 @@ return function(_settings)
     center = true,
   })
 
+  -- Screen-share picker opens at 1280x800 in a corner; keep it compact and centred.
+  -- 500x400 (floating-small) truncates the monitor names and the four tabs.
+  hl.window_rule({
+    name = "share-picker",
+    match = { class = "hyprland-share-picker" },
+    float = true,
+    size = { 760, 480 },
+    center = true,
+  })
+
   hl.window_rule({ name = "waydroid-fullscreen", match = { class = "Waydroid" }, fullscreen = true })
   hl.window_rule({ name = "overwatch-immediate", match = { title = "Overwatch" }, immediate = true })
   hl.layer_rule({
