@@ -71,10 +71,13 @@ bind({
 the key string, for example `mod("SHIFT + C")`. The named fields make calls
 readable and let LuaLS validate them. The helper puts `desc` on the Hyprland
 bind options, which makes it available in `hyprctl binds`. `Super + /` opens a
-searchable, self-maintaining Rofi manual generated from these binding specs. It
-uses the wider `~/.config/rofi/hypr-keybinds.rasi` theme, derived from the
-compact adi1090x applet style; adding a binding automatically adds its key and
-description to the manual. Rofi fuzzy-matches and highlights both fields.
+searchable, self-maintaining Rofi manual generated from these binding specs by
+`lib/manual.lua`, styled by `~/.config/rofi/hypr-keybinds.rasi` (Wallust colours).
+Adding a binding adds it to the manual. Bindings that share a `desc` share one
+row (`Super + M / Space`), and a `group = { id, keys, desc }` on a binding
+collapses a family into one row, as the h/j/k/l and workspace loops do. Each
+row is `search text\0display\x1fmarkup`: rofi shows the bold keys but searches
+plain text, so formatting never matches a query. Test with `lua tests/manual_test.lua`.
 `helper.exec(command,
 rules?)` is the short readable wrapper for
 Hyprland's `exec_cmd` dispatcher; omit `rules` unless an execution rule is
@@ -156,6 +159,7 @@ Before reloading a configuration change:
 
 ```sh
 lua tests/rules_test.lua   # window-rule groups: formats, ordering, mistakes
+lua tests/manual_test.lua  # keybinding manual rows: merging, groups, search text
 find . -path './wallust/*' -prune -o -name '*.lua' -print0 | xargs -0 -r -n1 luac -p
 lua-language-server --check=. --check_format=pretty --checklevel=Information
 Hyprland --verify-config -c ~/.config/hypr/hyprland.lua   # what Hyprland itself would load
