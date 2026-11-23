@@ -9,3 +9,19 @@
 ---@field action Dotfiles.BindAction
 ---@field desc string
 ---@field options? HL.BindOptions
+
+---@class Dotfiles.FloatWindow
+---@field class string        exact class
+---@field title? string       regex
+
+---@class Dotfiles.FloatGroup
+---@field name? string        only for array entries; keyed groups take the key
+---@field size integer[]      { width, height }
+---@field classes? string[]   every window of these apps (exact classes)
+---@field windows? Dotfiles.FloatWindow[]  only matching windows, applied after all classes
+
+---@class Dotfiles.ResolvedFloatGroup  what lib/rules.lua applies after validation
+---@field name string
+---@field size integer[]
+---@field classes string[]
+---@field windows Dotfiles.FloatWindow[]
