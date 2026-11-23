@@ -1,41 +1,59 @@
 # Hyprland Lua configuration
 
-This is the active Hyprland configuration. `hyprland.lua` is the entry point.
+A Lua configuration for Hyprland 0.57+ (`hyprland.lua` is the entry point). It is
+split into small modules (bindings, window rules, monitors, appearance, startup)
+that read shared values from `lua/settings.lua`, so a command or app name is
+written once. Colours come from the current wallpaper through Wallust, with a
+built-in palette if the generated theme is missing.
 
-Read [GUIDE.md](GUIDE.md) for the directory layout, shared settings and theme
-tables, module conventions, binding manual, and safe maintenance workflow.
+It is part of the `hyprland` stow package in the dotfiles repo, together with
+Waybar, Rofi, Wallust and the other desktop configs; the tools it calls (`wally`,
+`power-menu`, `hypr-startup`, ...) come from the `tools` package.
 
-## Static analysis
+## Quickstart
 
-- Lua Language Server reads `.luarc.json` and Hyprland's installed API stubs from `/usr/share/hypr/stubs`.
-- `luac -p` checks Lua syntax.
-- Run `lua-language-server --check=. --check_format=pretty --checklevel=Information` from this directory for diagnostics.
+```sh
+cd ~/dotfiles && stow hyprland tools zsh          # links ~/.config/hypr and the tools
+cp -n ~/.config/hypr/lua/local/machine.example.lua ~/.config/hypr/lua/local/machine.lua   # -n: keeps an existing one
+$EDITOR ~/.config/hypr/lua/local/machine.lua      # optional: your monitor's mode and rate
+Hyprland --verify-config -c ~/.config/hypr/hyprland.lua
+```
 
-## Safe monitor behaviour
+Then log in to Hyprland (or run `hyprctl reload` in a running session). Without a
+`machine.lua`, every monitor gets its preferred mode, so this step is optional.
+`zsh` provides `~/.zprofile`, which puts the tools on the session PATH.
 
-`lua/modules/monitors.lua` always applies a `preferred`/`auto` fallback for unknown displays. The current 180 Hz profile is deliberately opt-in:
+## Keys to start with
 
-1. Run `hyprctl monitors all` while connected to the intended display.
-2. Copy `lua/local/machine.example.lua` to `lua/local/machine.lua`.
-3. Set `output` to the connector name, such as `DP-2`. Use a `desc:` selector
-   only when you want the same profile to follow a monitor across connectors.
+| Keys | Action |
+| --- | --- |
+| `Super + /` | Searchable list of every binding |
+| `Super + T` | Terminal (kitty) |
+| `Super + Space` | App launcher |
+| `Super + Q` | Close window |
+| `Super + F` | Fullscreen |
+| `Super + V` | Clipboard history |
+| `Super + W` | Pick a wallpaper (and regenerate the colours) |
+| `Super + S` | Show/hide the scratch workspace |
+| `Super + Shift + R` | Log out |
 
-`lua/local/machine.lua` is ignored by Git, so it can vary per computer without making the shared configuration unsafe.
+## Where to change things
 
-## Theme generation
+| To change | Edit |
+| --- | --- |
+| An app or command a key runs | `lua/settings.lua` (`apps`, `commands`) |
+| A key binding | `lua/modules/bindings.lua` |
+| Which apps float, and their size | the `floating` table in `lua/modules/rules.lua` |
+| Monitor mode, rate, position | `lua/local/machine.lua` (this machine only, not committed) |
+| Gaps, borders, blur, opacity | `lua/modules/appearance.lua` |
+| Apps started at login | `hypr-startup` in the `tools` package |
 
-Wallust renders `wallust/templates/hyprland-theme.lua` to
-`lua/generated/theme.lua`. The configuration uses a built-in neutral palette
-whenever the generated file is absent or invalid.
+[GUIDE.md](GUIDE.md) explains the layout, the conventions behind it, and the
+checks to run before reloading.
 
-## Desktop tools
+## If it breaks
 
-The maintained desktop tools use Hyprland's Lua evaluation interface for
-monitor changes, window moves, focus, and readability mode.
-
-## Rescue profile
-
-If a tested switch fails, launch the adjacent `hyprland.rescue.lua` from a TTY with:
+From a TTY (`Ctrl + Alt + F3`), start the minimal rescue config:
 
 ```sh
 Hyprland --config ~/.config/hypr/hyprland.rescue.lua

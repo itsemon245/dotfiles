@@ -67,9 +67,11 @@ Each directory in the root is a stow package that gets symlinked to `~`:
 - **`hyprland/`** - Hyprland window manager config.
   - `hyprland.lua` - Main Lua configuration entry point.
   - `lua/modules/` - Focused modules for bindings, rules, monitors, and startup.
-    `rules.lua` ignores maximize requests from every app, so remembered states (kitty) cannot cover the tiled layout. It also floats and centres the screen-share picker at 760x480.
+    `rules.lua` ignores maximize requests from every app, so remembered states (kitty) cannot cover the tiled layout. Floating apps are data, not rules: add a class to a group in its `floating` table; the validation and rule generation live in `lua/lib/rules.lua` (see `hypr/GUIDE.md`).
   - `xdph.conf` - xdg-desktop-portal-hyprland (hyprlang, not Lua): uses `share-picker` as the picker and pre-ticks "Remember this choice". Apply with `systemctl --user restart xdg-desktop-portal-hyprland`.
-  - `lua/settings.lua` - Shared configuration values.
+  - `lua/settings.lua` - Shared configuration values; every command a binding runs lives in `commands`.
+  - `lua/lib/` - Logic modules call: `bindings.lua`, `rules.lua` (floating groups), `theme.lua` (Wallust palette with a built-in fallback).
+  - `tests/` - Stub-`hl` tests run with plain `lua`, e.g. `lua tests/rules_test.lua`.
   - `lua/generated/theme.lua` - **Auto-generated** Wallust theme.
 
 - **`waybar/`** - Status bar.
