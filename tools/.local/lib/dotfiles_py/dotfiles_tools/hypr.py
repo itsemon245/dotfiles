@@ -25,6 +25,7 @@ class Startup:
         self.openrgb_script = Path(os.environ.get("OPENRGB_SCRIPT", str(home() / ".config/OpenRGB/scripts/wallust-colors.sh"))).expanduser()
         self.polkit_agent = Path(os.environ.get("POLKIT_AGENT", "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"))
         self.openwhispr_bin = Path(os.environ.get("OPENWHISPR_BIN", "/opt/openwhispr/open-whispr"))
+        self.hubstaff_bin = Path(os.environ.get("HUBSTAFF_BIN", str(home() / "Hubstaff" / "HubstaffClient.bin.x86_64"))).expanduser()
         self.ibus_wayland_panel = Path(os.environ.get("IBUS_WAYLAND_PANEL", "/usr/lib/ibus/ibus-ui-gtk3"))
 
     def setup_log(self) -> None:
@@ -240,6 +241,16 @@ with Path(log_file).open("a", encoding="utf-8") as handle:
             ],
         )
         self.spawn_path("OpenWhispr", self.openwhispr_bin, "--no-sandbox")
+        # Hubstaff has no start-minimized flag; park its window like Discord. The tray
+        # icon and the Waybar timer (hubstaff-waybar) stay available.
+        self.spawn_path("Hubstaff", self.hubstaff_bin)
+        self.move_window_later(
+            "Hubstaff",
+            "special:magic",
+            2,
+            ["class:^(Netsoft-com\\.netsoft\\.hubstaff)$", "title:^(Hubstaff)$"],
+            timeout=30,
+        )
         return 0
 
 
