@@ -1,4 +1,4 @@
-local theme = require("lua.theme")
+local theme = require("lua.lib.theme")
 
 ---@param _settings Dotfiles.Settings
 ---@return nil
