@@ -1,3 +1,5 @@
+local screenshots = "~/Pictures/Screenshots"
+
 ---@type Dotfiles.Settings
 return {
   apps = {
@@ -19,8 +21,12 @@ return {
     refresh_bar = "~/.local/bin/barr",
     toggle_bar = "~/.local/bin/barr --toggle",
     regenerate_theme = "wallust run ~/Wallpapers/default.png",
+    logout = "~/.local/bin/hypr-logout",
+    unstick_rofi = "pkill -x rofi; ibus restart",
+    screenshot_window = "hyprshot -m window -c -o " .. screenshots,
+    screenshot_monitor = "hyprshot -m output -c -o " .. screenshots,
+    screenshot_region = "hyprshot -m region -o " .. screenshots,
   },
-  screenshot_directory = "~/Pictures/Screenshots",
   main_mod = "SUPER",
   workspace_count = 10,
   special_workspace = "magic",

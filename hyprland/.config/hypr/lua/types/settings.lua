@@ -19,11 +19,15 @@
 ---@field refresh_bar string
 ---@field toggle_bar string
 ---@field regenerate_theme string
+---@field logout string
+---@field unstick_rofi string
+---@field screenshot_window string
+---@field screenshot_monitor string
+---@field screenshot_region string
 
 ---@class Dotfiles.Settings
 ---@field apps Dotfiles.Applications
 ---@field commands Dotfiles.Commands
----@field screenshot_directory string
 ---@field main_mod string
 ---@field workspace_count integer
 ---@field special_workspace string

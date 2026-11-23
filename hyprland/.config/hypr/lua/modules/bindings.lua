@@ -49,7 +49,7 @@ return function(settings)
   bind({ keys = mod("SPACE"), action = helper.exec(app.menu), desc = "Open application menu" })
   bind({ keys = mod("X"), action = hl.dsp.window.close(), desc = "Close active window" })
   bind({ keys = mod("Q"), action = hl.dsp.window.close(), desc = "Close active window" })
-  bind({ keys = mod("SHIFT + R"), action = helper.exec("~/.local/bin/hypr-logout"), desc = "Log out" })
+  bind({ keys = mod("SHIFT + R"), action = helper.exec(command.logout), desc = "Log out" })
   bind({ keys = mod("SHIFT + T"), action = hl.dsp.window.float({ action = "toggle" }), desc = "Toggle floating" })
   bind({ keys = mod("F"), action = hl.dsp.window.fullscreen({ action = "toggle" }), desc = "Toggle fullscreen" })
 
@@ -64,7 +64,7 @@ return function(settings)
   bind({ keys = mod("SLASH"), action = show_manual, desc = "Show binding manual" })
   -- Recovery when a rofi layer stops taking keys (IBus input-method grab gone stale).
   -- Compositor bindings are matched before keys reach the input method, so this still fires.
-  bind({ keys = mod("CTRL + ESCAPE"), action = helper.exec("pkill -x rofi; ibus restart"), desc = "Unstick rofi and IBus" })
+  bind({ keys = mod("CTRL + ESCAPE"), action = helper.exec(command.unstick_rofi), desc = "Unstick rofi and IBus" })
 
   local directions = { h = "l", j = "d", k = "u", l = "r" }
   for key, direction in pairs(directions) do
@@ -85,9 +85,9 @@ return function(settings)
   bind({ keys = mod("TAB"), action = hl.dsp.focus({ workspace = "e-1" }), desc = "Focus previous open workspace" })
 
   bind({ keys = mod("V"), action = helper.exec(command.clipboard_menu), desc = "Open clipboard history" })
-  bind({ keys = mod("CTRL + S"), action = helper.exec("hyprshot -m window -c -o " .. settings.screenshot_directory), desc = "Capture active window" })
-  bind({ keys = "CTRL + ALT + S", action = helper.exec("hyprshot -m output -c -o " .. settings.screenshot_directory), desc = "Capture active monitor" })
-  bind({ keys = mod("ALT + S"), action = helper.exec("hyprshot -m region -o " .. settings.screenshot_directory), desc = "Capture region" })
+  bind({ keys = mod("CTRL + S"), action = helper.exec(command.screenshot_window), desc = "Capture active window" })
+  bind({ keys = "CTRL + ALT + S", action = helper.exec(command.screenshot_monitor), desc = "Capture active monitor" })
+  bind({ keys = mod("ALT + S"), action = helper.exec(command.screenshot_region), desc = "Capture region" })
 
   ---@type Dotfiles.MouseBindOptions
   local move_mouse = { mouse = true }
