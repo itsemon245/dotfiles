@@ -184,6 +184,15 @@
     "on-click": "sh -c '(sleep 0.5s; swaylock)' & disown",
     "format": "",
   },
+  "custom/hubstaff": {
+    "exec": "~/.local/bin/hubstaff-waybar watch",
+    "return-type": "json",
+    "restart-interval": 10,
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "~/.local/bin/hubstaff-waybar toggle",
+    "on-click-right": "~/.local/bin/hubstaff-waybar open"
+  },
   "custom/power": {
     "tooltip": false,
     "on-click": "~/.local/bin/power-menu",

@@ -13,6 +13,7 @@
     "group/connections",
     "pulseaudio",
     "battery",
+    "custom/hubstaff",
     "tray",
     "clock",
     "custom/power"
