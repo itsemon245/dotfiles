@@ -22,6 +22,8 @@ return {
     toggle_bar = "~/.local/bin/barr --toggle",
     regenerate_theme = "wallust run ~/Wallpapers/default.png",
     logout = "~/.local/bin/hypr-logout",
+    keybind_manual = "rofi -dmenu -i -markup-rows -matching fuzzy -no-normalize-match -p Keys"
+      .. " -theme ~/.config/rofi/hypr-keybinds.rasi",
     unstick_rofi = "pkill -x rofi; ibus restart",
     screenshot_window = "hyprshot -m window -c -o " .. screenshots,
     screenshot_monitor = "hyprshot -m output -c -o " .. screenshots,

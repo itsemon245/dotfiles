@@ -1,120 +1,95 @@
-/**
- * Keyboard shortcut manual, based on adi1090x's applets/type-1/style-1.
- * It intentionally keeps that compact list aesthetic while leaving enough
- * room for a full shortcut and its description.
+/*
+ * Keybinding manual (Super + /). Rows come from hypr/lua/lib/manual.lua:
+ * bold keys, a dimmer description, one row per action.
+ * Colours follow the wallpaper through Wallust's rofi palette.
  */
+
+@import "~/.config/rofi/colors/wallust.rasi"
 
 configuration {
     show-icons: false;
-    matching: "fuzzy";
-    normalize-match: false;
 }
 
-@import "~/.config/rofi/applets/shared/colors.rasi"
-@import "~/.config/rofi/applets/shared/fonts.rasi"
-
 * {
-    match-highlight: bold #98C379FF;
+    font: "CaskaydiaCove Nerd Font 11";
+    background-color: transparent;
+    text-color: @foreground;
+    surface: @foreground-10;
+    selection: @primary-40;
 }
 
 window {
-    transparency: "real";
     location: center;
     anchor: center;
-    width: 780px;
-    border: 1px solid;
-    border-radius: 0px;
-    border-color: @selected;
+    width: 860px;
+    padding: 18px;
+    border: 1px;
+    border-color: @primary-50;
+    border-radius: 12px;
     background-color: @background;
 }
 
 mainbox {
-    spacing: 12px;
-    padding: 24px;
-    background-color: transparent;
-    children: [ "inputbar", "message", "listview" ];
+    spacing: 14px;
+    children: [ "inputbar", "listview" ];
 }
 
 inputbar {
-    spacing: 10px;
-    padding: 0px;
-    background-color: transparent;
-    text-color: @foreground;
-    children: [ "textbox-prompt-colon", "prompt", "entry" ];
+    padding: 10px 14px;
+    spacing: 12px;
+    border-radius: 10px;
+    background-color: @surface;
+    children: [ "icon-search", "entry", "num-filtered-rows", "textbox-of", "num-rows" ];
 }
 
-textbox-prompt-colon {
+icon-search {
     expand: false;
-    str: "";
-    padding: 10px 13px;
-    border-radius: 0px;
-    background-color: @urgent;
-    text-color: @background;
-}
-
-prompt {
-    expand: false;
-    padding: 10px;
-    border-radius: 0px;
-    background-color: @active;
-    text-color: @background;
+    filename: "search";
+    size: 1.1em;
+    vertical-align: 0.5;
 }
 
 entry {
-    expand: true;
-    padding: 10px 14px;
-    border-radius: 0px;
-    background-color: @background-alt;
-    text-color: @foreground;
-    placeholder: "Search keys or actions…";
-    placeholder-color: @foreground;
-}
-
-message {
-    padding: 10px 12px;
-    border-radius: 0px;
-    background-color: @background-alt;
-    text-color: @foreground;
-}
-
-textbox {
-    background-color: inherit;
-    text-color: inherit;
     vertical-align: 0.5;
-    horizontal-align: 0.0;
+    placeholder: "Search keys or actions · Enter or Esc closes";
+    placeholder-color: @foreground-50;
+    cursor: text;
+}
+
+num-filtered-rows, num-rows, textbox-of {
+    expand: false;
+    vertical-align: 0.5;
+    text-color: @foreground-50;
+}
+
+textbox-of {
+    str: "/";
 }
 
 listview {
+    lines: 14;
     columns: 1;
-    lines: 13;
+    spacing: 2px;
+    fixed-height: true;
+    scrollbar: false;
     cycle: true;
-    scrollbar: true;
-    layout: vertical;
-    spacing: 5px;
-    background-color: transparent;
 }
 
 element {
-    padding: 10px 12px;
-    border-radius: 0px;
-    background-color: transparent;
-    text-color: @foreground;
-}
-
-element-text {
-    background-color: transparent;
-    text-color: inherit;
-    highlight: @match-highlight;
-    vertical-align: 0.5;
-}
-
-element normal.normal,
-element alternate.normal {
-    background-color: @background;
-    text-color: @foreground;
+    padding: 8px 14px;
+    border-radius: 8px;
 }
 
 element selected.normal {
-    background-color: @selected;
-    text-color: @background;
+    background-color: @selection;
+}
+
+element-text {
+    vertical-align: 0.5;
+    highlight: underline;
+}
+
+error-message {
+    padding: 14px;
+    background-color: @background;
 }

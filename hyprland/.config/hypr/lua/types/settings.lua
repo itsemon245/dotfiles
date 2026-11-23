@@ -20,6 +20,7 @@
 ---@field toggle_bar string
 ---@field regenerate_theme string
 ---@field logout string
+---@field keybind_manual string  rofi dmenu command; lib/manual.lua appends -input
 ---@field unstick_rofi string
 ---@field screenshot_window string
 ---@field screenshot_monitor string

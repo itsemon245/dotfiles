@@ -1,4 +1,5 @@
 local helper = require("lua.lib.bindings")
+local Manual = require("lua.lib.manual")
 
 ---@class Dotfiles.MouseBindOptions: HL.BindOptions
 ---@field mouse boolean
@@ -8,9 +9,7 @@ local helper = require("lua.lib.bindings")
 return function(settings)
   local app = settings.apps
   local command = settings.commands
-  local manual_theme = "~/.config/rofi/hypr-keybinds.rasi"
-  ---@type string[]
-  local manual_rows = {}
+  local manual = Manual.new()
 
   ---@param keys string
   ---@return string
@@ -18,28 +17,14 @@ return function(settings)
     return settings.main_mod .. " + " .. keys
   end
 
-  ---@param value string
-  ---@return string
-  local function shell_quote(value)
-    return "'" .. value:gsub("'", "'\\''") .. "'"
-  end
-
   local function show_manual()
-    local quoted_rows = {}
-    for _, row in ipairs(manual_rows) do
-      quoted_rows[#quoted_rows + 1] = shell_quote(row)
-    end
-    local rows = table.concat(quoted_rows, " ")
-    local rofi = "rofi -dmenu -i -matching fuzzy -no-normalize-match -p 'Hyprland keys'"
-      .. " -mesg 'Search shortcuts · Escape closes'"
-      .. " -theme " .. manual_theme
-    hl.exec_cmd("printf '%s\\n' " .. rows .. " | " .. rofi)
+    hl.exec_cmd(manual:command(command.keybind_manual))
   end
 
   ---@param spec Dotfiles.BindSpec
   local function bind(spec)
     helper.bind(spec)
-    manual_rows[#manual_rows + 1] = string.format("%-24s  %s", spec.keys, spec.desc)
+    manual:add(spec.keys, spec.desc, spec.group)
   end
 
   bind({ keys = mod("T"), action = helper.exec(app.terminal), desc = "Open terminal" })
@@ -66,15 +51,21 @@ return function(settings)
   -- Compositor bindings are matched before keys reach the input method, so this still fires.
   bind({ keys = mod("CTRL + ESCAPE"), action = helper.exec(command.unstick_rofi), desc = "Unstick rofi and IBus" })
 
-  local directions = { h = "l", j = "d", k = "u", l = "r" }
-  for key, direction in pairs(directions) do
-    bind({ keys = mod(key), action = hl.dsp.focus({ direction = direction }), desc = "Move focus " .. direction })
+  local focus_group = { id = "focus", keys = mod("H / J / K / L"), desc = "Move focus left / down / up / right" }
+  for _, pair in ipairs({ { "h", "l" }, { "j", "d" }, { "k", "u" }, { "l", "r" } }) do
+    local key, direction = pair[1], pair[2]
+    bind({ keys = mod(key), action = hl.dsp.focus({ direction = direction }), desc = "Move focus " .. direction, group = focus_group })
   end
 
+  local last = tostring(settings.workspace_count % settings.workspace_count)
+  local span = "1…" .. last
+  local range = "1–" .. settings.workspace_count
+  local focus_ws = { id = "focus-ws", keys = mod(span), desc = "Focus workspace " .. range }
+  local move_ws = { id = "move-ws", keys = mod("SHIFT + " .. span), desc = "Move window to workspace " .. range }
   for workspace = 1, settings.workspace_count do
     local key = tostring(workspace % settings.workspace_count)
-    bind({ keys = mod(key), action = hl.dsp.focus({ workspace = workspace }), desc = "Focus workspace " .. workspace })
-    bind({ keys = mod("SHIFT + " .. key), action = hl.dsp.window.move({ workspace = workspace }), desc = "Move window to workspace " .. workspace })
+    bind({ keys = mod(key), action = hl.dsp.focus({ workspace = workspace }), desc = "Focus workspace " .. workspace, group = focus_ws })
+    bind({ keys = mod("SHIFT + " .. key), action = hl.dsp.window.move({ workspace = workspace }), desc = "Move window to workspace " .. workspace, group = move_ws })
   end
 
   bind({ keys = mod("S"), action = hl.dsp.workspace.toggle_special(settings.special_workspace), desc = "Toggle special workspace" })

@@ -9,6 +9,7 @@
 ---@field action Dotfiles.BindAction
 ---@field desc string
 ---@field options? HL.BindOptions
+---@field group? Dotfiles.ManualGroup  show this binding's family as one manual row
 
 ---@class Dotfiles.FloatWindow
 ---@field class string        exact class
@@ -25,3 +26,8 @@
 ---@field size integer[]
 ---@field classes string[]
 ---@field windows Dotfiles.FloatWindow[]
+
+---@class Dotfiles.ManualGroup  one manual row for a family of bindings
+---@field id string             bindings sharing an id show once
+---@field keys string           e.g. "SUPER + 1…0"
+---@field desc string
