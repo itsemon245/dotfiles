@@ -22,6 +22,7 @@ class Startup:
         self.log_file = self.log_dir / "startup.log"
         self.title = "Hyprland startup"
         self.notify_relay = Path(__file__).resolve().parents[3] / "bin" / "notify-relay"
+        self.bt_autoconnect = Path(__file__).resolve().parents[3] / "bin" / "bt-autoconnect"
         self.default_wallpaper = Path(os.environ.get("DEFAULT_WALLPAPER", str(home() / "Wallpapers" / "default.png"))).expanduser()
         self.openrgb_script = Path(os.environ.get("OPENRGB_SCRIPT", str(home() / ".config/OpenRGB/scripts/wallust-colors.sh"))).expanduser()
         self.polkit_agent = Path(os.environ.get("POLKIT_AGENT", "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"))
@@ -232,6 +233,8 @@ with Path(log_file).open("a", encoding="utf-8") as handle:
         if not self.dry_run:
             time.sleep(1)
         self.spawn("NetBird tray", "netbird-ui", ["netbird-ui"])
+        # Earbuds pick where to connect and BlueZ never initiates, so the PC asks.
+        self.spawn_path("Bluetooth auto-connect", self.bt_autoconnect)
         self.start_ibus()
         self.sync_openrgb_theme()
         self.spawn("Slack", "slack", ["slack", "-u"])
