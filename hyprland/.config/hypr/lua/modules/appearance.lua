@@ -36,6 +36,12 @@ return function(_settings)
       disable_splash_rendering = false,
       background_color = theme.background,
     },
+    render = {
+      -- Off: fullscreen HDR content (Chrome) would switch the monitor into HDR. On this
+      -- entry-level HDR panel that means a black flash and grainy, washed-out blacks,
+      -- even with bitdepth = 10, so fullscreen stays SDR.
+      cm_auto_hdr = 0,
+    },
     debug = {
       disable_logs = false,
       overlay = false,
