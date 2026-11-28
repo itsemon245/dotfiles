@@ -25,6 +25,10 @@ kitty/.config/kitty/colors.conf
 __pycache__/
 *.pyc
 
+# ~/.local/bin is folded into tools/, so installers that default there (Hubstaff)
+# would land in the repo. Hubstaff belongs in ~/Hubstaff.
+tools/.local/bin/hubstaff/
+
 # App-generated icons: ~/.local/share/icons is folded into this package, so
 # AppImage, Wine and Lutris write their launcher icons (and the cache) here.
 customization/.local/share/icons/hicolor/
