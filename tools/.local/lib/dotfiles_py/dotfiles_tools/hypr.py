@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -161,7 +162,10 @@ class Startup:
         *,
         timeout: float = 6,
         interval: float = 0.25,
+        ready: list[str] | None = None,
     ) -> None:
+        """Move a window once it appears. With `ready`, only after that command exits 0,
+        so a sign-in or update dialog is never hidden on a special workspace."""
         if not self.have("hyprctl", f"{label} window move"):
             return
         code = r"""
@@ -171,10 +175,19 @@ import sys
 import time
 from pathlib import Path
 
-label, workspace, delay, timeout, interval, log_file, *selectors = sys.argv[1:]
+label, workspace, delay, timeout, interval, log_file, ready_json, *selectors = sys.argv[1:]
+ready = json.loads(ready_json)
 time.sleep(float(delay))
 deadline = time.monotonic() + float(timeout)
 while time.monotonic() <= deadline:
+    if ready:
+        try:
+            is_ready = subprocess.run(ready, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10).returncode == 0
+        except (OSError, subprocess.TimeoutExpired):
+            is_ready = False
+        if not is_ready:
+            time.sleep(max(float(interval), 2.0))
+            continue
     for selector in selectors:
         with Path(log_file).open("ab") as handle:
             code = (
@@ -190,7 +203,8 @@ while time.monotonic() <= deadline:
             sys.exit(0)
     time.sleep(float(interval))
 with Path(log_file).open("a", encoding="utf-8") as handle:
-    handle.write(f"Could not find {label} window to move.\n")
+    reason = "not ready (left visible)" if ready else "window not found"
+    handle.write(f"Did not move {label} window: {reason}.\n")
 """
         command = [
             sys.executable,
@@ -202,6 +216,7 @@ with Path(log_file).open("a", encoding="utf-8") as handle:
             str(timeout),
             str(interval),
             str(self.log_file),
+            json.dumps(ready),
             *selectors,
         ]
         process.background(command, dry_run=self.dry_run)
@@ -249,7 +264,9 @@ with Path(log_file).open("a", encoding="utf-8") as handle:
             "special:magic",
             2,
             ["class:^(Netsoft-com\\.netsoft\\.hubstaff)$", "title:^(Hubstaff)$"],
-            timeout=30,
+            timeout=60,
+            # Signed out, its only window is the sign-in/update dialog: keep that visible.
+            ready=[str(self.hubstaff_bin.with_name("HubstaffCLI.bin.x86_64")), "status"],
         )
         return 0
 
